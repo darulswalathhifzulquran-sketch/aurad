@@ -22,9 +22,16 @@ void main() {
     }
 
     // Folder definitions and native counter still exist.
-    expect(state.categories.map((c) => c.id), contains('quran'));
-    expect(state.categories.map((c) => c.id), contains('mawlid'));
-    expect(state.categories.map((c) => c.id), contains('counter'));
+    // Clear imported content ONLY; all original folder definitions and
+    // their labels, ordering, and the Counter entry must remain intact.
+    final ids = state.categories.map((c) => c.id).toList();
+    expect(ids, [
+      'quran', 'baith', 'mawlid', 'mala', 'swalath',
+      'dua', 'ratib', 'majlisunnoor', 'counter',
+    ]);
+    expect(state.categories.first.name, 'ഖുർആൻ');
+    expect(state.categories.first.ar, 'القرآن الكريم');
+    expect(state.categories.last.en, 'Counter');
     expect(state.counter, 0);
     state.incCounter();
     expect(state.counter, 1);
