@@ -434,61 +434,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) _msg('App title copied. Public share link is not ready yet.');
   }
 
-  Widget _libraryBody() => Column(
-        children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1160),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 2),
-                child: Row(
-                  children: [
-                    Icon(
-                      app.dark ? Icons.dark_mode : Icons.wb_sunny_outlined,
-                      size: 21,
-                    ),
-                    const SizedBox(width: 10),
-                    const Text('Dark mode'),
-                    const Spacer(),
-                    Switch(
-                      value: app.dark,
-                      onChanged: (_) => app.toggleDark(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1160),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 6, 18, 4),
-                child: AuradPanel(
-                  inset: true,
-                  padding: EdgeInsets.zero,
-                  radius: 19,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Search',
-                      prefixIcon: Icon(Icons.search),
-                      isDense: true,
-                    ),
-                    onChanged: (value) => setState(() => query = value),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: query.trim().isEmpty
-                ? folderGrid()
-                : _list(searchResults, 'Nothing found'),
-          ),
-        ],
-      );
-
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
