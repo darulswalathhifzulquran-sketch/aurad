@@ -7,7 +7,6 @@ import 'aurad_theme.dart';
 import 'counter.dart';
 import 'folder.dart';
 import 'models.dart';
-import 'reader.dart';
 import 'reference_home.dart';
 import 'store.dart';
 
@@ -80,13 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (category.type == 'pdf') {
       final only = app.itemsIn(category.id);
-      if (only.length == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ReaderScreen(item: only.first)),
-        );
-        return;
-      }
       if (only.isNotEmpty) {
         Navigator.push(
           context,
