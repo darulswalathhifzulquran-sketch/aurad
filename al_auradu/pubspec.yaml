@@ -22,9 +22,7 @@ flutter:
     - assets/data/
     - assets/quran/
     - assets/pages/
-    - assets/images/border.png
-    - assets/images/mankoos_title.png
-    - assets/images/mankoos_basmala.png
+    - assets/images/
   fonts:
     - family: ArabicFont
       fonts:
