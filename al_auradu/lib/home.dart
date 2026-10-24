@@ -80,13 +80,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (category.type == 'pdf') {
       final only = app.itemsIn(category.id);
-      if (only.length == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ReaderScreen(item: only.first)),
-        );
-        return;
-      }
       if (only.isNotEmpty) {
         Navigator.push(
           context,
