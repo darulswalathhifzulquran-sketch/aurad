@@ -1,0 +1,32 @@
+name: Flutter checks
+
+on:
+  push:
+    branches:
+      - main
+      - feature/neumorphic-responsive-foundation
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: al_auradu
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Analyze Dart source
+        run: flutter analyze
+      - name: Run Flutter tests
+        run: flutter test
