@@ -198,8 +198,16 @@ class ReferenceHome extends StatelessWidget {
                         child: Image.asset(
                           imagePath,
                           fit: BoxFit.fill,
-                          // The fallback keeps the screen usable while the
-                          // exact screenshot asset is being synced to GitHub.
+                          // Always paint a complete home while the approved
+                          // artwork is being decoded. A blank navy canvas
+                          // must never be the initial/failed visual state.
+                          frameBuilder: (context, child, frame,
+                              wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded || frame != null) {
+                              return child;
+                            }
+                            return _illustrationFallback(context);
+                          },
                           errorBuilder: (_, __, ___) =>
                               _illustrationFallback(context),
                         ),
