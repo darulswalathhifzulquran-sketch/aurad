@@ -11,6 +11,8 @@ include: package:flutter_lints/flutter.yaml
 
 analyzer:
   exclude:
+    # Historical duplicate; live code is in lib/mushaf.dart.
+    - mushaf.dart
     - build/**
     - android/**
     - ios/**

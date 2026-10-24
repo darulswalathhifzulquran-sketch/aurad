@@ -426,7 +426,6 @@ class PageSheet extends StatelessWidget {
   color: dark ? Colors.black : Colors.white,
   boxShadow: [BoxShadow(blurRadius: 6, color: Colors.black38)],
 ),
-      ),
       child: Stack(
         children: [
           // Dark mode: the inside of the frame turns black.
