@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'models.dart';
-import 'store.dart';
-import 'folder.dart';
-import 'reader.dart';
+
+import 'aurad_settings.dart';
+import 'aurad_theme.dart';
 import 'counter.dart';
+import 'folder.dart';
+import 'models.dart';
+import 'reader.dart';
+import 'store.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -19,15 +23,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    if (extrasStatus.isNotEmpty) {
+    if (extrasStatus.isNotEmpty &&
+        !extrasStatus.startsWith('Extra content OK')) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(extrasStatus),
-          duration: Duration(
-              seconds: extrasStatus.startsWith('Extra content OK') ? 4 : 20),
-          showCloseIcon: true,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(extrasStatus),
+            duration: const Duration(seconds: 12),
+            showCloseIcon: true,
+          ),
+        );
       });
     }
   }
@@ -57,23 +63,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _msg(String text) {
+  void _msg(String message) {
     ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(text)));
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> openCategory(Category cat) async {
-    if (cat.type == 'counter') {
+  Future<void> openCategory(Category category) async {
+    if (category.type == 'counter') {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const CounterScreen()),
       );
       return;
     }
-    if (cat.type == 'pdf') {
-      final only = app.itemsIn(cat.id);
+    if (category.type == 'pdf') {
+      final only = app.itemsIn(category.id);
       if (only.length == 1) {
-        // one item (Majlisunnoor): open it straight away
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => ReaderScreen(item: only.first)),
@@ -83,189 +88,407 @@ class _HomeScreenState extends State<HomeScreen> {
       if (only.isNotEmpty) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => FolderScreen(category: cat)),
+          MaterialPageRoute(
+              builder: (_) => FolderScreen(category: category)),
         );
         return;
       }
-      if (cat.pdf.isEmpty) {
+      if (category.pdf.isEmpty) {
         _msg('PDF not added yet');
         return;
       }
-      final ok = await launchUrl(Uri.parse(cat.pdf),
-          mode: LaunchMode.externalApplication);
+      final ok = await launchUrl(
+        Uri.parse(category.pdf),
+        mode: LaunchMode.externalApplication,
+      );
       if (!ok && mounted) _msg('Could not open the PDF');
       return;
     }
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => FolderScreen(category: cat)),
+      MaterialPageRoute(
+          builder: (_) => FolderScreen(category: category)),
     );
   }
 
   List<Item> get searchResults {
     final q = normalize(query.trim());
-    return app.items.where((i) {
-      return normalize(i.title).contains(q) ||
-          normalize(i.ar).contains(q) ||
-          normalize(i.en).contains(q) ||
-          i.searchNorm(normalize).contains(q);
+    return app.items.where((item) {
+      return normalize(item.title).contains(q) ||
+          normalize(item.ar).contains(q) ||
+          normalize(item.en).contains(q) ||
+          item.searchNorm(normalize).contains(q);
     }).toList();
   }
 
-  Widget folderGrid() {
-    return LayoutBuilder(builder: (context, c) {
-      const pad = 12.0;
-      const gap = 12.0;
-      const cols = 3;
-      final n = app.categories.length;
-      final rows = (n / cols).ceil();
-      final cw = (c.maxWidth - pad * 2 - gap * (cols - 1)) / cols;
-      var ch = (c.maxHeight - pad * 2 - gap * (rows - 1)) / rows;
-      if (ch < 120) ch = 120;
-      if (ch > cw * 1.4) ch = cw * 1.4;
-      final base = cw < ch ? cw : ch;
-      double sz(double f, double lo, double hi) =>
-          (base * f).clamp(lo, hi).toDouble();
-      return GridView.builder(
-        padding: const EdgeInsets.all(pad),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: cols,
-          mainAxisSpacing: gap,
-          crossAxisSpacing: gap,
-          childAspectRatio: cw / ch,
-        ),
-        itemCount: n,
-        itemBuilder: (context, i) {
-          final cat = app.categories[i];
-          final count = (cat.type == 'pdf' && app.itemsIn(cat.id).isEmpty)
-              ? 'PDF'
-              : (cat.type == 'counter'
-                  ? '${app.counter}'
-                  : '${app.itemsIn(cat.id).length}');
-          return Card(
-            margin: EdgeInsets.zero,
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => openCategory(cat),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(iconFor(cat.id), size: sz(0.26, 22, 64)),
-                        const SizedBox(height: 2),
-                        Text(cat.ar,
-                            style: TextStyle(
-                                fontFamily: kArabicFont,
-                                fontFamilyFallback: kFontFallback,
-                                fontSize: sz(0.2, 16, 44))),
-                        Text(cat.name,
-                            style: TextStyle(fontSize: sz(0.11, 11, 22))),
-                        Text(cat.en,
-                            style: TextStyle(fontSize: sz(0.09, 10, 18))),
-                        Text(count,
-                            style: TextStyle(
-                                fontSize: sz(0.08, 10, 16),
-                                color: Theme.of(context).hintColor)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      );
-    });
+  Widget _folderIcon(Category category) {
+    // The GitHub snapshot currently lacks the approved colorful PNGs.
+    // Preserve its existing icons until the image assets are uploaded.
+    return Icon(
+      iconFor(category.id),
+      size: 36,
+      color: Theme.of(context).colorScheme.primary,
+    );
   }
 
-  Widget list(List<Item> items, String emptyText) {
+  Widget folderGrid() => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1160),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final columns = width < 330 ? 1 : width < 700 ? 2 : 3;
+              final cardHeight = width < 700 ? 186.0 : 208.0;
+
+              return GridView.builder(
+                padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 17,
+                  mainAxisExtent: cardHeight,
+                ),
+                itemCount: app.categories.length,
+                itemBuilder: (context, index) {
+                  final category = app.categories[index];
+                  final count =
+                      (category.type == 'pdf' &&
+                              app.itemsIn(category.id).isEmpty)
+                          ? 'PDF'
+                          : (category.type == 'counter'
+                              ? app.counter.toString()
+                              : app.itemsIn(category.id).length.toString());
+                  return AuradPanel(
+                    padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
+                    onTap: () {
+                      openCategory(category);
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _folderIcon(category),
+                        const SizedBox(height: 7),
+                        SizedBox(
+                          width: double.infinity,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              category.ar,
+                              textDirection: TextDirection.rtl,
+                              maxLines: 1,
+                              style: const TextStyle(
+                                fontFamily: kArabicFont,
+                                fontFamilyFallback: kFontFallback,
+                                fontSize: 27,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          category.name,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          category.en,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AuradColors.secondaryText(context),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          count,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AuradColors.secondaryText(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      );
+
+  Widget _list(List<Item> items, String emptyText) {
     if (items.isEmpty) return Center(child: Text(emptyText));
     return ListView.separated(
       itemCount: items.length,
       separatorBuilder: (_, __) => const Divider(height: 1),
-      itemBuilder: (context, i) => itemTile(context, items[i]),
+      itemBuilder: (context, index) => itemTile(context, items[index]),
     );
   }
+
+  void _openPage(Widget page) {
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
+  void _switchTab(int selected) {
+    Navigator.of(context).pop();
+    setState(() => tab = selected);
+  }
+
+  void _openQuranFromDrawer() {
+    Navigator.of(context).pop();
+    for (final category in app.categories) {
+      if (category.id == 'quran') {
+        openCategory(category);
+        return;
+      }
+    }
+    _msg('Quran section is not available');
+  }
+
+  void _drawerMessage(String message) {
+    Navigator.of(context).pop();
+    _msg(message);
+  }
+
+  Widget _drawer() => Drawer(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
+                child: AuradPanel(
+                  child: Row(
+                    children: [
+                      const CircleAvatar(
+                        backgroundColor: AuradColors.emerald,
+                        foregroundColor: Colors.white,
+                        child: Icon(Icons.menu_book_outlined),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              kAppName,
+                              textDirection: TextDirection.rtl,
+                              style: const TextStyle(
+                                fontFamily: kArabicFont,
+                                fontFamilyFallback: kFontFallback,
+                                fontSize: 23,
+                              ),
+                            ),
+                            Text(
+                              'AL AURADU',
+                              style: TextStyle(
+                                color: AuradColors.secondaryText(context),
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.home_outlined),
+                      title: const Text('Home / Library'),
+                      onTap: () => _switchTab(0),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.menu_book_outlined),
+                      title: const Text('Quran'),
+                      onTap: _openQuranFromDrawer,
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.bookmark_outline),
+                      title: const Text('My Bookmarks'),
+                      onTap: () => _switchTab(1),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.person_outline),
+                      title: const Text('My Account'),
+                      subtitle: const Text('Guest'),
+                      onTap: () => _openPage(const AuradAccountScreen()),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.login_outlined),
+                      title: const Text('Login / Sign up'),
+                      onTap: () => _openPage(const AuradAccountScreen()),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.settings_outlined),
+                      title: const Text('Settings'),
+                      onTap: () => _openPage(const AuradSettingsScreen()),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.help_outline),
+                      title: const Text('Help & Support'),
+                      onTap: () => _drawerMessage(
+                          'Support contact is not configured yet.'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.info_outline),
+                      title: const Text('About App'),
+                      onTap: () => _openPage(const AuradSettingsScreen()),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.privacy_tip_outlined),
+                      title: const Text('Privacy Policy'),
+                      onTap: () => _drawerMessage(
+                          'A verified privacy policy has not been added yet.'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+
+  Widget _libraryBody() => Column(
+        children: [
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1160),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 4, 20, 2),
+                child: Row(
+                  children: [
+                    Icon(
+                      app.dark ? Icons.dark_mode : Icons.wb_sunny_outlined,
+                      size: 21,
+                    ),
+                    const SizedBox(width: 10),
+                    const Text('Dark mode'),
+                    const Spacer(),
+                    Switch(
+                      value: app.dark,
+                      onChanged: (_) => app.toggleDark(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1160),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(18, 6, 18, 4),
+                child: AuradPanel(
+                  inset: true,
+                  padding: EdgeInsets.zero,
+                  radius: 19,
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Search',
+                      prefixIcon: Icon(Icons.search),
+                      isDense: true,
+                    ),
+                    onChanged: (value) => setState(() => query = value),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Expanded(
+            child: query.trim().isEmpty
+                ? folderGrid()
+                : _list(searchResults, 'Nothing found'),
+          ),
+        ],
+      );
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
       listenable: app,
-      builder: (context, _) {
-        Widget body;
-        if (tab == 1) {
-          body = list(
-              app.items.where((i) => app.isBookmarked(i.id)).toList(),
-              'No bookmarks yet');
-        } else {
-          body = Column(
-            children: [
-              SwitchListTile(
-                dense: true,
-                secondary: Icon(app.dark ? Icons.dark_mode : Icons.light_mode),
-                title: const Text('Dark mode'),
-                value: app.dark,
-                onChanged: (_) => app.toggleDark(),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(28)),
-                    isDense: true,
-                  ),
-                  onChanged: (v) => setState(() => query = v),
+      builder: (context, _) => Scaffold(
+        drawer: _drawer(),
+        appBar: AppBar(
+          title: const Text(
+            kAppName,
+            textDirection: TextDirection.rtl,
+            style: TextStyle(
+              fontFamily: kArabicFont,
+              fontFamilyFallback: kFontFallback,
+              fontSize: 27,
+            ),
+          ),
+          actions: [
+            IconButton(
+              tooltip: 'Dark mode',
+              icon: Icon(app.dark
+                  ? Icons.light_mode_outlined
+                  : Icons.dark_mode_outlined),
+              onPressed: app.toggleDark,
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: tab == 0
+              ? _libraryBody()
+              : Column(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(18),
+                      child: Text(
+                        'My Bookmarks',
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    Expanded(
+                      child: _list(
+                        app.items
+                            .where((item) => app.isBookmarked(item.id))
+                            .toList(),
+                        'No bookmarks yet',
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Expanded(
-                child: query.trim().isEmpty
-                    ? folderGrid()
-                    : list(searchResults, 'Nothing found'),
-              ),
-            ],
-          );
-        }
-        return Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: const Text(kAppName,
-                style: TextStyle(
-                    fontFamily: kArabicFont,
-                    fontFamilyFallback: kFontFallback,
-                    fontSize: 30)),
-            actions: [
-              IconButton(
-                tooltip: 'Dark mode',
-                icon: Icon(app.dark ? Icons.light_mode : Icons.dark_mode),
-                onPressed: app.toggleDark,
-              ),
-            ],
-          ),
-          body: body,
-          bottomNavigationBar: NavigationBar(
-            selectedIndex: tab,
-            onDestinationSelected: (i) => setState(() => tab = i),
-            destinations: const [
-              NavigationDestination(
-                  icon: Icon(Icons.folder_outlined),
-                  selectedIcon: Icon(Icons.folder),
-                  label: 'Library'),
-              NavigationDestination(
-                  icon: Icon(Icons.bookmark_border),
-                  selectedIcon: Icon(Icons.bookmark),
-                  label: 'Bookmarks'),
-            ],
-          ),
-        );
-      },
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: tab,
+          onDestinationSelected: (index) =>
+              setState(() => tab = index),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.folder_outlined),
+              selectedIcon: Icon(Icons.folder),
+              label: 'Library',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.bookmark_border),
+              selectedIcon: Icon(Icons.bookmark),
+              label: 'Bookmarks',
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
