@@ -4,7 +4,7 @@ import 'package:al_auradu/aurad_theme.dart';
 
 void main() {
   test('light and dark themes keep their required outer backgrounds', () {
-    expect(AuradTheme.light().scaffoldBackgroundColor, AuradColors.mint);
+    expect(AuradTheme.light().scaffoldBackgroundColor, AuradColors.navy);
     expect(AuradTheme.dark().scaffoldBackgroundColor, Colors.black);
   });
 
