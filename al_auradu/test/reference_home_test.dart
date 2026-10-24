@@ -26,7 +26,7 @@ void main() {
     ));
     await tester.pump();
 
-    for (const label in [
+    for (final label in [
       'Quran', 'Dikr', 'Swalath', 'Dua',
       'Moulid', 'Malappatt', 'Baith', 'Raatheeb',
       'Majlisunoor', 'Other', 'Search', 'Counter'
