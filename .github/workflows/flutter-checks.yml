@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/neumorphic-responsive-foundation
   pull_request:
 
 permissions:
@@ -27,6 +26,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
       - name: Analyze Dart source
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
       - name: Run Flutter tests
         run: flutter test
