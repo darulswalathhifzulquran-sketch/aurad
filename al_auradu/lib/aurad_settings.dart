@@ -138,10 +138,10 @@ class AuradAccountScreen extends StatelessWidget {
                         subtitle: Text('Not configured'),
                       ),
                       const SizedBox(height: 12),
-                      const FilledButton.icon(
+                      FilledButton.icon(
                         onPressed: null,
-                        icon: Icon(Icons.login),
-                        label: Text('Login — available after backend setup'),
+                        icon: const Icon(Icons.login),
+                        label: const Text('Login — available after backend setup'),
                       ),
                       const SizedBox(height: 12),
                       Text(
