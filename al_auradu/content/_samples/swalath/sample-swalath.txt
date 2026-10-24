@@ -1,0 +1,6 @@
+@title: Sample Swalath
+@ar: صلاة تجريبية
+اللَّهُمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ وَعَلَى آلِهِ وَصَحْبِهِ وَسَلِّمْ
+---
+Allahumma swalli 'ala sayyidina Muhammadin wa 'ala aalihi wa swahbihi wa sallim
+അല്ലാഹുവേ, ഞങ്ങളുടെ നേതാവായ മുഹമ്മദ് നബി(സ)യുടെ മേൽ സ്വലാത്തും സലാമും വർഷിക്കണമേ.

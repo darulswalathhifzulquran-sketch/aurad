@@ -1,0 +1,37 @@
+FILE FORMAT GUIDE  (files starting with _ are ignored by the importer)
+
+Folders directly inside content/ are categories:
+  quran  mawlid  baith  mala  swalath  dua  ratib   -> existing categories
+  aurad  manaqib                                      -> created automatically
+  any other folder name                               -> new category
+Subfolders inside a category are scanned too.
+
+--------------------------------------------------------------------
+TXT / MD file
+--------------------------------------------------------------------
+title: Badr Mawlid        (optional; default = file name)
+ar: البدر مولد             (optional Arabic title)
+en: Badr Mawlid           (optional)
+id: mawlid-2              (optional; fills that exact existing item)
+flow: true                (optional; join wrapped lines of a paragraph with spaces)
+chars: 600                (optional; characters per page, default 700)
+
+# Heading text            -> centered heading
+Paragraph lines...        -> text (Arabic = right-to-left, Malayalam/English = left-to-right)
+
+| right column | left column |    -> 2-column book-style table
+|---|---|
+| وُلِدَ الْحَبِيبُ | وَالنُّورُ مِنْ جَبْهَتِهِ |
+
+===                       -> start a new page (if you never use it, pages are made automatically)
+
+--------------------------------------------------------------------
+JSON file
+--------------------------------------------------------------------
+Same shape as assets/data/library.json items:
+  {"title":"..","ar":"..","en":"..","pages":[ "page text", {"blocks":[...]} ]}
+or a simple one:  {"title":"..","ar":"..","text":"same rules as a TXT body"}
+or a list of such objects, or {"items":[...]}.
+
+Quran: name files 001.txt ... 114.txt (or 1.txt) and they fill the matching
+surah. Better: save the Tanzil file as assets/data/quran.txt (done by the app).
