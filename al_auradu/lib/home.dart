@@ -96,7 +96,12 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       if (category.pdf.isEmpty) {
-        _msg('PDF not added yet');
+        // Keep the folder tappable even when all books have been cleared.
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => FolderScreen(category: category)),
+        );
         return;
       }
       final ok = await launchUrl(
@@ -370,7 +375,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openById(String id) {
     if (id == 'dikr') {
-      _msg('Dikr content has not been added yet.');
+      // Dikr is a visual destination in the approved design and should
+      // open an empty library page until devotional content is added.
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FolderScreen(
+            category: Category(
+              id: 'dikr',
+              name: 'ദിക്ർ',
+              ar: 'الأذكار',
+              en: 'Dikr',
+            ),
+          ),
+        ),
+      );
       return;
     }
     final matching = app.categories.where((c) => c.id == id);
