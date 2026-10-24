@@ -29,3 +29,5 @@ jobs:
         run: flutter analyze --no-fatal-infos
       - name: Run Flutter tests
         run: flutter test
+      - name: Verify Flutter web release build
+        run: flutter build web --release

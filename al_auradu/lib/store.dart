@@ -16,6 +16,11 @@ const List<String> kFontFallback = [
 ];
 const String kAppName = 'رياض الأذكار';
 
+/// Titles-only preview mode. KEEP every existing folder and item name;
+/// clear only their old pages until verified PDFs are added again.
+/// Quran source, page images and all book files remain safely in the repo.
+const bool kStartWithEmptyLibrary = true;
+
 class AppState extends ChangeNotifier {
   final SharedPreferences prefs;
   final List<Category> categories;
@@ -41,6 +46,8 @@ class AppState extends ChangeNotifier {
     final cats = (map['categories'] as List)
         .map((e) => Category.fromJson(e as Map<String, dynamic>))
         .toList();
+    // Preserve all original folder entries (including 114 Surahs and 30 Juz).
+    // In titles-only mode, only their reading pages are temporarily cleared.
     final items = (map['items'] as List)
         .map((e) => Item.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -53,13 +60,43 @@ class AppState extends ChangeNotifier {
         .toSet();
     cats.removeWhere((c) => hidden.contains(c.id));
     items.removeWhere((i) => hidden.contains(i.category));
-    await loadQuran(items);
-    await loadMushaf();
-    await loadMajlis(items);
-    await loadExtras(items);
-    curateItems(items);
-    await loadAjmeer(items);
-    fixArabicNames(items);
+    if (kStartWithEmptyLibrary) {
+      // Keep the familiar curated lists and all their existing Arabic titles,
+      // but remove the old book content from memory, not from source files.
+      // Names imported previously by Extras/Majlis remain visible as stubs.
+      for (final item in items) {
+        item.setPages(<PageData>[]);
+      }
+      curateItems(items);
+      void ensureTitle(String id, String category, String title, String ar) {
+        if (items.any((item) => item.id == id)) return;
+        items.add(Item(
+          id: id,
+          category: category,
+          title: title,
+          ar: ar,
+          en: title,
+          pages: <PageData>[],
+        ));
+      }
+      ensureTitle('ratib-haddad', 'ratib', 'Haddad Ratib', 'راتب الحداد');
+      ensureTitle('majlisunnoor-book', 'majlisunnoor',
+          'Majlisunnoor', 'مجلس النور');
+      fixArabicNames(items);
+      // Loading bundled Mushaf, Majlis, Extras or Ajmeer pages here would
+      // restore the content that the user intentionally asked to clear.
+      mushafReady = false;
+      quranStatus = '';
+      extrasStatus = '';
+    } else {
+      await loadQuran(items);
+      await loadMushaf();
+      await loadMajlis(items);
+      await loadExtras(items);
+      curateItems(items);
+      await loadAjmeer(items);
+      fixArabicNames(items);
+    }
     return AppState._(prefs, cats, items);
   }
 

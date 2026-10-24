@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'aurad_settings.dart';
@@ -6,7 +7,7 @@ import 'aurad_theme.dart';
 import 'counter.dart';
 import 'folder.dart';
 import 'models.dart';
-import 'reader.dart';
+import 'reference_home.dart';
 import 'store.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -78,13 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     if (category.type == 'pdf') {
       final only = app.itemsIn(category.id);
-      if (only.length == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ReaderScreen(item: only.first)),
-        );
-        return;
-      }
       if (only.isNotEmpty) {
         Navigator.push(
           context,
@@ -94,7 +88,12 @@ class _HomeScreenState extends State<HomeScreen> {
         return;
       }
       if (category.pdf.isEmpty) {
-        _msg('PDF not added yet');
+        // Keep the folder tappable even when all books have been cleared.
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => FolderScreen(category: category)),
+        );
         return;
       }
       final ok = await launchUrl(
@@ -366,60 +365,85 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  Widget _libraryBody() => Column(
-        children: [
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1160),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 2),
-                child: Row(
-                  children: [
-                    Icon(
-                      app.dark ? Icons.dark_mode : Icons.wb_sunny_outlined,
-                      size: 21,
-                    ),
-                    const SizedBox(width: 10),
-                    const Text('Dark mode'),
-                    const Spacer(),
-                    Switch(
-                      value: app.dark,
-                      onChanged: (_) => app.toggleDark(),
-                    ),
-                  ],
-                ),
-              ),
+  void _openById(String id) {
+    if (id == 'dikr') {
+      // Dikr is a visual destination in the approved design and should
+      // open an empty library page until devotional content is added.
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FolderScreen(
+            category: Category(
+              id: 'dikr',
+              name: 'ദിക്ർ',
+              ar: 'الأذكار',
+              en: 'Dikr',
             ),
           ),
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1160),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 6, 18, 4),
-                child: AuradPanel(
-                  inset: true,
-                  padding: EdgeInsets.zero,
-                  radius: 19,
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      hintText: 'Search',
-                      prefixIcon: Icon(Icons.search),
-                      isDense: true,
-                    ),
-                    onChanged: (value) => setState(() => query = value),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: query.trim().isEmpty
-                ? folderGrid()
-                : _list(searchResults, 'Nothing found'),
-          ),
-        ],
+        ),
       );
+      return;
+    }
+    final matching = app.categories.where((c) => c.id == id);
+    if (matching.isEmpty) {
+      _msg('This section is not available yet.');
+      return;
+    }
+    openCategory(matching.first);
+  }
+
+  void _openOther() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(sheetContext).height * 0.62,
+          child: Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(12),
+                child: Text(
+                  'Other sections',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 19),
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  children: app.categories.map((cat) => ListTile(
+                    leading: Icon(iconFor(cat.id)),
+                    title: Text(cat.en),
+                    subtitle: Text(cat.ar,
+                        textDirection: TextDirection.rtl),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      openCategory(cat);
+                    },
+                  )).toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openSearch() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const _AuradSearchScreen()),
+    );
+  }
+
+  Future<void> _shareApp() async {
+    // No public Play Store listing exists yet.
+    await Clipboard.setData(
+      const ClipboardData(text: 'AL AURADU — رياض الأذكار'),
+    );
+    if (mounted) _msg('App title copied. Public share link is not ready yet.');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -427,67 +451,108 @@ class _HomeScreenState extends State<HomeScreen> {
       listenable: app,
       builder: (context, _) => Scaffold(
         drawer: _drawer(),
-        appBar: AppBar(
-          title: const Text(
-            kAppName,
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              fontFamily: kArabicFont,
-              fontFamilyFallback: kFontFallback,
-              fontSize: 27,
+        appBar: tab == 0
+            ? null
+            : AppBar(
+                title: const Text('My Bookmarks'),
+                actions: [
+                  IconButton(
+                    onPressed: () => setState(() => tab = 0),
+                    icon: const Icon(Icons.home_outlined),
+                    tooltip: 'Go home',
+                  ),
+                ],
+              ),
+        body: tab == 0
+            ? Builder(
+                builder: (scaffoldContext) => ReferenceHome(
+                  onMenu: () => Scaffold.of(scaffoldContext).openDrawer(),
+                  onShare: _shareApp,
+                  onSearch: _openSearch,
+                  onOther: _openOther,
+                  onFolder: _openById,
+                ),
+              )
+            : SafeArea(
+                child: _list(
+                  app.items
+                      .where((item) => app.isBookmarked(item.id))
+                      .toList(),
+                  'No bookmarks yet',
+                ),
+              ),
+        bottomNavigationBar: tab == 0
+            ? null
+            : NavigationBar(
+                selectedIndex: 1,
+                onDestinationSelected: (index) =>
+                    setState(() => tab = index),
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.folder_outlined),
+                    selectedIcon: Icon(Icons.folder),
+                    label: 'Library',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.bookmark_border),
+                    selectedIcon: Icon(Icons.bookmark),
+                    label: 'Bookmarks',
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
+
+class _AuradSearchScreen extends StatefulWidget {
+  const _AuradSearchScreen();
+
+  @override
+  State<_AuradSearchScreen> createState() => _AuradSearchScreenState();
+}
+
+class _AuradSearchScreenState extends State<_AuradSearchScreen> {
+  String term = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final q = normalize(term.trim());
+    final results = q.isEmpty
+        ? <Item>[]
+        : app.items.where((item) {
+            return normalize(item.title).contains(q) ||
+                normalize(item.ar).contains(q) ||
+                normalize(item.en).contains(q) ||
+                item.searchNorm(normalize).contains(q);
+          }).toList();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Search')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: 'Search the library',
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (text) => setState(() => term = text),
             ),
           ),
-          actions: [
-            IconButton(
-              tooltip: 'Dark mode',
-              icon: Icon(app.dark
-                  ? Icons.light_mode_outlined
-                  : Icons.dark_mode_outlined),
-              onPressed: app.toggleDark,
-            ),
-          ],
-        ),
-        body: SafeArea(
-          child: tab == 0
-              ? _libraryBody()
-              : Column(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.all(18),
-                      child: Text(
-                        'My Bookmarks',
-                        style: TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.w600),
+          Expanded(
+            child: q.isEmpty
+                ? const Center(child: Text('Type to search the library'))
+                : results.isEmpty
+                    ? const Center(child: Text('Nothing found'))
+                    : ListView.builder(
+                        itemCount: results.length,
+                        itemBuilder: (ctx, index) =>
+                            itemTile(ctx, results[index]),
                       ),
-                    ),
-                    Expanded(
-                      child: _list(
-                        app.items
-                            .where((item) => app.isBookmarked(item.id))
-                            .toList(),
-                        'No bookmarks yet',
-                      ),
-                    ),
-                  ],
-                ),
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: tab,
-          onDestinationSelected: (index) =>
-              setState(() => tab = index),
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.folder_outlined),
-              selectedIcon: Icon(Icons.folder),
-              label: 'Library',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.bookmark_border),
-              selectedIcon: Icon(Icons.bookmark),
-              label: 'Bookmarks',
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
