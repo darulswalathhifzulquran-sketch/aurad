@@ -71,7 +71,9 @@ Widget _itemList(List<Item> items) {
 
 /// Shown while the Mushaf page pictures have not been added.
 Widget _withBanner(Widget list) {
-  if (mushafReady) return list;
+  // Intentional empty-library mode must display the normal empty state,
+  // not an incorrect warning about missing Quran page files.
+  if (mushafReady || kStartWithEmptyLibrary) return list;
   return Column(
     children: [
       Container(

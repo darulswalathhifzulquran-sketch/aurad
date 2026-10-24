@@ -16,6 +16,11 @@ const List<String> kFontFallback = [
 ];
 const String kAppName = 'رياض الأذكار';
 
+/// Temporary empty-library release state, requested for a fresh content setup.
+/// Existing library JSON, Quran/Mushaf images, and religious source files are
+/// deliberately retained for later re-import. Nothing is deleted or rewritten.
+const bool kStartWithEmptyLibrary = true;
+
 class AppState extends ChangeNotifier {
   final SharedPreferences prefs;
   final List<Category> categories;
@@ -41,9 +46,13 @@ class AppState extends ChangeNotifier {
     final cats = (map['categories'] as List)
         .map((e) => Category.fromJson(e as Map<String, dynamic>))
         .toList();
-    final items = (map['items'] as List)
-        .map((e) => Item.fromJson(e as Map<String, dynamic>))
-        .toList();
+    // The application starts with empty reader folders. Do not import the
+    // bundled legacy content until new folder content is approved.
+    final items = kStartWithEmptyLibrary
+        ? <Item>[]
+        : (map['items'] as List)
+            .map((e) => Item.fromJson(e as Map<String, dynamic>))
+            .toList();
     // Categories that must never show up (created by mistake by the importer).
     final hidden = cats
         .where((c) =>
@@ -53,13 +62,21 @@ class AppState extends ChangeNotifier {
         .toSet();
     cats.removeWhere((c) => hidden.contains(c.id));
     items.removeWhere((i) => hidden.contains(i.category));
-    await loadQuran(items);
-    await loadMushaf();
-    await loadMajlis(items);
-    await loadExtras(items);
-    curateItems(items);
-    await loadAjmeer(items);
-    fixArabicNames(items);
+    if (kStartWithEmptyLibrary) {
+      // Do not expose Quran image-reader pages or old imported books.
+      // Avoid the missing-source warnings from intentionally skipped imports.
+      mushafReady = false;
+      quranStatus = '';
+      extrasStatus = '';
+    } else {
+      await loadQuran(items);
+      await loadMushaf();
+      await loadMajlis(items);
+      await loadExtras(items);
+      curateItems(items);
+      await loadAjmeer(items);
+      fixArabicNames(items);
+    }
     return AppState._(prefs, cats, items);
   }
 
