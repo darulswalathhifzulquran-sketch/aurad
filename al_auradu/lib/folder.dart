@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'models.dart';
 import 'store.dart';
 import 'reader.dart';
-import 'mushaf.dart';
+import 'quran_pdf.dart';
 import 'aurad_pdf_book.dart';
 
 /// Left: English letters. Right: Arabic.
 Widget itemTile(BuildContext context, Item it) {
   final isQuran = it.category == 'quran' || it.category == 'juz';
-  final dim = !it.hasContent && !(mushafReady && isQuran);
+  final dim = !it.hasContent && !isQuran;
   final Color? color = dim ? Theme.of(context).disabledColor : null;
   return ListTile(
     title: Row(
@@ -50,14 +50,16 @@ Widget itemTile(BuildContext context, Item it) {
         );
         return;
       }
-      if (mushafReady && isQuran) {
-        final n = int.tryParse(it.id.split('-').last) ?? 1;
-        final page = it.category == 'quran'
-            ? kSurahPage[(n - 1).clamp(0, 113).toInt()]
-            : kJuzPage[(n - 1).clamp(0, 29).toInt()];
+      if (isQuran) {
+        // Keep the existing 114 Surah/30 Juz lists. Their start page
+        // is verified against the original 604-page PDF at runtime.
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MushafScreen(startPage: page)),
+          MaterialPageRoute(
+            builder: (_) => QuranPdfScreen(
+              startPage: quranStartPageForId(it.id),
+            ),
+          ),
         );
         return;
       }

@@ -26,6 +26,7 @@ flutter:
     - assets/pages/
     - assets/images/
     - assets/books/
+    - quran.pdf # original PDF already tracked via Git LFS; do not duplicate
   fonts:
     - family: ArabicFont
       fonts:
