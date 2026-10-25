@@ -3,6 +3,7 @@ import 'models.dart';
 import 'store.dart';
 import 'reader.dart';
 import 'mushaf.dart';
+import 'aurad_pdf_book.dart';
 
 /// Left: English letters. Right: Arabic.
 Widget itemTile(BuildContext context, Item it) {
@@ -34,6 +35,21 @@ Widget itemTile(BuildContext context, Item it) {
         ? const Icon(Icons.bookmark, size: 20)
         : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
     onTap: () {
+      // Only the approved Swalathus Sa'adha entry uses its original PDF.
+      // All other titles still open the existing 'Content not added yet'
+      // reader until their own verified documents are supplied.
+      if (it.id == 'swalath-saadha') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const AuradPdfBookScreen(
+              title: "Swalathus Sa'adha",
+              assetPath: 'assets/books/swalathus_saadha.pdf',
+            ),
+          ),
+        );
+        return;
+      }
       if (mushafReady && isQuran) {
         final n = int.tryParse(it.id.split('-').last) ?? 1;
         final page = it.category == 'quran'
