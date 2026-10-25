@@ -29,12 +29,6 @@ class _QuranPdfScreenState extends State<QuranPdfScreen> {
   int? actualPageCount;
   bool viewerReady = false;
 
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
-  }
-
   void _viewerReady(PdfDocument document, PdfViewerController readyController) {
     final n = document.pages.length;
     if (!mounted) return;
