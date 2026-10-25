@@ -1,0 +1,36 @@
+name: One-time Saadha PDF margin cleanup
+
+on:
+  push:
+    branches:
+      - feature/swalathu-saadha-polish
+    paths:
+      - .github/workflows/clean-saadha-pdf.yml
+
+permissions:
+  contents: write
+
+jobs:
+  clean-original-pdf:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PDF inspector
+        run: python -m pip install --disable-pip-version-check PyMuPDF==1.26.5
+      - name: Clean exactly three margin dots; verify Quran/Arabic text unchanged
+        run: python al_auradu/tool/clean_saadha_pdf.py
+      - name: Commit only the corrected original PDF
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add al_auradu/assets/books/swalathus_saadha.pdf
+          if ! git diff --cached --quiet; then
+            git commit -m "Clean three stray margin dots in original Saadha PDF"
+            git push origin HEAD:feature/swalathu-saadha-polish
+          fi
