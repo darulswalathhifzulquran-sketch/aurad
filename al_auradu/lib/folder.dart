@@ -8,13 +8,17 @@ import 'aurad_pdf_book.dart';
 /// Left: English letters. Right: Arabic.
 Widget itemTile(BuildContext context, Item it) {
   final isQuran = it.category == 'quran' || it.category == 'juz';
-  final dim = !it.hasContent && !(mushafReady && isQuran);
+  final isAddedSaadha = it.id == 'swalath-saadha';
+  final dim = !it.hasContent && !(mushafReady && isQuran) && !isAddedSaadha;
   final Color? color = dim ? Theme.of(context).disabledColor : null;
   return ListTile(
     title: Row(
       children: [
         Expanded(
-          child: Text(it.title, style: TextStyle(fontSize: 17, color: color)),
+          child: Text(
+            isAddedSaadha ? "Swalathu Sa'adha" : it.title,
+            style: TextStyle(fontSize: 17, color: color),
+          ),
         ),
         if (it.ar.isNotEmpty)
           Directionality(
@@ -31,9 +35,24 @@ Widget itemTile(BuildContext context, Item it) {
           ),
       ],
     ),
-    trailing: app.isBookmarked(it.id)
-        ? const Icon(Icons.bookmark, size: 20)
-        : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
+    trailing: isAddedSaadha
+        ? const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_circle_rounded,
+                  size: 19, color: Color(0xFF70D6AC)),
+              SizedBox(width: 5),
+              Text('Added',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF70D6AC),
+                    fontWeight: FontWeight.w600,
+                  )),
+            ],
+          )
+        : app.isBookmarked(it.id)
+            ? const Icon(Icons.bookmark, size: 20)
+            : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
     onTap: () {
       // Only the approved Swalathus Sa'adha entry uses its original PDF.
       // All other titles still open the existing 'Content not added yet'
@@ -43,7 +62,7 @@ Widget itemTile(BuildContext context, Item it) {
           context,
           MaterialPageRoute(
             builder: (_) => const AuradPdfBookScreen(
-              title: "Swalathus Sa'adha",
+              title: "Swalathu Sa'adha",
               assetPath: 'assets/books/swalathus_saadha.pdf',
             ),
           ),

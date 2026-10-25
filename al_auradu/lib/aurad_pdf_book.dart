@@ -83,8 +83,19 @@ class _AuradPdfBookScreenState extends State<AuradPdfBookScreen> {
           }
           return PdfViewer.asset(
             widget.assetPath,
-            // Native gestures: pinch to zoom, pan, and vertical page scroll.
-            // No low-DPI image conversion or fixed-resolution screenshots.
+            useProgressiveLoading: true,
+            params: PdfViewerParams(
+              // Open with the ENTIRE portrait A4-shaped page visible.
+              // Users can subsequently pinch-zoom and pan/scroll normally.
+              calculateInitialZoom: (document, controller, fitZoom, coverZoom) =>
+                  fitZoom,
+              backgroundColor: const Color(0xFF15273E),
+              margin: 12,
+              // Permit a sharper rerender at larger zoom levels instead
+              // of stretching a low-resolution preview bitmap.
+              onePassRenderingSizeThreshold: 4096,
+              limitRenderingCache: true,
+            ),
           );
         },
       ),
