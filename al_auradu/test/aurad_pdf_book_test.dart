@@ -16,6 +16,6 @@ void main() {
 
     expect(find.text("Swalathus Sa'adha"), findsOneWidget);
     expect(find.text('Content not added yet'), findsOneWidget);
-    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Retry'), findsNothing);
   });
 }
