@@ -91,9 +91,9 @@ with fitz.open(output) as rendered:
     if rendered[0].get_text() != before_text:
         output.unlink(missing_ok=True)
         sys.exit("Arabic body text changed; cancelled")
-    if len(rendered[0].get_images()) >= 43:
+    if rendered[0].get_image_rects(xref):
         output.unlink(missing_ok=True)
-        sys.exit("Raster title was not removed; cancelled")
+        sys.exit("Raster title drawing is still active; cancelled")
 
 output.replace(PDF)
 print(f"Vector traced original title with {len(paths)} shapes; "
