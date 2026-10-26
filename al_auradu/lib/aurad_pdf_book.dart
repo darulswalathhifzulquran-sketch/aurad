@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:pdfrx/pdfrx.dart';
 
-/// Original-PDF reader: never turns religious content into low-resolution PNGs.
-/// PDF pages are rendered by PDFium at the viewer's current zoom scale.
-class AuradPdfBookScreen extends StatefulWidget {
+/// Display an original vector PDF using PDFium.
+/// The old implementation loaded the whole asset with rootBundle first,
+/// then PdfViewer.asset fetched it again. This version loads it ONCE.
+class AuradPdfBookScreen extends StatelessWidget {
   const AuradPdfBookScreen({
     super.key,
     required this.title,
@@ -15,89 +15,64 @@ class AuradPdfBookScreen extends StatefulWidget {
   final String assetPath;
 
   @override
-  State<AuradPdfBookScreen> createState() => _AuradPdfBookScreenState();
-}
-
-class _AuradPdfBookScreenState extends State<AuradPdfBookScreen> {
-  late Future<void> _assetCheck;
-
-  @override
-  void initState() {
-    super.initState();
-    _assetCheck = _checkAsset();
-  }
-
-  Future<void> _checkAsset() async {
-    // Fail gracefully when a new book is registered but its PDF is not
-    // committed yet. Re-throw so FutureBuilder can show the empty state.
-    await rootBundle.load(widget.assetPath);
-  }
-
-  void _retry() {
-    setState(() => _assetCheck = _checkAsset());
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
       ),
-      body: FutureBuilder<void>(
-        future: _assetCheck,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.menu_book_outlined, size: 46),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Content not added yet',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'The original PDF will appear here after it is added '
-                      'to the app assets.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 20),
-                    OutlinedButton.icon(
-                      onPressed: _retry,
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
-                    ),
-                  ],
-                ),
+      body: PdfViewer.asset(
+        assetPath,
+        useProgressiveLoading: true,
+        params: PdfViewerParams(
+          // Open with the whole page on screen, not an enlarged top crop.
+          calculateInitialZoom:
+              (document, controller, fitZoom, coverZoom) => fitZoom,
+          backgroundColor: const Color(0xFF15273E),
+          margin: 12,
+          // Smaller first render makes the reader react faster;
+          // PDFium subsequently re-renders high-detail/vector content
+          // at the actual zoom scale.
+          onePassRenderingSizeThreshold: 1600,
+          limitRenderingCache: true,
+          loadingBannerBuilder: (context, downloaded, total) {
+            return const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 12),
+                  Text('Opening PDF...'),
+                ],
               ),
             );
-          }
-          return PdfViewer.asset(
-            widget.assetPath,
-            useProgressiveLoading: true,
-            params: PdfViewerParams(
-              // Open with the ENTIRE portrait A4-shaped page visible.
-              // Users can subsequently pinch-zoom and pan/scroll normally.
-              calculateInitialZoom: (document, controller, fitZoom, coverZoom) =>
-                  fitZoom,
-              backgroundColor: const Color(0xFF15273E),
-              margin: 12,
-              // Permit a sharper rerender at larger zoom levels instead
-              // of stretching a low-resolution preview bitmap.
-              onePassRenderingSizeThreshold: 4096,
-              limitRenderingCache: true,
+          },
+          errorBannerBuilder: (context, error, stack, documentRef) =>
+              const Center(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.menu_book_outlined, size: 46),
+                  SizedBox(height: 16),
+                  Text(
+                    'Content not added yet',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'The PDF could not be opened. Please check its asset file.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
