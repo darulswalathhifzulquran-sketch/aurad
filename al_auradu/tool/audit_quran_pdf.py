@@ -45,7 +45,7 @@ for p in samples:
         for ir in xs:
             image_count += 1
             intersection = (ir & rect)
-            image_coverage += max(0, intersection.get_area()) / max(1, rect.get_area())
+            image_coverage += max(0, intersection.width * intersection.height) / max(1, rect.width * rect.height)
     image_coverage = min(1.0, image_coverage)
     record = {
         "pdf_page": p + 1,
