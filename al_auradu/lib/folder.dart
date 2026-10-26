@@ -29,27 +29,17 @@ Widget itemTile(BuildContext context, Item it) {
                 fontFamily: kArabicFont,
                 fontFamilyFallback: kFontFallback,
                 fontSize: 24,
+                fontWeight: isAddedSaadha ? FontWeight.bold : null,
                 color: color,
               ),
             ),
           ),
       ],
     ),
+    // The user wants no added-status badge or hourglass on this item.
+    // The existing bold Arabic title alone indicates the entry.
     trailing: isAddedSaadha
-        ? const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.check_circle_rounded,
-                  size: 19, color: Color(0xFF70D6AC)),
-              SizedBox(width: 5),
-              Text('Added',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Color(0xFF70D6AC),
-                    fontWeight: FontWeight.w600,
-                  )),
-            ],
-          )
+        ? null
         : app.isBookmarked(it.id)
             ? const Icon(Icons.bookmark, size: 20)
             : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
