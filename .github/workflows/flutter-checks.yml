@@ -31,3 +31,12 @@ jobs:
         run: flutter test
       - name: Verify Flutter web release build
         run: flutter build web --release
+      - name: Smoke-test the fast static preview payload
+        run: |
+          test -s build/web/index.html
+          test -s build/web/main.dart.js
+          python3 -m http.server 3000 --bind 127.0.0.1 --directory build/web > /tmp/aurad-web.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          curl --fail --retry 15 --retry-delay 1 --retry-connrefused http://127.0.0.1:3000/ -o /tmp/aurad-home.html
+          curl --fail --silent http://127.0.0.1:3000/main.dart.js -o /dev/null
