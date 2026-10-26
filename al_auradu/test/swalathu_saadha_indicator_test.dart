@@ -7,7 +7,7 @@ import 'package:al_auradu/store.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Swalathu Sa\'adha is labelled Added and not hourglass',
+  testWidgets('Swalathu Sa\'adha keeps its bold Arabic title without badges',
       (tester) async {
     SharedPreferences.setMockInitialValues({});
     app = await AppState.load();
@@ -24,8 +24,8 @@ void main() {
     ));
 
     expect(find.text("Swalathu Sa'adha"), findsOneWidget);
-    expect(find.text('Added'), findsOneWidget);
-    expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+    expect(find.text('Added'), findsNothing);
+    expect(find.byIcon(Icons.check_circle_rounded), findsNothing);
     expect(find.byIcon(Icons.hourglass_empty), findsNothing);
     expect(find.text('صلاة السعادة'), findsOneWidget);
   });

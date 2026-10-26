@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pdfrx/pdfrx.dart';
 import 'package:al_auradu/aurad_pdf_book.dart';
 
 void main() {
-  testWidgets('Missing devotional PDF shows a safe placeholder', (tester) async {
+  testWidgets('PDF reader opens app bar immediately without double-loading',
+      (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: AuradPdfBookScreen(
-          title: "Swalathus Sa'adha",
-          assetPath: 'assets/books/intentionally_missing.pdf',
+          title: "Swalathu Sa'adha",
+          assetPath: 'assets/books/swalathus_saadha.pdf',
         ),
       ),
     );
-    await tester.pumpAndSettle();
 
-    expect(find.text("Swalathus Sa'adha"), findsOneWidget);
-    expect(find.text('Content not added yet'), findsOneWidget);
-    expect(find.text('Retry'), findsOneWidget);
+    // The UI must appear on the first frame, regardless of how long the
+    // asynchronous PDF renderer takes to initialise in the browser.
+    expect(find.text("Swalathu Sa'adha"), findsOneWidget);
+    expect(find.byType(PdfViewer), findsOneWidget);
   });
 }
