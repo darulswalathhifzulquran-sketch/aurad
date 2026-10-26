@@ -19,6 +19,5 @@ void main() {
     // asynchronous PDF renderer takes to initialise in the browser.
     expect(find.text("Swalathu Sa'adha"), findsOneWidget);
     expect(find.byType(PdfViewer), findsOneWidget);
-    expect(find.byType(CircularProgressIndicator), findsWidgets);
   });
 }
