@@ -183,10 +183,18 @@ def main() -> None:
         "processing": "Vector-preserving PDF page merge, no Quran text edits",
         "review_status": "UNVERIFIED: owner must visually proofread page mappings",
     }
-    # Save report next to destination, not in Flutter assets until reviewed.
+    # Save an auditable source report and a tiny asset-ready manifest.
     report = out_path.with_name(out_path.stem + ".import_report.json")
     report.write_text(json.dumps(record, indent=2, ensure_ascii=False),
                       encoding="utf-8")
+    MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+    MANIFEST.write_text(json.dumps({
+        "pageCount": 604,
+        "sourceSha256": sha.hexdigest(),
+        "source": "King Fahd Complex 1441 AI Hafs",
+        "vectorPdfPath": "assets/books/quran_vector_604.pdf",
+        "navigationReview": "pending"
+    }, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"SUCCESS: {out_path} ({record['output_bytes']} bytes)")
     print(f"Source SHA256: {sha.hexdigest()}")
     print("IMPORTANT: human-verify pages 1, 2, 128, 582, 604 and 114 Surah")
