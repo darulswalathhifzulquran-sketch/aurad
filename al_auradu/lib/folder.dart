@@ -150,6 +150,7 @@ class FolderScreen extends StatelessWidget {
             child: Scaffold(
               appBar: AppBar(
                 title: _titleRow(category),
+                actions: [IconButton(tooltip: 'Toggle dark mode', icon: Icon(app.dark ? Icons.light_mode : Icons.dark_mode), onPressed: app.toggleDark)],
                 bottom: const TabBar(
                   tabs: [Tab(text: 'Surah'), Tab(text: 'Juz')],
                 ),
@@ -164,7 +165,7 @@ class FolderScreen extends StatelessWidget {
           );
         }
         return Scaffold(
-          appBar: AppBar(title: _titleRow(category)),
+          appBar: AppBar(title: _titleRow(category), actions: [IconButton(tooltip: 'Toggle dark mode', icon: Icon(app.dark ? Icons.light_mode : Icons.dark_mode), onPressed: app.toggleDark)]),
           body: _itemList(app.itemsIn(category.id)),
         );
       },

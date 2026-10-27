@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pdfrx/pdfrx.dart';
 
@@ -42,6 +43,36 @@ class _QuranVectorReaderState extends State<QuranVectorReader> {
   bool _ready = false;
   int? _total;
   int _page = 1;
+  Timer? _scrollTimer;
+  bool _autoScroll = false;
+  double _scrollSpeed = 0.8;
+
+  @override
+  void dispose() {
+    _scrollTimer?.cancel();
+    super.dispose();
+  }
+
+  void _toggleAutoScroll() {
+    _scrollTimer?.cancel();
+    setState(() => _autoScroll = !_autoScroll);
+    if (!_autoScroll) return;
+    _scrollTimer = Timer.periodic(const Duration(milliseconds: 80), (_) {
+      if (!mounted || !_controller.isReady) return;
+      final viewport = _controller.visibleRect;
+      final maximum = _controller.documentSize.height - viewport.height;
+      if (viewport.top >= maximum) {
+        _scrollTimer?.cancel();
+        if (mounted) setState(() => _autoScroll = false);
+        return;
+      }
+      _controller.goToPosition(
+        documentOffset: Offset(viewport.left,
+          (viewport.top + _scrollSpeed).clamp(0.0, maximum < 0 ? 0.0 : maximum)),
+        duration: Duration.zero,
+      );
+    });
+  }
 
   void _viewerReady(PdfDocument doc, PdfViewerController controller) {
     if (!mounted) return;
@@ -130,6 +161,11 @@ class _QuranVectorReaderState extends State<QuranVectorReader> {
         ),
         actions: [
           IconButton(
+            tooltip: _autoScroll ? 'Pause scroll' : 'Start slow scroll',
+            onPressed: _ready ? _toggleAutoScroll : null,
+            icon: Icon(_autoScroll ? Icons.pause_circle_outline : Icons.play_circle_outline),
+          ),
+          IconButton(
             tooltip: 'Open Quran page number',
             onPressed: _ready ? _findPage : null,
             icon: const Icon(Icons.search),
@@ -156,6 +192,13 @@ class _QuranVectorReaderState extends State<QuranVectorReader> {
                 ),
               ],
             ),
+          if (_ready)
+            SizedBox(height: 36, child: Row(children: [
+              const SizedBox(width: 8),
+              const Text('Scroll speed'),
+              Expanded(child: Slider(value: _scrollSpeed, min: 0.2, max: 2.0,
+                onChanged: (v) => setState(() => _scrollSpeed = v))),
+            ])),
           Expanded(
             child: Stack(
               children: [
