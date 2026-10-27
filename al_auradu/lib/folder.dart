@@ -9,7 +9,7 @@ import 'aurad_pdf_book.dart';
 Widget itemTile(BuildContext context, Item it) {
   final isQuran = it.category == 'quran' || it.category == 'juz';
   final isAddedSaadha = it.id == 'swalath-saadha';
-  final dim = !it.hasContent && !(mushafReady && isQuran) && !isAddedSaadha;
+  final dim = !it.hasContent && !(vectorQuranReady && isQuran) && !isAddedSaadha;
   final Color? color = dim ? Theme.of(context).disabledColor : null;
   return ListTile(
     title: Row(
