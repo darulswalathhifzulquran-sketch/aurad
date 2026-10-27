@@ -34,7 +34,7 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = APP_ROOT / "assets" / "books" / "quran_vector_604.pdf"
 MANIFEST = APP_ROOT / "assets" / "data" / "quran_vector_604_manifest.json"
 EXACT_COUNT = 604
-NUMBER = re.compile(r"^(\d{3})_+Hafs\d+_DM\.ai$", re.IGNORECASE)
+NUMBER = re.compile(r"^(\d{3})(?!\d)[^/]*\.ai$", re.IGNORECASE)
 
 
 def identify_pages(z: zipfile.ZipFile) -> dict[int, zipfile.ZipInfo]:
@@ -51,6 +51,8 @@ def identify_pages(z: zipfile.ZipFile) -> dict[int, zipfile.ZipInfo]:
             raise ValueError(f"Duplicate Quran page number: {number}")
         pages[number] = info
 
+    print("ZIP filename examples:", [i.filename for i in z.infolist()[:15]], flush=True)
+    print("Numbered Illustrator pages found:", len(pages), flush=True)
     expected = set(range(1, EXACT_COUNT + 1))
     if set(pages) != expected:
         missing = sorted(expected - set(pages))
