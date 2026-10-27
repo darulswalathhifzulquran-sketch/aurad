@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pdfrx/pdfrx.dart';
 
@@ -42,6 +43,9 @@ class _QuranVectorReaderState extends State<QuranVectorReader> {
   bool _ready = false;
   int? _total;
   int _page = 1;
+  Timer? _scrollTimer;
+  bool _autoScroll = false;
+  double _scrollSpeed = 0.8;
 
   void _viewerReady(PdfDocument doc, PdfViewerController controller) {
     if (!mounted) return;
