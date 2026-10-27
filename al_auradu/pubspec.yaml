@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5
+  pdfrx: ^2.10.1
 
 dev_dependencies:
   flutter_test:
@@ -21,9 +22,11 @@ flutter:
   uses-material-design: true
   assets:
     - assets/data/
-    - assets/quran/
-    - assets/pages/
+    # Old raster Mushaf/reader pages are still stored in the repository.
+    # Until their content is re-approved, do not bundle ~98 MB of unused
+    # image assets in every Flutter Web app start or offline cache.
     - assets/images/
+    - assets/books/
   fonts:
     - family: ArabicFont
       fonts:

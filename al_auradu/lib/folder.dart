@@ -2,18 +2,23 @@ import 'package:flutter/material.dart';
 import 'models.dart';
 import 'store.dart';
 import 'reader.dart';
-import 'mushaf.dart';
+import 'quran_vector_reader.dart';
+import 'aurad_pdf_book.dart';
 
 /// Left: English letters. Right: Arabic.
 Widget itemTile(BuildContext context, Item it) {
   final isQuran = it.category == 'quran' || it.category == 'juz';
-  final dim = !it.hasContent && !(mushafReady && isQuran);
+  final isAddedSaadha = it.id == 'swalath-saadha';
+  final dim = !it.hasContent && !(vectorQuranReady && isQuran) && !isAddedSaadha;
   final Color? color = dim ? Theme.of(context).disabledColor : null;
   return ListTile(
     title: Row(
       children: [
         Expanded(
-          child: Text(it.title, style: TextStyle(fontSize: 17, color: color)),
+          child: Text(
+            isAddedSaadha ? "Swalathu Sa'adha" : it.title,
+            style: TextStyle(fontSize: 17, color: color),
+          ),
         ),
         if (it.ar.isNotEmpty)
           Directionality(
@@ -24,24 +29,44 @@ Widget itemTile(BuildContext context, Item it) {
                 fontFamily: kArabicFont,
                 fontFamilyFallback: kFontFallback,
                 fontSize: 24,
+                fontWeight: isAddedSaadha ? FontWeight.bold : null,
                 color: color,
               ),
             ),
           ),
       ],
     ),
-    trailing: app.isBookmarked(it.id)
-        ? const Icon(Icons.bookmark, size: 20)
-        : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
+    // The user wants no added-status badge or hourglass on this item.
+    // The existing bold Arabic title alone indicates the entry.
+    trailing: isAddedSaadha
+        ? null
+        : app.isBookmarked(it.id)
+            ? const Icon(Icons.bookmark, size: 20)
+            : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
     onTap: () {
-      if (mushafReady && isQuran) {
-        final n = int.tryParse(it.id.split('-').last) ?? 1;
-        final page = it.category == 'quran'
-            ? kSurahPage[(n - 1).clamp(0, 113).toInt()]
-            : kJuzPage[(n - 1).clamp(0, 29).toInt()];
+      // Only the approved Swalathus Sa'adha entry uses its original PDF.
+      // All other titles still open the existing 'Content not added yet'
+      // reader until their own verified documents are supplied.
+      if (it.id == 'swalath-saadha') {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MushafScreen(startPage: page)),
+          MaterialPageRoute(
+            builder: (_) => const AuradPdfBookScreen(
+              title: "Swalathu Sa'adha",
+              assetPath: 'assets/books/swalathus_saadha.pdf',
+            ),
+          ),
+        );
+        return;
+      }
+      if (isQuran) {
+        // Both the 114 Surah and 30 Juz lists open the SAME untouched,
+        // original-source 604-page vector Quran PDF (only after import).
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => QuranVectorReader(itemId: it.id),
+          ),
         );
         return;
       }
@@ -125,6 +150,7 @@ class FolderScreen extends StatelessWidget {
             child: Scaffold(
               appBar: AppBar(
                 title: _titleRow(category),
+                actions: [IconButton(tooltip: 'Toggle dark mode', icon: Icon(app.dark ? Icons.light_mode : Icons.dark_mode), onPressed: app.toggleDark)],
                 bottom: const TabBar(
                   tabs: [Tab(text: 'Surah'), Tab(text: 'Juz')],
                 ),
@@ -139,7 +165,7 @@ class FolderScreen extends StatelessWidget {
           );
         }
         return Scaffold(
-          appBar: AppBar(title: _titleRow(category)),
+          appBar: AppBar(title: _titleRow(category), actions: [IconButton(tooltip: 'Toggle dark mode', icon: Icon(app.dark ? Icons.light_mode : Icons.dark_mode), onPressed: app.toggleDark)]),
           body: _itemList(app.itemsIn(category.id)),
         );
       },

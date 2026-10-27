@@ -86,6 +86,18 @@ class AppState extends ChangeNotifier {
       // Loading bundled Mushaf, Majlis, Extras or Ajmeer pages here would
       // restore the content that the user intentionally asked to clear.
       mushafReady = false;
+      // Only show Quran as added after the converter actually generated a
+      // 604-page vector PDF and committed its availability manifest.
+      try {
+        final metadata = jsonDecode(
+          await rootBundle.loadString(
+            'assets/data/quran_vector_604_manifest.json',
+          ),
+        ) as Map<String, dynamic>;
+        vectorQuranReady = metadata['pageCount'] == 604;
+      } catch (_) {
+        vectorQuranReady = false;
+      }
       quranStatus = '';
       extrasStatus = '';
     } else {
@@ -337,6 +349,7 @@ const Set<String> kHiddenCategories = {'import', 'samples'};
 
 /// True when assets/quran/info.json exists (pages were made by
 /// tool/pdf_to_pages.py). Then Surah / Juz open the Mushaf page viewer.
+bool vectorQuranReady = false;
 bool mushafReady = false;
 int mushafCount = 604;
 String mushafExt = 'jpg'; // picture type, set by info.json ("ext")
