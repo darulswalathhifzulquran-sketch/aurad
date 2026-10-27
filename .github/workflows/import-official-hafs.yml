@@ -100,6 +100,7 @@ jobs:
           git lfs install --local
           git add al_auradu/assets/books/quran_vector_604.pdf
           git add al_auradu/assets/books/quran_vector_604.import_report.json
+          git add al_auradu/assets/data/quran_vector_604_manifest.json
           if git diff --cached --quiet; then
             echo "No new PDF to commit."
           else
