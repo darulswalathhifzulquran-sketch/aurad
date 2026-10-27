@@ -1,0 +1,10 @@
+{
+  "source_archive": "1441-AI-hafs.zip",
+  "source_sha256": "280c5d71ca16aaeeb3a343be1b92c76fa6df71d0671e202c026fde12402d9eef",
+  "source_page_count": 604,
+  "output_pdf": "quran_vector_604.pdf",
+  "output_bytes": 196799783,
+  "source": "King Fahd Complex Hafs 1441 official AI pages",
+  "processing": "Vector-preserving PDF page merge, no Quran text edits",
+  "review_status": "UNVERIFIED: owner must visually proofread page mappings"
+}
