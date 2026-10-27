@@ -161,6 +161,11 @@ class _QuranVectorReaderState extends State<QuranVectorReader> {
         ),
         actions: [
           IconButton(
+            tooltip: _autoScroll ? 'Pause scroll' : 'Start slow scroll',
+            onPressed: _ready ? _toggleAutoScroll : null,
+            icon: Icon(_autoScroll ? Icons.pause_circle_outline : Icons.play_circle_outline),
+          ),
+          IconButton(
             tooltip: 'Open Quran page number',
             onPressed: _ready ? _findPage : null,
             icon: const Icon(Icons.search),
@@ -187,6 +192,13 @@ class _QuranVectorReaderState extends State<QuranVectorReader> {
                 ),
               ],
             ),
+          if (_ready)
+            SizedBox(height: 36, child: Row(children: [
+              const SizedBox(width: 8),
+              const Text('Scroll speed'),
+              Expanded(child: Slider(value: _scrollSpeed, min: 0.2, max: 2.0,
+                onChanged: (v) => setState(() => _scrollSpeed = v))),
+            ])),
           Expanded(
             child: Stack(
               children: [
