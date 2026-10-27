@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pdfrx/pdfrx.dart';
-import 'store.dart';
 
 /// Display an original vector PDF using PDFium.
 /// The old implementation loaded the whole asset with rootBundle first,
@@ -24,6 +23,7 @@ class _AuradPdfBookScreenState extends State<AuradPdfBookScreen> {
   final _viewer = PdfViewerController();
   Timer? _timer;
   bool _scroll = false;
+  bool _dark = false;
   double _speed = 0.8;
 
   @override
@@ -57,8 +57,8 @@ class _AuradPdfBookScreenState extends State<AuradPdfBookScreen> {
           IconButton(tooltip: _scroll ? 'Pause scrolling' : 'Slow auto-scroll',
             icon: Icon(_scroll ? Icons.pause_circle : Icons.play_circle), onPressed: _toggle),
           IconButton(tooltip: 'Dark mode',
-            icon: Icon(app.dark ? Icons.light_mode : Icons.dark_mode),
-            onPressed: () => setState(app.toggleDark)),
+            icon: Icon(_dark ? Icons.light_mode : Icons.dark_mode),
+            onPressed: () => setState(() => _dark = !_dark)),
         ],
       ),
       body: Column(children: [
@@ -75,7 +75,7 @@ class _AuradPdfBookScreenState extends State<AuradPdfBookScreen> {
           // Open with the whole page on screen, not an enlarged top crop.
           calculateInitialZoom:
               (document, controller, fitZoom, coverZoom) => fitZoom,
-          backgroundColor: app.dark ? Colors.black : const Color(0xFF15273E),
+          backgroundColor: _dark ? Colors.black : const Color(0xFF15273E),
           margin: 12,
           // Smaller first render makes the reader react faster;
           // PDFium subsequently re-renders high-detail/vector content
