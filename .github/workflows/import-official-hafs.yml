@@ -6,6 +6,7 @@ on:
       - feature/quran-1441-vector-surah-juz
     paths:
       - .github/workflows/import-official-hafs.yml
+      - al_auradu/tool/import_vector_quran.py
 
 permissions:
   contents: write
@@ -31,19 +32,39 @@ jobs:
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq inkscape
 
-      - name: Download owner's official publisher source, not old scanned PDF
+      - name: Restore official source download cache
+        id: hafs-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/1441-AI-hafs.zip
+          key: king-fahd-1441-ai-hafs-466430736-v1
+
+      - name: Download owner's official publisher source only if not cached
+        if: steps.hafs-cache.outputs.cache-hit != 'true'
         run: |
           curl --fail --show-error --location --retry 3 \
             --connect-timeout 40 --max-time 1500 \
             'https://dm.qurancomplex.gov.sa/Download/1441-AI-hafs.zip' \
             -o /tmp/1441-AI-hafs.zip
+
+      - name: Validate downloaded source and show original filenames
+        run: |
           python - <<'PY'
           import os, zipfile
           path = '/tmp/1441-AI-hafs.zip'
-          assert os.path.getsize(path) > 100_000_000, 'Downloaded file too small'
-          assert zipfile.is_zipfile(path), 'Official source was not a valid ZIP'
-          print('Official AI ZIP downloaded:', os.path.getsize(path), 'bytes')
+          assert os.path.getsize(path) == 466430736, 'Original ZIP size differs'
+          with zipfile.ZipFile(path) as z:
+              print('ZIP entries', len(z.infolist()))
+              print('First 20 filenames:', [i.filename for i in z.infolist()[:20]])
+              print('AI count:', sum(i.filename.lower().endswith('.ai') for i in z.infolist()))
           PY
+
+      - name: Save download cache before conversion, even if import fails
+        if: steps.hafs-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/1441-AI-hafs.zip
+          key: king-fahd-1441-ai-hafs-466430736-v1
 
       - name: Merge 604 AI source pages without OCR or rewriting verses
         run: |
