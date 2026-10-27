@@ -1,0 +1,87 @@
+name: Import Official Hafs 604 AI Pages
+
+on:
+  push:
+    branches:
+      - feature/quran-1441-vector-surah-juz
+    paths:
+      - .github/workflows/import-official-hafs.yml
+
+permissions:
+  contents: write
+
+jobs:
+  build-only-in-review-branch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out without large old scanned PDF
+        uses: actions/checkout@v4
+        with:
+          lfs: false
+          persist-credentials: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install vector PDF importer and Illustrator backup
+        run: |
+          python -m pip install --disable-pip-version-check PyMuPDF==1.26.5
+          sudo apt-get update -qq
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq inkscape
+
+      - name: Download owner's official publisher source, not old scanned PDF
+        run: |
+          curl --fail --show-error --location --retry 3 \
+            --connect-timeout 40 --max-time 1500 \
+            'https://dm.qurancomplex.gov.sa/Download/1441-AI-hafs.zip' \
+            -o /tmp/1441-AI-hafs.zip
+          python - <<'PY'
+          import os, zipfile
+          path = '/tmp/1441-AI-hafs.zip'
+          assert os.path.getsize(path) > 100_000_000, 'Downloaded file too small'
+          assert zipfile.is_zipfile(path), 'Official source was not a valid ZIP'
+          print('Official AI ZIP downloaded:', os.path.getsize(path), 'bytes')
+          PY
+
+      - name: Merge 604 AI source pages without OCR or rewriting verses
+        run: |
+          python al_auradu/tool/import_vector_quran.py /tmp/1441-AI-hafs.zip
+
+      - name: Verify output and render pages for human review
+        run: |
+          python - <<'PY'
+          import fitz, os
+          path='al_auradu/assets/books/quran_vector_604.pdf'
+          with fitz.open(path) as doc:
+              assert len(doc) == 604, f'Unexpected page count: {len(doc)}'
+              os.makedirs('/tmp/quran-vector-proof', exist_ok=True)
+              for n in [1, 2, 128, 582, 604]:
+                  page = doc[n-1]
+                  assert page.rect.width > 0 and page.rect.height > 0
+                  pix = page.get_pixmap(matrix=fitz.Matrix(1.5, 1.5), alpha=False)
+                  pix.save(f'/tmp/quran-vector-proof/page-{n:03d}.png')
+              print('Vector PDF:', os.stat(path).st_size, 'bytes. Human Quran review REQUIRED.')
+          PY
+
+      - name: Upload only five small proof pages
+        uses: actions/upload-artifact@v4
+        with:
+          name: hafs-quran-604-preview-proof
+          path: /tmp/quran-vector-proof/
+          retention-days: 14
+
+      - name: Commit compiled PDF on feature branch only using Git LFS
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git lfs install --local
+          git add al_auradu/assets/books/quran_vector_604.pdf
+          git add al_auradu/assets/books/quran_vector_604.import_report.json
+          if git diff --cached --quiet; then
+            echo "No new PDF to commit."
+          else
+            git commit -m "Import official 604 Hafs AI pages as review-only vector Quran PDF"
+            git push origin HEAD:feature/quran-1441-vector-surah-juz
+          fi
