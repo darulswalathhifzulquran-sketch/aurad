@@ -47,6 +47,33 @@ class _QuranVectorReaderState extends State<QuranVectorReader> {
   bool _autoScroll = false;
   double _scrollSpeed = 0.8;
 
+  @override
+  void dispose() {
+    _scrollTimer?.cancel();
+    super.dispose();
+  }
+
+  void _toggleAutoScroll() {
+    _scrollTimer?.cancel();
+    setState(() => _autoScroll = !_autoScroll);
+    if (!_autoScroll) return;
+    _scrollTimer = Timer.periodic(const Duration(milliseconds: 80), (_) {
+      if (!mounted || !_controller.isReady) return;
+      final viewport = _controller.visibleRect;
+      final maximum = _controller.documentSize.height - viewport.height;
+      if (viewport.top >= maximum) {
+        _scrollTimer?.cancel();
+        if (mounted) setState(() => _autoScroll = false);
+        return;
+      }
+      _controller.goToPosition(
+        documentOffset: Offset(viewport.left,
+          (viewport.top + _scrollSpeed).clamp(0.0, maximum < 0 ? 0.0 : maximum)),
+        duration: Duration.zero,
+      );
+    });
+  }
+
   void _viewerReady(PdfDocument doc, PdfViewerController controller) {
     if (!mounted) return;
     final count = doc.pages.length;
