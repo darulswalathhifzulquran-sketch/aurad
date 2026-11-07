@@ -11,17 +11,37 @@ Widget itemTile(BuildContext context, Item it) {
   final dim =
       !it.hasContent && it.pdfAsset.isEmpty && !(mushafReady && isQuran);
   final Color? color = dim ? Theme.of(context).disabledColor : null;
+  final number = int.tryParse(it.id.split('-').last);
+  final isNumberedQuran = isQuran && number != null;
+  final englishTitle = isNumberedQuran
+      ? it.title.replaceFirst(RegExp(r'^\\d+\\.\\s*'), '')
+      : it.title;
+  final arabicNumber = isNumberedQuran
+      ? number.toString().replaceAllMapped(
+          RegExp(r'[0-9]'),
+          (m) => String.fromCharCode(0x0660 + int.parse(m.group(0)!)),
+        )
+      : '';
   return ListTile(
     title: Row(
       children: [
         Expanded(
-          child: Text(it.title, style: TextStyle(fontSize: 17, color: color)),
+          child: Text(
+            isNumberedQuran ? '$number. $englishTitle' : it.title,
+            style: TextStyle(
+              fontSize: 17,
+              color: color,
+              fontFamily: 'Arial',
+              letterSpacing: 0,
+              wordSpacing: 0,
+            ),
+          ),
         ),
         if (it.ar.isNotEmpty)
           Directionality(
             textDirection: TextDirection.rtl,
             child: Text(
-              it.ar,
+              isNumberedQuran ? '$arabicNumber - ${it.ar}' : it.ar,
               style: TextStyle(
                 fontFamily: kArabicFont,
                 fontFamilyFallback: kFontFallback,
