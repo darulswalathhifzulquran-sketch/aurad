@@ -369,9 +369,9 @@ class _MushafScreenState extends State<MushafScreen>
               children: [
                 Text(
                     '${_surahName(surahAtPage(page))}  \u2022  Juz ${juzAtPage(page)}',
-                    style: const TextStyle(fontSize: 18)),
+                    style: const TextStyle(fontSize: 18, fontFamily: 'Arial', letterSpacing: 0, wordSpacing: 0)),
                 Text('Page $page / $mushafCount',
-                    style: const TextStyle(fontSize: 12)),
+                    style: const TextStyle(fontSize: 12, fontFamily: 'Arial', letterSpacing: 0, wordSpacing: 0)),
               ],
             ),
             actions: [
