@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
   double _pageExtent = 0;
   int _currentPage = 1;
   bool _initialJumpDone = false;
+  Map<int, int> _hizbByPage = const {};
 
   @override
   void initState() {
@@ -38,6 +40,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
     _currentPage = widget.startPage.clamp(1, 604).toInt();
     _scrollController = ScrollController()..addListener(_onScroll);
     _ticker = createTicker(_onTick);
+    unawaited(_loadHizbMetadata());
     _pages = rootBundle.loadString('assets/data/quran_lines.json').then((text) {
       final decoded = jsonDecode(text);
       if (decoded is! List || decoded.length != 604) {
@@ -50,6 +53,31 @@ class _QuranLineReaderState extends State<QuranLineReader>
         return page.map<String>((line) => line as String).toList();
       }).toList();
     });
+  }
+
+  Future<void> _loadHizbMetadata() async {
+    try {
+      final raw = await rootBundle.loadString(
+        'assets/data/quran_page_hizb.json',
+      );
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic> || decoded.length != 604) {
+        return;
+      }
+      final verified = <int, int>{};
+      for (final entry in decoded.entries) {
+        final page = int.tryParse(entry.key);
+        final hizb = entry.value;
+        if (page == null || page < 1 || page > 604 ||
+            hizb is! int || hizb < 1 || hizb > 60) return;
+        verified[page] = hizb;
+      }
+      if (verified.length == 604 && mounted) {
+        setState(() => _hizbByPage = verified);
+      }
+    } catch (_) {
+      // Exact metadata is optional; never fabricate Hizb numbers.
+    }
   }
 
   @override
@@ -311,6 +339,19 @@ class _QuranLineReaderState extends State<QuranLineReader>
                   ),
                 ),
               ),
+              // Side Hizb badge, only when verified page metadata is present.
+              if (_hizbByPage[page] != null)
+                Positioned(
+                  top: height * 0.48,
+                  left: width * 0.008,
+                  width: width * 0.105,
+                  child: _pageLabel(
+                    'حزب ' + _hizbByPage[page].toString(),
+                    width * 0.027,
+                    accent,
+                    arabic: true,
+                  ),
+                ),
               Positioned(
                 bottom: height * 0.095,
                 left: width * 0.36,
