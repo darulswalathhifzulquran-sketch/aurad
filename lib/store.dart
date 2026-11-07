@@ -340,7 +340,7 @@ const int kMushafPageCount = 604;
 int mushafCount = kMushafPageCount;
 const String kQuranPdfAsset = 'quran.pdf';
 // Dark Mode copy of the very same pages (processed offline, same order).
-const String kQuranDarkPdfAsset = 'quran_dark.pdf';
+const String kQuranDarkPdfAsset = 'assets/books/quran_dark.pdf';
 // quran.pdf and quran_dark.pdf contain exactly the 604 Quran pages: the three
 // front-matter pages and the back-matter pages were removed from the files, so
 // they can never be scrolled into. Reading page N is PDF page N.
