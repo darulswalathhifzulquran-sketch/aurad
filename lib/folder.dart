@@ -4,6 +4,7 @@ import 'models.dart';
 import 'store.dart';
 import 'reader.dart';
 import 'mushaf.dart';
+import 'quran_line_reader.dart';
 
 /// Left: English letters. Right: Arabic.
 Widget itemTile(BuildContext context, Item it) {
@@ -70,7 +71,7 @@ Widget itemTile(BuildContext context, Item it) {
             : kJuzPage[(n - 1).clamp(0, 29).toInt()];
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => MushafScreen(startPage: page)),
+          MaterialPageRoute(builder: (_) => QuranLineReader(startPage: page)),
         );
         return;
       }
