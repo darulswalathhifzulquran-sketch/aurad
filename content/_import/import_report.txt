@@ -1,0 +1,14 @@
+IMPORT REPORT  2026-10-10T06:12:06.660210
+================================================
+Files scanned : 0
+New items     : 0
+Filled empty  : 0
+Skipped       : 0
+Errors        : 0
+
+ITEMS WITH CONTENT, PER CATEGORY
+------------------------------------------------
+  mawlid         1 of 11
+  swalath        3 of 11
+  dua            2 of 8
+  (items still empty: 189)

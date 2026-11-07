@@ -1,0 +1,40 @@
+name: al_auradu
+description: Riyad al-Adhkar - Mawlid, Baith, Swalath, Dua collection.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  pdfrx: ^2.10.1
+  shared_preferences: ^2.2.2
+  url_launcher: ^6.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/data/
+    - assets/extra_items.json
+    - assets/books/
+    - assets/quran - Copy/info.json
+    - assets/pages/
+    - assets/images/aurad_reference_home.png
+    - assets/images/border.png
+    - assets/images/quran_border.png
+    - quran.pdf
+  fonts:
+    - family: ArabicFont
+      fonts:
+        - asset: assets/fonts/arabic.ttf
+          weight: 700
+    - family: Amiri
+      fonts:
+        - asset: assets/fonts/Amiri-Regular.ttf

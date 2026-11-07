@@ -1,0 +1,21 @@
+{
+ "generated": "2026-10-10T08:22:28.615518",
+ "files": {
+  "_import/import_report.txt": {
+   "hash": "d67a69d9d1326b76-400",
+   "id": "_import-import_report"
+  },
+  "_samples/dua/sample-dua.json": {
+   "hash": "fc02f9335b80f25b-82",
+   "id": "dua-sample-dua"
+  },
+  "_samples/mawlid/sample-table.md": {
+   "hash": "8d80f0a4822347fc-281",
+   "id": "_samples-sample-table"
+  },
+  "_samples/swalath/sample-swalath.txt": {
+   "hash": "3d99bb1b5fc4f7d0-324",
+   "id": "_samples-sample-swalath"
+  }
+ }
+}

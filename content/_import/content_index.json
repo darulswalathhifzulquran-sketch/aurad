@@ -1,0 +1,1952 @@
+[
+  {
+    "id": "quran-1",
+    "category": "quran",
+    "title": "1. Al-Fatiha",
+    "ar": "سورة الفاتحة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-2",
+    "category": "quran",
+    "title": "2. Al-Baqarah",
+    "ar": "سورة البقرة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-3",
+    "category": "quran",
+    "title": "3. Aal-Imran",
+    "ar": "سورة آل عمران",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-4",
+    "category": "quran",
+    "title": "4. An-Nisa",
+    "ar": "سورة النساء",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-5",
+    "category": "quran",
+    "title": "5. Al-Ma'idah",
+    "ar": "سورة المائدة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-6",
+    "category": "quran",
+    "title": "6. Al-An'am",
+    "ar": "سورة الأنعام",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-7",
+    "category": "quran",
+    "title": "7. Al-A'raf",
+    "ar": "سورة الأعراف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-8",
+    "category": "quran",
+    "title": "8. Al-Anfal",
+    "ar": "سورة الأنفال",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-9",
+    "category": "quran",
+    "title": "9. At-Tawbah",
+    "ar": "سورة التوبة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-10",
+    "category": "quran",
+    "title": "10. Yunus",
+    "ar": "سورة يونس",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-11",
+    "category": "quran",
+    "title": "11. Hud",
+    "ar": "سورة هود",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-12",
+    "category": "quran",
+    "title": "12. Yusuf",
+    "ar": "سورة يوسف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-13",
+    "category": "quran",
+    "title": "13. Ar-Ra'd",
+    "ar": "سورة الرعد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-14",
+    "category": "quran",
+    "title": "14. Ibrahim",
+    "ar": "سورة إبراهيم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-15",
+    "category": "quran",
+    "title": "15. Al-Hijr",
+    "ar": "سورة الحجر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-16",
+    "category": "quran",
+    "title": "16. An-Nahl",
+    "ar": "سورة النحل",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-17",
+    "category": "quran",
+    "title": "17. Al-Isra",
+    "ar": "سورة الإسراء",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-18",
+    "category": "quran",
+    "title": "18. Al-Kahf",
+    "ar": "سورة الكهف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-19",
+    "category": "quran",
+    "title": "19. Maryam",
+    "ar": "سورة مريم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-20",
+    "category": "quran",
+    "title": "20. Ta-Ha",
+    "ar": "سورة طه",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-21",
+    "category": "quran",
+    "title": "21. Al-Anbiya",
+    "ar": "سورة الأنبياء",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-22",
+    "category": "quran",
+    "title": "22. Al-Hajj",
+    "ar": "سورة الحج",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-23",
+    "category": "quran",
+    "title": "23. Al-Mu'minun",
+    "ar": "سورة المؤمنون",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-24",
+    "category": "quran",
+    "title": "24. An-Nur",
+    "ar": "سورة النور",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-25",
+    "category": "quran",
+    "title": "25. Al-Furqan",
+    "ar": "سورة الفرقان",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-26",
+    "category": "quran",
+    "title": "26. Ash-Shu'ara",
+    "ar": "سورة الشعراء",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-27",
+    "category": "quran",
+    "title": "27. An-Naml",
+    "ar": "سورة النمل",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-28",
+    "category": "quran",
+    "title": "28. Al-Qasas",
+    "ar": "سورة القصص",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-29",
+    "category": "quran",
+    "title": "29. Al-Ankabut",
+    "ar": "سورة العنكبوت",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-30",
+    "category": "quran",
+    "title": "30. Ar-Rum",
+    "ar": "سورة الروم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-31",
+    "category": "quran",
+    "title": "31. Luqman",
+    "ar": "سورة لقمان",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-32",
+    "category": "quran",
+    "title": "32. As-Sajdah",
+    "ar": "سورة السجدة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-33",
+    "category": "quran",
+    "title": "33. Al-Ahzab",
+    "ar": "سورة الأحزاب",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-34",
+    "category": "quran",
+    "title": "34. Saba",
+    "ar": "سورة سبأ",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-35",
+    "category": "quran",
+    "title": "35. Fatir",
+    "ar": "سورة فاطر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-36",
+    "category": "quran",
+    "title": "36. Ya-Sin",
+    "ar": "سورة يس",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-37",
+    "category": "quran",
+    "title": "37. As-Saffat",
+    "ar": "سورة الصافات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-38",
+    "category": "quran",
+    "title": "38. Sad",
+    "ar": "سورة ص",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-39",
+    "category": "quran",
+    "title": "39. Az-Zumar",
+    "ar": "سورة الزمر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-40",
+    "category": "quran",
+    "title": "40. Ghafir",
+    "ar": "سورة غافر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-41",
+    "category": "quran",
+    "title": "41. Fussilat",
+    "ar": "سورة فصلت",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-42",
+    "category": "quran",
+    "title": "42. Ash-Shura",
+    "ar": "سورة الشورى",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-43",
+    "category": "quran",
+    "title": "43. Az-Zukhruf",
+    "ar": "سورة الزخرف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-44",
+    "category": "quran",
+    "title": "44. Ad-Dukhan",
+    "ar": "سورة الدخان",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-45",
+    "category": "quran",
+    "title": "45. Al-Jathiyah",
+    "ar": "سورة الجاثية",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-46",
+    "category": "quran",
+    "title": "46. Al-Ahqaf",
+    "ar": "سورة الأحقاف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-47",
+    "category": "quran",
+    "title": "47. Muhammad",
+    "ar": "سورة محمد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-48",
+    "category": "quran",
+    "title": "48. Al-Fath",
+    "ar": "سورة الفتح",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-49",
+    "category": "quran",
+    "title": "49. Al-Hujurat",
+    "ar": "سورة الحجرات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-50",
+    "category": "quran",
+    "title": "50. Qaf",
+    "ar": "سورة ق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-51",
+    "category": "quran",
+    "title": "51. Adh-Dhariyat",
+    "ar": "سورة الذاريات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-52",
+    "category": "quran",
+    "title": "52. At-Tur",
+    "ar": "سورة الطور",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-53",
+    "category": "quran",
+    "title": "53. An-Najm",
+    "ar": "سورة النجم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-54",
+    "category": "quran",
+    "title": "54. Al-Qamar",
+    "ar": "سورة القمر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-55",
+    "category": "quran",
+    "title": "55. Ar-Rahman",
+    "ar": "سورة الرحمن",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-56",
+    "category": "quran",
+    "title": "56. Al-Waqi'ah",
+    "ar": "سورة الواقعة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-57",
+    "category": "quran",
+    "title": "57. Al-Hadid",
+    "ar": "سورة الحديد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-58",
+    "category": "quran",
+    "title": "58. Al-Mujadilah",
+    "ar": "سورة المجادلة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-59",
+    "category": "quran",
+    "title": "59. Al-Hashr",
+    "ar": "سورة الحشر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-60",
+    "category": "quran",
+    "title": "60. Al-Mumtahanah",
+    "ar": "سورة الممتحنة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-61",
+    "category": "quran",
+    "title": "61. As-Saff",
+    "ar": "سورة الصف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-62",
+    "category": "quran",
+    "title": "62. Al-Jumu'ah",
+    "ar": "سورة الجمعة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-63",
+    "category": "quran",
+    "title": "63. Al-Munafiqun",
+    "ar": "سورة المنافقون",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-64",
+    "category": "quran",
+    "title": "64. At-Taghabun",
+    "ar": "سورة التغابن",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-65",
+    "category": "quran",
+    "title": "65. At-Talaq",
+    "ar": "سورة الطلاق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-66",
+    "category": "quran",
+    "title": "66. At-Tahrim",
+    "ar": "سورة التحريم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-67",
+    "category": "quran",
+    "title": "67. Al-Mulk",
+    "ar": "سورة الملك",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-68",
+    "category": "quran",
+    "title": "68. Al-Qalam",
+    "ar": "سورة القلم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-69",
+    "category": "quran",
+    "title": "69. Al-Haqqah",
+    "ar": "سورة الحاقة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-70",
+    "category": "quran",
+    "title": "70. Al-Ma'arij",
+    "ar": "سورة المعارج",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-71",
+    "category": "quran",
+    "title": "71. Nuh",
+    "ar": "سورة نوح",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-72",
+    "category": "quran",
+    "title": "72. Al-Jinn",
+    "ar": "سورة الجن",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-73",
+    "category": "quran",
+    "title": "73. Al-Muzzammil",
+    "ar": "سورة المزمل",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-74",
+    "category": "quran",
+    "title": "74. Al-Muddaththir",
+    "ar": "سورة المدثر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-75",
+    "category": "quran",
+    "title": "75. Al-Qiyamah",
+    "ar": "سورة القيامة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-76",
+    "category": "quran",
+    "title": "76. Al-Insan",
+    "ar": "سورة الإنسان",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-77",
+    "category": "quran",
+    "title": "77. Al-Mursalat",
+    "ar": "سورة المرسلات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-78",
+    "category": "quran",
+    "title": "78. An-Naba",
+    "ar": "سورة النبأ",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-79",
+    "category": "quran",
+    "title": "79. An-Nazi'at",
+    "ar": "سورة النازعات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-80",
+    "category": "quran",
+    "title": "80. Abasa",
+    "ar": "سورة عبس",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-81",
+    "category": "quran",
+    "title": "81. At-Takwir",
+    "ar": "سورة التكوير",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-82",
+    "category": "quran",
+    "title": "82. Al-Infitar",
+    "ar": "سورة الانفطار",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-83",
+    "category": "quran",
+    "title": "83. Al-Mutaffifin",
+    "ar": "سورة المطففين",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-84",
+    "category": "quran",
+    "title": "84. Al-Inshiqaq",
+    "ar": "سورة الانشقاق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-85",
+    "category": "quran",
+    "title": "85. Al-Buruj",
+    "ar": "سورة البروج",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-86",
+    "category": "quran",
+    "title": "86. At-Tariq",
+    "ar": "سورة الطارق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-87",
+    "category": "quran",
+    "title": "87. Al-A'la",
+    "ar": "سورة الأعلى",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-88",
+    "category": "quran",
+    "title": "88. Al-Ghashiyah",
+    "ar": "سورة الغاشية",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-89",
+    "category": "quran",
+    "title": "89. Al-Fajr",
+    "ar": "سورة الفجر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-90",
+    "category": "quran",
+    "title": "90. Al-Balad",
+    "ar": "سورة البلد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-91",
+    "category": "quran",
+    "title": "91. Ash-Shams",
+    "ar": "سورة الشمس",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-92",
+    "category": "quran",
+    "title": "92. Al-Layl",
+    "ar": "سورة الليل",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-93",
+    "category": "quran",
+    "title": "93. Ad-Duha",
+    "ar": "سورة الضحى",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-94",
+    "category": "quran",
+    "title": "94. Ash-Sharh",
+    "ar": "سورة الشرح",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-95",
+    "category": "quran",
+    "title": "95. At-Tin",
+    "ar": "سورة التين",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-96",
+    "category": "quran",
+    "title": "96. Al-Alaq",
+    "ar": "سورة العلق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-97",
+    "category": "quran",
+    "title": "97. Al-Qadr",
+    "ar": "سورة القدر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-98",
+    "category": "quran",
+    "title": "98. Al-Bayyinah",
+    "ar": "سورة البينة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-99",
+    "category": "quran",
+    "title": "99. Az-Zalzalah",
+    "ar": "سورة الزلزلة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-100",
+    "category": "quran",
+    "title": "100. Al-Adiyat",
+    "ar": "سورة العاديات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-101",
+    "category": "quran",
+    "title": "101. Al-Qari'ah",
+    "ar": "سورة القارعة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-102",
+    "category": "quran",
+    "title": "102. At-Takathur",
+    "ar": "سورة التكاثر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-103",
+    "category": "quran",
+    "title": "103. Al-Asr",
+    "ar": "سورة العصر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-104",
+    "category": "quran",
+    "title": "104. Al-Humazah",
+    "ar": "سورة الهمزة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-105",
+    "category": "quran",
+    "title": "105. Al-Fil",
+    "ar": "سورة الفيل",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-106",
+    "category": "quran",
+    "title": "106. Quraysh",
+    "ar": "سورة قريش",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-107",
+    "category": "quran",
+    "title": "107. Al-Ma'un",
+    "ar": "سورة الماعون",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-108",
+    "category": "quran",
+    "title": "108. Al-Kawthar",
+    "ar": "سورة الكوثر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-109",
+    "category": "quran",
+    "title": "109. Al-Kafirun",
+    "ar": "سورة الكافرون",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-110",
+    "category": "quran",
+    "title": "110. An-Nasr",
+    "ar": "سورة النصر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-111",
+    "category": "quran",
+    "title": "111. Al-Masad",
+    "ar": "سورة المسد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-112",
+    "category": "quran",
+    "title": "112. Al-Ikhlas",
+    "ar": "سورة الإخلاص",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-113",
+    "category": "quran",
+    "title": "113. Al-Falaq",
+    "ar": "سورة الفلق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "quran-114",
+    "category": "quran",
+    "title": "114. An-Nas",
+    "ar": "سورة الناس",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-1",
+    "category": "baith",
+    "title": "Ashraqa Baith",
+    "ar": "أشرق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-2",
+    "category": "baith",
+    "title": "Burda",
+    "ar": "البردة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-3",
+    "category": "baith",
+    "title": "Salam Baith",
+    "ar": "سلام",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-4",
+    "category": "baith",
+    "title": "Thala'al Badru",
+    "ar": "طلع البدر علينا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-5",
+    "category": "baith",
+    "title": "Ya Akrama Baith",
+    "ar": "يا أكرم الخلق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-6",
+    "category": "baith",
+    "title": "Swallallahu (Umar Qadi)",
+    "ar": "صلى الله",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-7",
+    "category": "baith",
+    "title": "Allafal Alifu",
+    "ar": "ألف الألف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-8",
+    "category": "baith",
+    "title": "Asmaul Husna Baith",
+    "ar": "أسماء الله الحسنى",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-9",
+    "category": "baith",
+    "title": "Hubbunnabi Baith",
+    "ar": "حب النبي",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-10",
+    "category": "baith",
+    "title": "Qaseeda Muhammadiyya",
+    "ar": "القصيدة المحمدية",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-11",
+    "category": "baith",
+    "title": "Dhikrullahi Miftahun",
+    "ar": "ذكر الله مفتاح",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-12",
+    "category": "baith",
+    "title": "Ya Lateef Baith",
+    "ar": "يا لطيف",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-13",
+    "category": "baith",
+    "title": "Ya Sayyidi Baith",
+    "ar": "يا سيدي",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-14",
+    "category": "baith",
+    "title": "Fee Hubbi Sayyiduna",
+    "ar": "في حب سيدنا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-15",
+    "category": "baith",
+    "title": "Aqsam Baith",
+    "ar": "أقسم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-16",
+    "category": "baith",
+    "title": "Tawassul bi Shamsil Ulama",
+    "ar": "توسل بشمس العلماء",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-17",
+    "category": "baith",
+    "title": "Dars Thudangumbozhulla Baith",
+    "ar": "بيت بداية الدرس",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "baith-18",
+    "category": "baith",
+    "title": "Tawassul bi Dawoodul Hakeem",
+    "ar": "توسل بداود الحكيم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-sharafal-anam",
+    "category": "mawlid",
+    "title": "Sharafal Anam Mawlid",
+    "ar": "شرف الأنام مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mankoos-mawlid",
+    "category": "mawlid",
+    "title": "Mankoos Mawlid",
+    "ar": "منقوص مولد",
+    "en": "",
+    "pages": 5,
+    "characters": 5653,
+    "hasContent": true
+  },
+  {
+    "id": "mawlid-1",
+    "category": "mawlid",
+    "title": "Manqool Mawlid",
+    "ar": "منقول مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-2",
+    "category": "mawlid",
+    "title": "Badr Mawlid",
+    "ar": "البدر مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-3",
+    "category": "mawlid",
+    "title": "Dawoodul Hakeem Mawlid",
+    "ar": "داود الحكيم مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-4",
+    "category": "mawlid",
+    "title": "Shamsul Ulama Mawlid",
+    "ar": "شمس العلماء مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-5",
+    "category": "mawlid",
+    "title": "Mamburam Mawlid",
+    "ar": "ممبرم مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-6",
+    "category": "mawlid",
+    "title": "Madavoor Mawlid",
+    "ar": "مدوور مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-7",
+    "category": "mawlid",
+    "title": "Muhyiddeen Mawlid",
+    "ar": "محيي الدين مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-8",
+    "category": "mawlid",
+    "title": "Rifai Mawlid",
+    "ar": "الرفاعي مولد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mawlid-nimatul-kubra",
+    "category": "mawlid",
+    "title": "An-Ni'matul Kubra Mawlid",
+    "ar": "النعمة الكبرى",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mala-1",
+    "category": "mala",
+    "title": "Muhyiddeen Mala",
+    "ar": "محيي الدين مالا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mala-2",
+    "category": "mala",
+    "title": "Rifai Mala",
+    "ar": "الرفاعي مالا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "mala-3",
+    "category": "mala",
+    "title": "Nafeesath Mala",
+    "ar": "نفيسة مالا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-saadha",
+    "category": "swalath",
+    "title": "Swalathus Sa'adha",
+    "ar": "صلاة السعادة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-1",
+    "category": "swalath",
+    "title": "A'zamu Swalath",
+    "ar": "صلاة الأعظم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-2",
+    "category": "swalath",
+    "title": "Aurad Majlis Swalath",
+    "ar": "صلاة أوراد المجلس",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-3",
+    "category": "swalath",
+    "title": "Taj Swalath",
+    "ar": "صلاة التاج",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-4",
+    "category": "swalath",
+    "title": "Nariyyath Swalath",
+    "ar": "الصلاة النارية",
+    "en": "",
+    "pages": 1,
+    "characters": 0,
+    "hasContent": true
+  },
+  {
+    "id": "swalath-5",
+    "category": "swalath",
+    "title": "Friday Morning Swalath",
+    "ar": "صلاة صباح الجمعة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-6",
+    "category": "swalath",
+    "title": "Dalailul Khairat",
+    "ar": "دلائل الخيرات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-7",
+    "category": "swalath",
+    "title": "Swalathul Muniyyath",
+    "ar": "صلاة المنية",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-8",
+    "category": "swalath",
+    "title": "Swalathul Munajath",
+    "ar": "صلاة المناجاة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "swalath-9",
+    "category": "swalath",
+    "title": "Swalathu Thibb",
+    "ar": "صلاة الطب",
+    "en": "",
+    "pages": 1,
+    "characters": 0,
+    "hasContent": true
+  },
+  {
+    "id": "swalath-10",
+    "category": "swalath",
+    "title": "Swalathul Fathih",
+    "ar": "صلاة الفاتح",
+    "en": "",
+    "pages": 1,
+    "characters": 0,
+    "hasContent": true
+  },
+  {
+    "id": "dua-1",
+    "category": "dua",
+    "title": "Barath Night Dua",
+    "ar": "ليلة البراءة دعاء",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "dua-2",
+    "category": "dua",
+    "title": "Dua Al Karb",
+    "ar": "الكرب دعاء",
+    "en": "",
+    "pages": 1,
+    "characters": 0,
+    "hasContent": true
+  },
+  {
+    "id": "dua-3",
+    "category": "dua",
+    "title": "Hizbul Bahr",
+    "ar": "حزب البحر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "dua-4",
+    "category": "dua",
+    "title": "Hizbun Nasr",
+    "ar": "حزب النصر",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "dua-5",
+    "category": "dua",
+    "title": "Kanzul Arsh",
+    "ar": "كنز العرش",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "dua-6",
+    "category": "dua",
+    "title": "Khatmul Quran",
+    "ar": "ختم القرآن",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "dua-7",
+    "category": "dua",
+    "title": "Nurul Iman",
+    "ar": "نور الإيمان",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "dua-8",
+    "category": "dua",
+    "title": "Sayyidul Istighfar",
+    "ar": "سيد الاستغفار",
+    "en": "",
+    "pages": 1,
+    "characters": 0,
+    "hasContent": true
+  },
+  {
+    "id": "juz-1",
+    "category": "juz",
+    "title": "Juz 1 - Alif Lam Meem",
+    "ar": "الجزء ١ - الم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-2",
+    "category": "juz",
+    "title": "Juz 2 - Sayaqool",
+    "ar": "الجزء ٢ - سيقول",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-3",
+    "category": "juz",
+    "title": "Juz 3 - Tilkar Rusul",
+    "ar": "الجزء ٣ - تلك الرسل",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-4",
+    "category": "juz",
+    "title": "Juz 4 - Lan Tanaloo",
+    "ar": "الجزء ٤ - لن تنالوا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-5",
+    "category": "juz",
+    "title": "Juz 5 - Wal Muhsanat",
+    "ar": "الجزء ٥ - والمحصنات",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-6",
+    "category": "juz",
+    "title": "Juz 6 - La Yuhibbullah",
+    "ar": "الجزء ٦ - لا يحب الله",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-7",
+    "category": "juz",
+    "title": "Juz 7 - Wa Iza Samiu",
+    "ar": "الجزء ٧ - وإذا سمعوا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-8",
+    "category": "juz",
+    "title": "Juz 8 - Wa Lau Annana",
+    "ar": "الجزء ٨ - ولو أننا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-9",
+    "category": "juz",
+    "title": "Juz 9 - Qalal Malau",
+    "ar": "الجزء ٩ - قال الملأ",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-10",
+    "category": "juz",
+    "title": "Juz 10 - Wa A'lamu",
+    "ar": "الجزء ١٠ - واعلموا",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-11",
+    "category": "juz",
+    "title": "Juz 11 - Ya'tazirun",
+    "ar": "الجزء ١١ - يعتذرون",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-12",
+    "category": "juz",
+    "title": "Juz 12 - Wa Ma Min Dabbah",
+    "ar": "الجزء ١٢ - وما من دابة",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-13",
+    "category": "juz",
+    "title": "Juz 13 - Wa Ma Ubarri'u",
+    "ar": "الجزء ١٣ - وما أبرئ",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-14",
+    "category": "juz",
+    "title": "Juz 14 - Rubama",
+    "ar": "الجزء ١٤ - ربما",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-15",
+    "category": "juz",
+    "title": "Juz 15 - Subhanallazi",
+    "ar": "الجزء ١٥ - سبحان الذي",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-16",
+    "category": "juz",
+    "title": "Juz 16 - Qal Alam",
+    "ar": "الجزء ١٦ - قال ألم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-17",
+    "category": "juz",
+    "title": "Juz 17 - Iqtaraba",
+    "ar": "الجزء ١٧ - اقترب",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-18",
+    "category": "juz",
+    "title": "Juz 18 - Qad Aflaha",
+    "ar": "الجزء ١٨ - قد أفلح",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-19",
+    "category": "juz",
+    "title": "Juz 19 - Wa Qalallazina",
+    "ar": "الجزء ١٩ - وقال الذين",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-20",
+    "category": "juz",
+    "title": "Juz 20 - Amman Khalaq",
+    "ar": "الجزء ٢٠ - أمن خلق",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-21",
+    "category": "juz",
+    "title": "Juz 21 - Utlu Ma Uhiya",
+    "ar": "الجزء ٢١ - اتل ما أوحي",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-22",
+    "category": "juz",
+    "title": "Juz 22 - Wa Man Yaqnut",
+    "ar": "الجزء ٢٢ - ومن يقنت",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-23",
+    "category": "juz",
+    "title": "Juz 23 - Wa Mali",
+    "ar": "الجزء ٢٣ - وما لي",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-24",
+    "category": "juz",
+    "title": "Juz 24 - Fa Man Azlam",
+    "ar": "الجزء ٢٤ - فمن أظلم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-25",
+    "category": "juz",
+    "title": "Juz 25 - Ilayhi Yuraddu",
+    "ar": "الجزء ٢٥ - إليه يرد",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-26",
+    "category": "juz",
+    "title": "Juz 26 - Ha Meem",
+    "ar": "الجزء ٢٦ - حم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-27",
+    "category": "juz",
+    "title": "Juz 27 - Qala Fama Khatbukum",
+    "ar": "الجزء ٢٧ - قال فما خطبكم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-28",
+    "category": "juz",
+    "title": "Juz 28 - Qad Sami Allah",
+    "ar": "الجزء ٢٨ - قد سمع الله",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-29",
+    "category": "juz",
+    "title": "Juz 29 - Tabarakallazi",
+    "ar": "الجزء ٢٩ - تبارك الذي",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  },
+  {
+    "id": "juz-30",
+    "category": "juz",
+    "title": "Juz 30 - Amma",
+    "ar": "الجزء ٣٠ - عم",
+    "en": "",
+    "pages": 0,
+    "characters": 0,
+    "hasContent": false
+  }
+]

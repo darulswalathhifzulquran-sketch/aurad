@@ -1,0 +1,35 @@
+IMPORT REPORT 
+Source folder: content   Files scanned: 20
+
+NEW ITEMS (4)
+  - _import/import_report.txt  ->  _import-import_report  (2 pages)
+  - _samples/dua/sample-dua.json  ->  dua-sample-dua  (1 pages)
+  - _samples/mawlid/sample-table.md  ->  _samples-sample-table  (1 pages)
+  - _samples/swalath/sample-swalath.txt  ->  _samples-sample-swalath  (1 pages)
+
+FILLED EXISTING (were empty) (0)
+
+UPDATED (0)
+
+NEW CATEGORIES (2)
+  - _import  (Import)
+  - _samples  (Samples)
+
+SKIPPED (0)
+
+WARNINGS (0)
+
+ERRORS (4)
+  - _import/backups/library-2026-10-09T16-41-08.json: "pages" is empty
+  - _import/backups/library-2026-10-10T06-12-06.json: "pages" is empty
+  - _import/content_index.json: entry 1: needs "pages" or "text"
+  - _import/registry.json: entry 1: needs "pages" or "text"
+
+ITEMS WITH CONTENT, PER CATEGORY
+  mawlid: 1
+  swalath: 3
+  dua: 3
+  _import: 1
+  _samples: 2
+
+SUMMARY: 4 new, 0 filled, 0 updated, 0 skipped, 4 errors
