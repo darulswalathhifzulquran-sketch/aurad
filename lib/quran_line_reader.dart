@@ -142,58 +142,185 @@ class _QuranLineReaderState extends State<QuranLineReader>
     return 'Surah ' + surah.toString();
   }
 
-  Widget _linePage(List<String> lines, double width, bool dark) {
+
+  String _arabicSurahForPage(int page) {
+    final chapter = surahAtPage(page);
+    for (final item in app.items) {
+      if (item.id == 'quran-' + chapter.toString() && item.ar.trim().isNotEmpty) {
+        return item.ar;
+      }
+    }
+    return 'سورة ' + chapter.toString();
+  }
+
+  Widget _pageLabel(String text, double size, Color color,
+      {bool arabic = false}) {
+    return Text(
+      text,
+      textDirection: arabic ? TextDirection.rtl : TextDirection.ltr,
+      textAlign: TextAlign.center,
+      maxLines: 1,
+      textScaler: TextScaler.noScaling,
+      style: TextStyle(
+        fontFamily: arabic ? 'Amiri' : 'Arial',
+        fontSize: size,
+        fontWeight: FontWeight.w700,
+        height: 1.0,
+        color: color,
+        letterSpacing: 0,
+      ),
+    );
+  }
+
+  Widget _linePage(List<String> lines, double width, bool dark, int page) {
     final height = width * 1.4142;
     final pageColor = dark ? Colors.black : Colors.white;
-    final textColor = dark ? Colors.white : Colors.black;
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ColoredBox(color: pageColor),
-          Image.asset(
-            'assets/images/quran_border.png',
-            fit: BoxFit.fill,
-          ),
-          Positioned(
-            left: width * 0.09,
-            right: width * 0.09,
-            top: height * 0.105,
-            bottom: height * 0.09,
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Column(
-                children: [
-                  for (final line in lines)
-                    Expanded(
-                      child: Center(
-                        child: line.isEmpty
-                            ? const SizedBox.shrink()
-                            : FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(
-                                  line,
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  textDirection: TextDirection.rtl,
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontFamily: 'Amiri',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: width * 0.050,
-                                    height: 1.25,
-                                  ),
-                                ),
-                              ),
+    final inkColor = dark ? Colors.white : const Color(0xFF10151B);
+    const gold = Color(0xFFEBCB84);
+    final accent = dark ? gold : const Color(0xFF174E76);
+    final safeLines = lines.map((line) => line.trim()).toList();
+
+    return RepaintBoundary(
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: ClipRect(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ColoredBox(color: pageColor),
+              Image.asset(
+                'assets/images/quran_border.png',
+                fit: BoxFit.fill,
+                filterQuality: FilterQuality.high,
+              ),
+              // The original border PNG has an opaque pale centre, which hid
+              // the white Arabic ink on dark mode. Cover only the paper area.
+              Positioned(
+                left: width * 0.116,
+                right: width * 0.116,
+                top: height * 0.085,
+                bottom: height * 0.083,
+                child: ColoredBox(color: pageColor),
+              ),
+              // Some source images have embedded checkerboard pixels outside
+              // the blue frame. Mask only the narrow non-ornamental margins.
+              if (dark) ...[
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  bottom: 0,
+                  width: width * 0.032,
+                  child: const ColoredBox(color: Colors.black),
+                ),
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  width: width * 0.032,
+                  child: const ColoredBox(color: Colors.black),
+                ),
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: height * 0.018,
+                  child: const ColoredBox(color: Colors.black),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: height * 0.028,
+                  child: const ColoredBox(color: Colors.black),
+                ),
+              ],
+              // Surah and Juz names inside the ornamental upper panel.
+              Positioned(
+                top: height * 0.100,
+                left: width * 0.14,
+                right: width * 0.14,
+                height: height * 0.042,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: _pageLabel(
+                        'الجزء ' + juzAtPage(page).toString(),
+                        width * 0.033,
+                        accent,
+                        arabic: true,
                       ),
                     ),
-                ],
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: _pageLabel(
+                        _arabicSurahForPage(page),
+                        width * 0.034,
+                        accent,
+                        arabic: true,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+              // One source row = exactly one screen row, without wrapping.
+              // Keep all rows inside the inner blue frame at every width.
+              Positioned(
+                left: width * 0.128,
+                right: width * 0.128,
+                top: height * 0.155,
+                bottom: height * 0.135,
+                child: Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Column(
+                    children: [
+                      for (final line in safeLines)
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) => SizedBox(
+                              width: constraints.maxWidth,
+                              height: constraints.maxHeight,
+                              child: Center(
+                                child: line.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        child: Text(
+                                          line,
+                                          maxLines: 1,
+                                          softWrap: false,
+                                          textAlign: TextAlign.center,
+                                          textDirection: TextDirection.rtl,
+                                          textScaler: TextScaler.noScaling,
+                                          style: TextStyle(
+                                            fontFamily: 'Amiri',
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: width * 0.050,
+                                            color: inkColor,
+                                            height: 1.1,
+                                            letterSpacing: 0,
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: height * 0.095,
+                left: width * 0.36,
+                right: width * 0.36,
+                height: height * 0.027,
+                child: _pageLabel(page.toString(), width * 0.035, accent),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -263,7 +390,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
                         itemExtent: _pageExtent,
                         itemCount: pages.length,
                         itemBuilder: (context, index) => Center(
-                          child: _linePage(pages[index], width, dark),
+                          child: _linePage(pages[index], width, dark, index + 1),
                         ),
                       ),
                       Positioned(
