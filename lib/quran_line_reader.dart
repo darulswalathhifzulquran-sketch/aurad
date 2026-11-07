@@ -252,7 +252,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted && _scrollController.hasClients) {
                         _scrollController.jumpTo(
-                            (widget.startPage.clamp(1, 604) - 1) * _pageExtent);
+                            (widget.startPage.clamp(1, 604).toInt() - 1) * _pageExtent);
                       }
                     });
                   }
