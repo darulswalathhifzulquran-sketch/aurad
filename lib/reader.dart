@@ -568,6 +568,8 @@ const Set<String> _titledBookCategories = {
   'swalath',
   'dua',
   'ratib',
+  'mala',
+  'majlisunnoor',
 };
 
 List<PageData> _withBookTitle(Item item, List<PageData> pages) {
