@@ -35,7 +35,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
   @override
   void initState() {
     super.initState();
-    _currentPage = widget.startPage.clamp(1, 604);
+    _currentPage = widget.startPage.clamp(1, 604).toInt();
     _scrollController = ScrollController()..addListener(_onScroll);
     _ticker = createTicker(_onTick);
     _pages = rootBundle.loadString('assets/data/quran_lines.json').then((text) {
@@ -63,7 +63,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
   void _onScroll() {
     if (!_scrollController.hasClients || _pageExtent <= 0) return;
     final next = (_scrollController.offset / _pageExtent).round() + 1;
-    final page = next.clamp(1, 604);
+    final page = next.clamp(1, 604).toInt();
     if (page != _currentPage && mounted) {
       setState(() => _currentPage = page);
       app.prefs.setInt('mushaf_page', page);
@@ -71,7 +71,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
   }
 
   void _setSpeed(double value) {
-    _speed = value.clamp(0, 1);
+    _speed = value.clamp(0, 1).toDouble();
     if (_speed == 0) {
       _ticker.stop();
     } else if (!_ticker.isActive) {
@@ -86,16 +86,16 @@ class _QuranLineReaderState extends State<QuranLineReader>
     _lastTick = elapsed;
     if (!_scrollController.hasClients || _speed == 0) return;
     final seconds =
-        (delta.inMicroseconds / Duration.microsecondsPerSecond).clamp(0.0, 0.05);
+        (delta.inMicroseconds / Duration.microsecondsPerSecond).clamp(0.0, 0.05).toDouble();
     final pos = _scrollController.position;
     final next = (_scrollController.offset + seconds * 20 * _speed)
-        .clamp(pos.minScrollExtent, pos.maxScrollExtent);
+        .clamp(pos.minScrollExtent, pos.maxScrollExtent).toDouble();
     _scrollController.jumpTo(next);
     if (next >= pos.maxScrollExtent) _setSpeed(0);
   }
 
   void _goto(int requestedPage) {
-    final page = requestedPage.clamp(1, 604);
+    final page = requestedPage.clamp(1, 604).toInt();
     if (!_scrollController.hasClients || _pageExtent <= 0) return;
     _scrollController.animateTo(
       (page - 1) * _pageExtent,
@@ -245,7 +245,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
                   final width =
                       [maxWidth, maxHeightWidth, 530.0].reduce(
                         (a, b) => a < b ? a : b,
-                      ).clamp(180.0, 530.0);
+                      ).clamp(180.0, 530.0).toDouble();
                   _pageExtent = width * 1.4142 + 12;
                   if (!_initialJumpDone) {
                     _initialJumpDone = true;
