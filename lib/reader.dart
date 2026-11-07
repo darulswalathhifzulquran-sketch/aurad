@@ -708,6 +708,24 @@ class _ReaderScreenState extends State<ReaderScreen>
           params: PdfViewerParams(
             backgroundColor: dark ? Colors.black : Colors.grey,
             pageImageColorFilter: darkDocumentColorFilterFor(dark),
+            // Match the existing dark-mode gold book framing on every PDF page,
+            // not just Flutter-rendered text pages. This follows PDF zoom/scroll.
+            pageOverlaysBuilder: dark
+                ? (context, pageRect, page) => [
+                      Positioned.fill(
+                        child: IgnorePointer(
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: const Color(0xFFEBCB84),
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ]
+                : null,
             underflowAnchor: PdfPageAnchor.center,
             sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
               calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
@@ -893,7 +911,8 @@ class _ReaderScreenState extends State<ReaderScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(item.ar.isEmpty ? item.title : item.ar,
-                          style: const TextStyle(
+                          style: TextStyle(
+                              color: app.dark ? const Color(0xFFEBCB84) : null,
                               fontFamily: kArabicFont,
                               fontFamilyFallback: kFontFallback,
                               fontSize: 26,
