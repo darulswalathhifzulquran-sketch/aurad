@@ -364,16 +364,9 @@ class _MushafScreenState extends State<MushafScreen>
         return Scaffold(
           backgroundColor: dark ? Colors.black : const Color(0xFFF2F2F2),
           appBar: AppBar(
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                    '${_surahName(surahAtPage(page))}  \u2022  Juz ${juzAtPage(page)}',
-                    style: const TextStyle(fontSize: 18, fontFamily: 'Arial', letterSpacing: 0, wordSpacing: 0)),
-                Text('Page $page / $mushafCount',
-                    style: const TextStyle(fontSize: 12, fontFamily: 'Arial', letterSpacing: 0, wordSpacing: 0)),
-              ],
-            ),
+            // Mushaf page labels belong to the original page artwork.
+            // Avoid duplicating its Surah/Juz/page information in the app bar.
+            title: const Text('رياض الأذكار'),
             actions: [
               IconButton(
                 tooltip: 'Go to page',
