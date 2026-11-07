@@ -363,11 +363,60 @@ Widget buildContent(
               child: image,
             )
           : image;
+      // Majlisunnoor images contain a light outer margin *inside the image*.
+      // The PDF overlay does not affect these WebP pages. Cover only their
+      // known empty outer strips in dark mode, preserving the gold frame,
+      // Arabic letters and the user's existing scrolling/zoom behavior.
+      final framedImage = dark && b.asset.startsWith('assets/pages/majlis_')
+          ? AspectRatio(
+              aspectRatio: b.aspect,
+              child: LayoutBuilder(
+                builder: (context, bounds) {
+                  final w = bounds.maxWidth;
+                  final h = bounds.maxHeight;
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      displayImage,
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        width: w * 0.022,
+                        child: const ColoredBox(color: Colors.black),
+                      ),
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        right: 0,
+                        width: w * 0.022,
+                        child: const ColoredBox(color: Colors.black),
+                      ),
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: h * 0.018,
+                        child: const ColoredBox(color: Colors.black),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: h * 0.034,
+                        child: const ColoredBox(color: Colors.black),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            )
+          : displayImage;
       children.add(
         Center(
           child: FractionallySizedBox(
             widthFactor: b.wf,
-            child: displayImage,
+            child: framedImage,
           ),
         ),
       );
