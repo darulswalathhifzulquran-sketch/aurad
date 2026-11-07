@@ -10,7 +10,13 @@ Widget itemTile(BuildContext context, Item it) {
   final isQuran = it.category == 'quran' || it.category == 'juz';
   final dim =
       !it.hasContent && it.pdfAsset.isEmpty && !(mushafReady && isQuran);
-  final Color? color = dim ? Theme.of(context).disabledColor : null;
+  // Reuse the established Swalath dark-mode gold across other book folders.
+  final goldBookStyle = app.dark && !isQuran;
+  final Color? color = dim
+      ? Theme.of(context).disabledColor
+      : goldBookStyle
+          ? const Color(0xFFEBCB84)
+          : null;
   final number = int.tryParse(it.id.split('-').last);
   final isNumberedQuran = isQuran && number != null;
   final englishTitle = isNumberedQuran
@@ -23,6 +29,7 @@ Widget itemTile(BuildContext context, Item it) {
         )
       : '';
   return ListTile(
+    tileColor: goldBookStyle ? Colors.black : null,
     title: Row(
       children: [
         Expanded(
@@ -86,7 +93,14 @@ Widget _itemList(List<Item> items) {
   }
   return ListView.separated(
     itemCount: items.length,
-    separatorBuilder: (_, __) => const Divider(height: 1),
+    separatorBuilder: (_, __) => Divider(
+      height: 1,
+      color: app.dark && items.isNotEmpty &&
+              items.first.category != 'quran' &&
+              items.first.category != 'juz'
+          ? const Color(0xFFEBCB84).withValues(alpha: 0.32)
+          : null,
+    ),
     itemBuilder: (context, i) => itemTile(context, items[i]),
   );
 }
@@ -122,7 +136,10 @@ Widget _titleRow(Category category) {
           style: const TextStyle(
               fontFamily: kArabicFont,
               fontFamilyFallback: kFontFallback,
-              fontSize: 26),
+              fontSize: 26,
+          color: app.dark && category.id != 'quran'
+              ? const Color(0xFFEBCB84)
+              : null),
         ),
       ),
     ],
@@ -164,7 +181,10 @@ class FolderScreen extends StatelessWidget {
             title: _titleRow(category),
             actions: [themeToggleAction()],
           ),
-          body: _itemList(app.itemsIn(category.id)),
+          body: ColoredBox(
+            color: app.dark ? Colors.black : Theme.of(context).scaffoldBackgroundColor,
+            child: _itemList(app.itemsIn(category.id)),
+          ),
         );
       },
     );
