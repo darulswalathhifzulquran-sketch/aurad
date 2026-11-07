@@ -133,13 +133,14 @@ Widget _titleRow(Category category) {
         textDirection: TextDirection.rtl,
         child: Text(
           category.ar,
-          style: const TextStyle(
+          style: TextStyle(
               fontFamily: kArabicFont,
               fontFamilyFallback: kFontFallback,
               fontSize: 26,
-          color: app.dark && category.id != 'quran'
-              ? const Color(0xFFEBCB84)
-              : null),
+              color: app.dark && category.id != 'quran'
+                  ? const Color(0xFFEBCB84)
+                  : null,
+          ),
         ),
       ),
     ],
