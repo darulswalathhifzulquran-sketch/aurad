@@ -19,8 +19,8 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 OLD = ROOT / "quran.pdf"
 VECTOR = ROOT / "quran_vector_candidate.pdf"
-PREVIEW = ROOT / "quran_clean_vector_preview.pdf"
-FULL = ROOT / "quran_clean_vector_604.pdf"
+PREVIEW = ROOT / "quran_clean_vector_preview_v3.pdf"
+FULL = ROOT / "quran_clean_vector_604_v3.pdf"
 N = 604
 
 # The approved border stays in its original position. The artwork
