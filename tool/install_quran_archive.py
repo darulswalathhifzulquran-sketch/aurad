@@ -46,7 +46,9 @@ def choose_source():
             if p.stat().st_size < 100_000:
                 continue
             try:
-                with p.open("rb") as stream:\n                    is_pdf = stream.read(5) == b"%PDF-"\n                if zipfile.is_zipfile(p) or is_pdf:
+                with p.open("rb") as stream:
+                    is_pdf = stream.read(5) == b"%PDF-"
+                if zipfile.is_zipfile(p) or is_pdf:
                     options.append(p)
             except OSError:
                 pass
