@@ -14,7 +14,7 @@ Future<void> main() async {
     final req = await client.getUrl(Uri.parse(endpoint));
     final res = await req.close();
     if (res.statusCode != HttpStatus.ok) {
-      throw HttpException('Hizb metadata HTTP ' + res.statusCode.toString());
+      throw HttpException('Hizb metadata HTTP ${res.statusCode}');
     }
     final root = jsonDecode(await utf8.decoder.bind(res).join());
     if (root is! Map || root['data'] is! List) {
@@ -22,7 +22,7 @@ Future<void> main() async {
     }
     final entries = root['data'] as List;
     if (entries.length != 604) {
-      throw FormatException('Expected 604 metadata entries, got ' + entries.length.toString());
+      throw FormatException('Expected 604 metadata entries, got ${entries.length}');
     }
     final hizbByPage = <String, int>{};
     for (final entry in entries) {
@@ -36,7 +36,7 @@ Future<void> main() async {
       }
       final hizb = hizbs.first as int;
       if (hizb < 1 || hizb > 60) {
-        throw FormatException('Invalid Hizb ' + hizb.toString());
+        throw FormatException('Invalid Hizb $hizb');
       }
       hizbByPage[page.toString()] = hizb;
     }
@@ -47,8 +47,8 @@ Future<void> main() async {
     final file = File(output);
     await file.parent.create(recursive: true);
     await file.writeAsString(jsonEncode(hizbByPage), flush: true);
-    stdout.writeln('Saved exact Hizb metadata for all 604 pages: ' + output);
-    stdout.writeln('Page 77 Hizb: ' + hizbByPage['77'].toString());
+    stdout.writeln('Saved exact Hizb metadata for all 604 pages: $output');
+    stdout.writeln("Page 77 Hizb: ${hizbByPage['77']}");
   } finally {
     client.close(force: true);
   }
