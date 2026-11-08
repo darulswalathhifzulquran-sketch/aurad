@@ -22,6 +22,7 @@ import pymupdf as fitz
 from PIL import Image, ImageDraw
 
 from compose_quran_clean_vector import page_svg_as_pdf
+from compose_quran_v5 import SURAH, page_starts, current, arabic_numbers
 
 ROOT = Path(__file__).resolve().parents[1]
 OLD_PDF = ROOT / "quran.pdf"
@@ -29,6 +30,7 @@ VECTOR_PDF = ROOT / "quran_vector_candidate.pdf"
 PREVIEW = ROOT / "quran_v9_preview.pdf"
 FULL = ROOT / "quran_v9_604.pdf"
 SAMPLES = (1, 2, 3, 208, 252, 604)
+FONT = ROOT / "assets/fonts/Amiri-Regular.ttf"
 
 # These four coordinates match the inner open space of the BLUE frame.
 # They are calibrated to the original frame, not the source Quran crop.
@@ -109,9 +111,26 @@ def ink_bbox(page, number):
         min(page.rect.height,(maxy+pad_y)/2),
     )
 
+def add_vector_label(page, bounds, value):
+    """Native vector Arabic label, inside existing border capsule: NO box."""
+    if not FONT.is_file():
+        raise ValueError("Amiri font missing: " + str(FONT))
+    css = (
+        "@font-face{font-family:Amiri;src:url('Amiri-Regular.ttf')}"
+        "div{font-family:Amiri;font-size:12pt;line-height:1.0;"
+        "color:#174E76;text-align:center;margin:0;}"
+    )
+    remaining, _ = page.insert_htmlbox(
+        rect(page,bounds),"<div dir='rtl'>"+value+"</div>",
+        css=css,archive=fitz.Archive(str(FONT.parent)),
+        scale_low=.35,overlay=True)
+    if remaining < 0:
+        raise ValueError("Unable to fit title: "+value)
+
 def compose(pages, dest):
     if not OLD_PDF.is_file() or not VECTOR_PDF.is_file():
         raise SystemExit("Missing original quran.pdf or quran_vector_candidate.pdf")
+    surah_starts, juz_starts = page_starts()
     out = fitz.open()
     try:
         with fitz.open(OLD_PDF) as original, fitz.open(VECTOR_PDF) as vector:
@@ -134,10 +153,18 @@ def compose(pages, dest):
                         crop = ink_bbox(clean[0], n)
                     target = rect(new, BODY_TARGET)
                     new.show_pdf_page(target, clean, 0, clip=crop,
-                                       keep_proportion=False)
+                                       keep_proportion=(n<=2))
                     # Clean outer frame only. NO original Quran page is added.
                     new.insert_image(new.rect, stream=perimeter_png(old),
                                      overlay=True, keep_proportion=False)
+                    # Clear SVG/vector labels at the ORIGINAL label positions:
+                    # NOT drawing white rectangles or duplicating old captions.
+                    add_vector_label(new,(.20,.091,.42,.143),
+                        "سورة "+SURAH[current(surah_starts,n)-1])
+                    add_vector_label(new,(.58,.091,.80,.143),
+                        "الجزء "+arabic_numbers(current(juz_starts,n)))
+                    add_vector_label(new,(.447,.872,.555,.914),
+                        arabic_numbers(n))
                     print(f"Page {n}: green removed={converted}, "
                           f"ink crop={crop}, target={target}; "
                           "one vector Arabic layer / no extra boxes",flush=True)
@@ -149,8 +176,8 @@ def compose(pages, dest):
     print("SUCCESS:",dest)
     print("NO original blurry Quran glyphs and NO extra page-number boxes.")
     print("This is a preview; original quran.pdf unchanged.")
-    print("IMPORTANT: Native vector metadata stays in source but is outside "
-          "the body crop, so it is not in this preview; review before full use.")
+    print("High-clarity Surah/Juz/page number inserted without white boxes.")
+    print("Hizb numbering is omitted until exact page metadata is verified.")
 
 if __name__=="__main__":
     parser=argparse.ArgumentParser()
