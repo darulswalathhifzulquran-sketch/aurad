@@ -184,8 +184,7 @@ class MushafScreen extends StatefulWidget {
 
 class _MushafScreenState extends State<MushafScreen>
     with SingleTickerProviderStateMixin {
-  PdfViewerController _pdfController = PdfViewerController();
-  bool? _viewerDark; // theme the current viewer/controller was created for
+  final PdfViewerController _pdfController = PdfViewerController();
   late final Ticker _autoScrollTicker;
   Duration _lastAutoScrollElapsed = Duration.zero;
   double _autoScrollSpeed = 0;
@@ -355,12 +354,6 @@ class _MushafScreenState extends State<MushafScreen>
       listenable: app,
       builder: (context, _) {
         final dark = app.dark;
-        // Light and Dark use two PDFs with identical page order. A theme change
-        // gets a fresh viewer + controller, opened at the current page.
-        if (_viewerDark != dark) {
-          if (_viewerDark != null) _pdfController = PdfViewerController();
-          _viewerDark = dark;
-        }
         return Scaffold(
           backgroundColor: dark ? Colors.black : const Color(0xFFF2F2F2),
           appBar: AppBar(
@@ -401,20 +394,19 @@ class _MushafScreenState extends State<MushafScreen>
                       ]),
                 child: PdfViewer.asset(
                 kQuranPdfAsset,
-                key: ValueKey('quran-pdf-${dark ? 'dark' : 'light'}'),
+                key: const ValueKey('quran-single-pdf-viewer'),
                 controller: _pdfController,
                 initialPageNumber: page + kQuranPdfFirstPage - 1,
                 params: PdfViewerParams(
-                  backgroundColor:
-                      dark ? Colors.black : const Color(0xFFF2F2F2),
-                  pageDropShadow: dark
-                      ? null
-                      : const BoxShadow(
-                          color: Colors.black54,
-                          blurRadius: 4,
-                          spreadRadius: 2,
-                          offset: Offset(2, 2),
-                        ),
+                  // Always white INSIDE ColorFiltered. In dark mode the
+                  // entire PDF viewer (including its empty margins) inverts
+                  // to true black. Keeping these parameters constant also
+                  // prevents pdfrx from reloading when the theme changes.
+                  backgroundColor: Colors.white,
+                  pageDropShadow: null,
+                  margin: 8,
+                  pageAnchor: PdfPageAnchor.topCenter,
+                  underflowAnchor: PdfPageAnchor.topCenter,
                   sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
                     calculateInitialZoom: (_, __, fitPageScale, ___) =>
                         fitPageScale,
