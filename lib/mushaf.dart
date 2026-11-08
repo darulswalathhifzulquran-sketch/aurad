@@ -382,8 +382,25 @@ class _MushafScreenState extends State<MushafScreen>
           ),
           body: Stack(
             children: [
-              PdfViewer.asset(
-                dark ? kQuranDarkPdfAsset : kQuranPdfAsset,
+              ColorFiltered(
+                // Both themes display the identical Quran PDF: same 604
+                // pages, glyphs, ayah ornaments, and line breaks.
+                // Dark mode inverts display pixels only; PDF bytes stay intact.
+                colorFilter: ColorFilter.matrix(dark
+                    ? const <double>[
+                        -1, 0, 0, 0, 255,
+                        0, -1, 0, 0, 255,
+                        0, 0, -1, 0, 255,
+                        0, 0, 0, 1, 0,
+                      ]
+                    : const <double>[
+                        1, 0, 0, 0, 0,
+                        0, 1, 0, 0, 0,
+                        0, 0, 1, 0, 0,
+                        0, 0, 0, 1, 0,
+                      ]),
+                child: PdfViewer.asset(
+                kQuranPdfAsset,
                 key: ValueKey('quran-pdf-${dark ? 'dark' : 'light'}'),
                 controller: _pdfController,
                 initialPageNumber: page + kQuranPdfFirstPage - 1,
@@ -416,6 +433,7 @@ class _MushafScreenState extends State<MushafScreen>
                       ),
                     ),
                   ),
+                ),
                 ),
               ),
               Positioned(
