@@ -333,13 +333,6 @@ class _MushafScreenState extends State<MushafScreen>
     if (v != null) _goto(v);
   }
 
-  String _surahName(int n) {
-    for (final it in app.items) {
-      if (it.category == 'quran' && it.id == 'quran-$n') return it.title;
-    }
-    return 'Surah $n';
-  }
-
   Widget _sideButton(IconData icon, String tip, VoidCallback onTap, bool dark) {
     return Material(
       color: dark ? Colors.white24 : Colors.black26,
