@@ -38,7 +38,7 @@ SURAH_NAMES = (
     "النبأ النازعات عبس التكوير الانفطار المطففين الانشقاق البروج الطارق الأعلى الغاشية الفجر البلد الشمس الليل "
     "الضحى الشرح التين العلق القدر البينة الزلزلة العاديات القارعة التكاثر العصر الهمزة الفيل قريش الماعون "
     "الكوثر الكافرون النصر المسد الإخلاص الفلق الناس"
-).split()
+).replace("آل عمران", "آل_عمران").split()
 
 def find_starts(const_name, expected):
     source = (ROOT / "lib" / "mushaf.dart").read_text(encoding="utf-8")
@@ -212,7 +212,7 @@ def generate(indices, dest):
                         rrect(current, (.158, .151, .842, .877)),
                         color=(.70, .75, .79), width=.26, overlay=True)
                     title(current,
-                          SURAH_NAMES[which_page(surah_starts, num)-1],
+                          SURAH_NAMES[which_page(surah_starts, num)-1].replace("_", " "),
                           which_page(juz_starts, num))
                     print(f"Page {num}: removed {changes} green palette values; "
                           f"vector crop={clip}; border=blue-only", flush=True)
