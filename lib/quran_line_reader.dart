@@ -208,7 +208,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
     final inkColor = dark ? Colors.white : const Color(0xFF10151B);
     const gold = Color(0xFFEBCB84);
     final accent = dark ? gold : const Color(0xFF174E76);
-    final safeLines = lines.map((line) => line.trim()).toList();
+    // Imported pages sometimes contain empty placeholder rows in the middle.\n    // Remove those placeholders so they cannot create large white gaps.\n    final safeLines = lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
 
     return RepaintBoundary(
       child: SizedBox(
@@ -340,9 +340,9 @@ class _QuranLineReaderState extends State<QuranLineReader>
                                           style: TextStyle(
                                             fontFamily: 'Amiri',
                                             fontWeight: FontWeight.w400,
-                                            fontSize: width * 0.050,
+                                            // Diacritics extend beyond glyph bounds.\n                                            // Keep extra vertical room so\n                                            // adjacent rows never collide.\n                                            fontSize: (width * 0.040) < (constraints.maxHeight * 0.55)\n                                                ? width * 0.040\n                                                : constraints.maxHeight * 0.55,
                                             color: inkColor,
-                                            height: 1.1,
+                                            height: 1.0,
                                             letterSpacing: 0,
                                           ),
                                         ),
