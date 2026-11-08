@@ -12,7 +12,7 @@ import zipfile
 from pathlib import Path
 
 try:
-    import fitz
+    import pymupdf as fitz
 except ImportError:
     sys.exit("Missing PyMuPDF. Run: python -m pip install pymupdf")
 
@@ -83,7 +83,8 @@ def extract_zip(source, destination):
                  and "__MACOSX" not in i.filename]
         pdfs = [i for i in files if Path(i.filename).suffix.lower() == ".pdf"]
         imgs = [i for i in files if Path(i.filename).suffix.lower() in IMAGES]
-        print(f"ZIP contents: {len(pdfs)} PDFs, {len(imgs)} image files")
+        print(f"ZIP contents: {len(pdfs)} PDFs, {len(imgs)} image files, "
+              f"{sum(Path(i.filename).suffix.lower() == '.ai' for i in files)} Illustrator pages")
         if pdfs:
             checked = []
             for info in sorted(pdfs, key=lambda x: x.file_size, reverse=True):
@@ -102,6 +103,43 @@ def extract_zip(source, destination):
             if destination.exists():
                 print("Validated PDF candidates:", checked)
                 return
+        # Illustrator can save AI files with embedded PDF-compatible data.
+        # Attempt direct vector conversion first: no rasterization, no OCR.
+        ai_pages = [i for i in files
+                    if Path(i.filename).suffix.lower() == ".ai"]
+        if len(ai_pages) == COUNT:
+            print("Found 604 Adobe Illustrator pages. Checking PDF compatibility...")
+            ai_pages.sort(key=lambda i: natural_key(i.filename))
+            out = fitz.open()
+            try:
+                for i, info in enumerate(ai_pages, 1):
+                    with z.open(info) as stream:
+                        data = stream.read()
+                    try:
+                        one = fitz.open(stream=data, filetype="pdf")
+                    except Exception as exc:
+                        raise ValueError(
+                            f"Illustrator page {i} ({info.filename}) cannot be "
+                            "read as PDF-compatible vector data. Open the AI "
+                            "files in Adobe Illustrator and export as PDF with "
+                            "vector quality; no replacement was made."
+                        ) from exc
+                    try:
+                        if one.needs_pass:
+                            raise ValueError(f"Password-protected Illustrator page {i}")
+                        if len(one) != 1:
+                            raise ValueError(
+                                f"Illustrator page {i} contains {len(one)} PDF pages, not 1"
+                            )
+                        out.insert_pdf(one)
+                    finally:
+                        one.close()
+                    if i % 50 == 0:
+                        print(f"Combined {i}/604 vector pages", flush=True)
+                out.save(destination, garbage=3, deflate=True)
+            finally:
+                out.close()
+            return
         if len(pdfs) == COUNT:
             print("Combining 604 individual PDF pages")
             out = fitz.open()
