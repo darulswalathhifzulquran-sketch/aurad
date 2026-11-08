@@ -69,7 +69,9 @@ class _QuranLineReaderState extends State<QuranLineReader>
         final page = int.tryParse(entry.key);
         final hizb = entry.value;
         if (page == null || page < 1 || page > 604 ||
-            hizb is! int || hizb < 1 || hizb > 60) return;
+            hizb is! int || hizb < 1 || hizb > 60) {
+          return;
+        }
         verified[page] = hizb;
       }
       if (verified.length == 604 && mounted) {
@@ -165,20 +167,20 @@ class _QuranLineReaderState extends State<QuranLineReader>
   String _surahTitle() {
     final surah = surahAtPage(_currentPage);
     for (final item in app.items) {
-      if (item.id == 'quran-' + surah.toString()) return item.title;
+      if (item.id == 'quran-$surah') return item.title;
     }
-    return 'Surah ' + surah.toString();
+    return 'Surah $surah';
   }
 
 
   String _arabicSurahForPage(int page) {
     final chapter = surahAtPage(page);
     for (final item in app.items) {
-      if (item.id == 'quran-' + chapter.toString() && item.ar.trim().isNotEmpty) {
+      if (item.id == 'quran-$chapter' && item.ar.trim().isNotEmpty) {
         return item.ar;
       }
     }
-    return 'سورة ' + chapter.toString();
+    return 'سورة $chapter';
   }
 
   Widget _pageLabel(String text, double size, Color color,
@@ -217,10 +219,24 @@ class _QuranLineReaderState extends State<QuranLineReader>
             fit: StackFit.expand,
             children: [
               ColoredBox(color: pageColor),
-              Image.asset(
-                'assets/images/quran_border.png',
-                fit: BoxFit.fill,
-                filterQuality: FilterQuality.high,
+              // In dark mode turn the original border's white paper pixels
+              // black while retaining the blue ornamental ink. This also
+              // suppresses the PNG's baked-in light checkerboard margins.
+              ColorFiltered(
+                colorFilter: dark
+                    ? const ColorFilter.matrix(<double>[
+                        0, 0, 0, 0, 0,
+                        -1, 1, 0, 0, 0,
+                        -1, 0, 1, 0, 0,
+                        0, 0, 0, 1, 0,
+                      ])
+                    : const ColorFilter.mode(
+                        Colors.transparent, BlendMode.dst),
+                child: Image.asset(
+                  'assets/images/quran_border.png',
+                  fit: BoxFit.fill,
+                  filterQuality: FilterQuality.high,
+                ),
               ),
               // The original border PNG has an opaque pale centre, which hid
               // the white Arabic ink on dark mode. Cover only the paper area.
@@ -274,7 +290,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
                   children: [
                     Flexible(
                       child: _pageLabel(
-                        'الجزء ' + juzAtPage(page).toString(),
+                        'الجزء ${juzAtPage(page)}',
                         width * 0.033,
                         accent,
                         arabic: true,
@@ -346,7 +362,7 @@ class _QuranLineReaderState extends State<QuranLineReader>
                   left: width * 0.008,
                   width: width * 0.105,
                   child: _pageLabel(
-                    'حزب ' + _hizbByPage[page].toString(),
+                    'حزب ${_hizbByPage[page]}',
                     width * 0.027,
                     accent,
                     arabic: true,
@@ -391,9 +407,9 @@ class _QuranLineReaderState extends State<QuranLineReader>
                 title: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(_surahTitle() + ' • Juz ' + juzAtPage(_currentPage).toString(),
+                    Text('${_surahTitle()} • Juz ${juzAtPage(_currentPage)}',
                         style: const TextStyle(fontFamily: 'Arial', fontSize: 17, letterSpacing: 0)),
-                    Text('Page ' + _currentPage.toString() + ' / 604',
+                    Text('Page $_currentPage / 604',
                         style: const TextStyle(fontFamily: 'Arial', fontSize: 12, letterSpacing: 0)),
                   ],
                 ),
