@@ -185,6 +185,12 @@ class MushafScreen extends StatefulWidget {
 class _MushafScreenState extends State<MushafScreen>
     with SingleTickerProviderStateMixin {
   final PdfViewerController _pdfController = PdfViewerController();
+  // Keep delegate identity stable across theme changes: pdfrx checks
+  // delegate equality when deciding whether to rebuild its PDF layout.
+  final PdfViewerSizeDelegateProviderLegacy _quranSizeDelegate =
+      PdfViewerSizeDelegateProviderLegacy(
+    calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
+  );
   late final Ticker _autoScrollTicker;
   Duration _lastAutoScrollElapsed = Duration.zero;
   double _autoScrollSpeed = 0;
@@ -407,10 +413,7 @@ class _MushafScreenState extends State<MushafScreen>
                   margin: 8,
                   pageAnchor: PdfPageAnchor.topCenter,
                   underflowAnchor: PdfPageAnchor.topCenter,
-                  sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
-                    calculateInitialZoom: (_, __, fitPageScale, ___) =>
-                        fitPageScale,
-                  ),
+                  sizeDelegateProvider: _quranSizeDelegate,
                   onViewerReady: _viewerReady,
                   onPageChanged: _pageChanged,
                   viewerOverlayBuilder: (context, size, handleLinkTap) =>
