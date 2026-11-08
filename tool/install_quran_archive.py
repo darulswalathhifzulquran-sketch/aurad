@@ -46,7 +46,7 @@ def choose_source():
             if p.stat().st_size < 100_000:
                 continue
             try:
-                if zipfile.is_zipfile(p) or p.read_bytes()[:5] == b"%PDF-":
+                with p.open("rb") as stream:\n                    is_pdf = stream.read(5) == b"%PDF-"\n                if zipfile.is_zipfile(p) or is_pdf:
                     options.append(p)
             except OSError:
                 pass
@@ -100,6 +100,25 @@ def extract_zip(source, destination):
             if destination.exists():
                 print("Validated PDF candidates:", checked)
                 return
+        if len(pdfs) == COUNT:
+            print("Combining 604 individual PDF pages")
+            out = fitz.open()
+            try:
+                for i, info in enumerate(sorted(pdfs, key=lambda x: natural_key(x.filename)), 1):
+                    data = z.read(info)
+                    one = fitz.open(stream=data, filetype="pdf")
+                    try:
+                        if len(one) != 1:
+                            raise ValueError(f"Expected one page in {info.filename}")
+                        out.insert_pdf(one)
+                    finally:
+                        one.close()
+                    if i % 100 == 0:
+                        print(f"Combined {i}/604 pages")
+                out.save(destination, garbage=3, deflate=True)
+            finally:
+                out.close()
+            return
         if len(imgs) != COUNT:
             raise ValueError(
                 f"No 604-page PDF or exactly 604 images. Found {len(imgs)} images. "
@@ -134,7 +153,7 @@ def main():
         candidate = Path(folder) / "verified.pdf"
         if zipfile.is_zipfile(source):
             extract_zip(source, candidate)
-        elif source.open("rb").read(5) == b"%PDF-":
+        elif source.suffix.lower() == ".pdf":
             shutil.copy2(source, candidate)
         else:
             sys.exit("Source is neither ZIP nor PDF.")
