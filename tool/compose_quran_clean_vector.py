@@ -3,7 +3,7 @@
 Never composites old blurred Arabic behind new Arabic.
 Never replaces quran.pdf. Preview 4 pages unless --all is requested.
 
-Requirements: python -m pip install pymupdf pillow cairosvg
+Requirements: python -m pip install pymupdf pillow
 Usage:
     python tool/compose_quran_clean_vector.py
     python tool/compose_quran_clean_vector.py --all
@@ -145,67 +145,32 @@ def blue_border_png(page, resolution=2):
     rgba.save(stream, format="PNG")
     return stream.getvalue()
 
-# Modify vector PDF color operators directly, with no Cairo dependency.
-# A PDF-compatible Illustrator file contains path geometry and colors.
-# We replace only pale green fill commands, never any paths or Arabic glyphs.
-PDF_RGB = re.compile(
-    rb"(?<![0-9.])([0-9]*\.?[0-9]+)[ \t\r\n]+"
-    rb"([0-9]*\.?[0-9]+)[ \t\r\n]+"
-    rb"([0-9]*\.?[0-9]+)[ \t\r\n]+rg\b"
-)
-PDF_CMYK = re.compile(
-    rb"(?<![0-9.])([0-9]*\.?[0-9]+)[ \t\r\n]+"
-    rb"([0-9]*\.?[0-9]+)[ \t\r\n]+"
-    rb"([0-9]*\.?[0-9]+)[ \t\r\n]+"
-    rb"([0-9]*\.?[0-9]+)[ \t\r\n]+k\b"
-)
-
-def recolor_green_pdf(doc):
-    updated_count = 0
-    colors_seen = set()
-
-    def replace_rgb(match):
-        nonlocal updated_count
-        r, g, b = (float(match.group(k)) for k in (1, 2, 3))
-        colors_seen.add(("rgb", round(r, 2), round(g, 2), round(b, 2)))
-        if looks_green(r, g, b):
-            updated_count += 1
-            return b"1 1 1 rg"
-        return match.group()
-
-    def replace_cmyk(match):
-        nonlocal updated_count
-        c, m, y, k = (float(match.group(i)) for i in (1, 2, 3, 4))
-        r, g, b = (1-c)*(1-k), (1-m)*(1-k), (1-y)*(1-k)
-        colors_seen.add(("cmyk", round(c, 2), round(m, 2),
-                         round(y, 2), round(k, 2)))
-        if looks_green(r, g, b):
-            updated_count += 1
-            return b"0 0 0 0 k"
-        return match.group()
-
-    for xref in range(1, doc.xref_length()):
-        try:
-            raw = doc.xref_stream(xref)
-            if not raw:
-                continue
-            cleaned = PDF_RGB.sub(replace_rgb, raw)
-            cleaned = PDF_CMYK.sub(replace_cmyk, cleaned)
-            if cleaned != raw:
-                doc.update_stream(xref, cleaned)
-        except (RuntimeError, ValueError):
-            continue
-    return updated_count, colors_seen
-
-
 def page_svg_as_pdf(page):
-    # Copy exactly one Illustrator PDF page without rasterizing it.
-    clean = pymupdf.open()
-    clean.insert_pdf(page.parent, from_page=page.number, to_page=page.number)
-    changed, colors = recolor_green_pdf(clean)
-    print("Green color operators replaced:", changed,
-          "Sample palette:", sorted(map(str, colors))[:12], flush=True)
-    return clean, changed
+    """Recolor the SVG representation of original PDF paths, then re-import
+    through MuPDF's native SVG parser. Arabic glyph OUTLINES remain vector.
+    No Cairo DLL, no screenshots, no old Arabic layer.
+    """
+    svg = page.get_svg_image(text_as_path=True)
+    fixed, count = whiten_green(svg)
+    colors = sorted(set(x.lower() for x in HEX.findall(svg)))
+    print(f"Page {page.number + 1}: green SVG fills replaced={count}; "
+          f"palette sample={colors[:18]}", flush=True)
+    if count == 0:
+        raise ValueError(
+            "Could not detect green backgrounds in SVG. "
+            "No incorrect preview will be produced. "
+            f"SVG colors: {colors[:35]}"
+        )
+    source_svg = pymupdf.open(stream=fixed.encode("utf-8"), filetype="svg")
+    try:
+        vector_pdf_bytes = source_svg.convert_to_pdf()
+    finally:
+        source_svg.close()
+    clean = pymupdf.open(stream=vector_pdf_bytes, filetype="pdf")
+    if len(clean) != 1:
+        clean.close()
+        raise ValueError("SVG conversion did not produce exactly one page.")
+    return clean, count
 
 def title(page, surah, juz):
     # Arabic text rendered using HarfBuzz-capable PDF HTML layout.
@@ -272,7 +237,7 @@ def generate(indices, dest):
         finally:
             output.close()
     print("SUCCESS:", dest)
-    print("No old Quran text layer, no green background, original PDF untouched.")
+    print("Original PDF untouched. SVG green fills removed from vector source.")
     if len(indices) < 604:
         print("PREVIEW ONLY. Check pages 1, 3, 208, 252, 604 before full build.")
 
