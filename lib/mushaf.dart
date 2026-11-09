@@ -356,9 +356,29 @@ class _MushafScreenState extends State<MushafScreen>
         return Scaffold(
           backgroundColor: dark ? Colors.black : const Color(0xFFF2F2F2),
           appBar: AppBar(
-            // Mushaf page labels belong to the original page artwork.
-            // Avoid duplicating its Surah/Juz/page information in the app bar.
-            title: const Text('رياض الأذكار'),
+            title: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'رياض الأذكار',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontFamily: 'Amiri',
+                    fontSize: 19,
+                    height: 1.15,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                Text(
+                  'Page $page / $mushafCount',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    height: 1.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
             actions: [
               IconButton(
                 tooltip: 'Go to page',
