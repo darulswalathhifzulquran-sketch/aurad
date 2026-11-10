@@ -814,6 +814,56 @@ class _ReaderScreenState extends State<ReaderScreen>
     );
   }
 
+  Future<void> _askReaderPage() async {
+    final total = widget.item.pdfAsset.isNotEmpty
+        ? _pdfPageCount
+        : (paged ? widget.item.pages.length : _scrollPageCount);
+    if (total < 1) return;
+    final input = TextEditingController(text: '${index + 1}');
+    final selected = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Go to page'),
+        content: TextField(
+          controller: input,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(hintText: '1-$total'),
+          onSubmitted: (value) =>
+              Navigator.of(dialogContext).pop(int.tryParse(value)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.of(dialogContext).pop(int.tryParse(input.text)),
+            child: const Text('Go'),
+          ),
+        ],
+      ),
+    );
+    input.dispose();
+    if (!mounted || selected == null || selected < 1 || selected > total) {
+      return;
+    }
+    final next = selected - 1;
+    if (widget.item.pdfAsset.isNotEmpty) {
+      if (_pdfController.isReady) {
+        await _pdfController.goToPage(pageNumber: selected);
+      }
+    } else if (paged && ctrl.hasClients) {
+      ctrl.jumpToPage(next);
+    } else if (sc.hasClients) {
+      final totalPages = _scrollPageCount;
+      final maxOffset = sc.position.maxScrollExtent;
+      sc.jumpTo(totalPages <= 1 ? 0 : maxOffset * next / (totalPages - 1));
+    }
+    if (mounted) setState(() => index = next);
+  }
+
   void _go(int to, int total) {
     if (to < 0 || to >= total) return;
     ctrl.animateToPage(to,
@@ -977,12 +1027,17 @@ class _ReaderScreenState extends State<ReaderScreen>
                               fontWeight: FontWeight.w700)),
                       if (_pdfPageCount > 1)
                         Text(
-                          'Page ${index + 1} / $_pdfPageCount',
-                          style: const TextStyle(fontSize: 12),
+                          '${index + 1}/$_pdfPageCount',
+                          style: const TextStyle(fontSize: 12, fontFamily: 'Arial', letterSpacing: 0),
                         ),
                     ],
                   ),
             actions: [
+              IconButton(
+                tooltip: 'Go to page',
+                icon: const Icon(Icons.find_in_page_outlined),
+                onPressed: _askReaderPage,
+              ),
               themeToggleAction(),
               IconButton(
                 tooltip: 'Bookmark',
