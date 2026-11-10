@@ -660,7 +660,13 @@ class _ReaderScreenState extends State<ReaderScreen>
   double _autoScrollSpeed = 0;
   final PageController ctrl = PageController();
   final ScrollController sc = ScrollController();
-  final PdfViewerController _pdfController = PdfViewerController();
+  final PdfViewerController _lightPdfController = PdfViewerController();
+  final PdfViewerController _darkPdfController = PdfViewerController();
+  PdfViewerController get _pdfController =>
+      app.dark && _isThemedMawlid ? _darkPdfController : _lightPdfController;
+  bool get _isThemedMawlid =>
+      widget.item.id == 'mankoos-mawlid' ||
+      widget.item.id == 'mawlid-sharafal-anam';
   int index = 0;
   int _pdfPageCount = 0;
   int _scrollPageCount = 0;
@@ -682,6 +688,8 @@ class _ReaderScreenState extends State<ReaderScreen>
     sc.removeListener(_scrollChanged);
     ctrl.dispose();
     sc.dispose();
+    _lightPdfController.dispose();
+    _darkPdfController.dispose();
     super.dispose();
   }
 
@@ -751,8 +759,7 @@ class _ReaderScreenState extends State<ReaderScreen>
     final dark = app.dark;
     // These two Mawlid books have separately prepared, exact user-approved
     // light and dark borders. Do not invert or overlay their PDFs.
-    final themedMawlid = widget.item.id == 'mankoos-mawlid' ||
-        widget.item.id == 'mawlid-sharafal-anam';
+    final themedMawlid = _isThemedMawlid;
     final pdfToOpen = themedMawlid && dark
         ? asset.replaceFirst('_light.pdf', '_dark.pdf')
         : asset;
@@ -762,6 +769,7 @@ class _ReaderScreenState extends State<ReaderScreen>
           pdfToOpen,
           key: ValueKey(pdfToOpen),
           controller: _pdfController,
+          initialPageNumber: index + 1,
           params: PdfViewerParams(
             backgroundColor: dark ? Colors.black : Colors.grey,
             pageImageColorFilter:
@@ -790,11 +798,14 @@ class _ReaderScreenState extends State<ReaderScreen>
             ),
             onViewerReady: (document, controller) {
               if (!mounted) return;
-              setState(() {
-                _pdfPageCount = document.pages.length;
-                index = ((controller.pageNumber ?? 1) - 1)
-                    .clamp(0, _pdfPageCount - 1);
-              });
+              final targetPage = (index + 1).clamp(1, document.pages.length);
+              _pdfPageCount = document.pages.length;
+              if (controller.pageNumber != targetPage) {
+                // Keep the selected book page when switching light/dark PDFs.
+                controller.goToPage(pageNumber: targetPage,
+                    duration: Duration.zero);
+              }
+              setState(() {});
             },
             onPageChanged: _pdfPageChanged,
             viewerOverlayBuilder: (context, size, handleLinkTap) => const [],
@@ -819,18 +830,19 @@ class _ReaderScreenState extends State<ReaderScreen>
         ? _pdfPageCount
         : (paged ? widget.item.pages.length : _scrollPageCount);
     if (total < 1) return;
-    final input = TextEditingController(text: '${index + 1}');
+    var requested = '${index + 1}';
     final selected = await showDialog<int>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Go to page'),
         content: TextField(
-          controller: input,
           autofocus: true,
+          onChanged: (value) => requested = value,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(hintText: '1-$total'),
-          onSubmitted: (value) =>
-              Navigator.of(dialogContext).pop(int.tryParse(value)),
+          onSubmitted: (value) {
+            Navigator.of(dialogContext).pop(int.tryParse(value));
+          },
         ),
         actions: [
           TextButton(
@@ -839,14 +851,13 @@ class _ReaderScreenState extends State<ReaderScreen>
           ),
           TextButton(
             onPressed: () =>
-                Navigator.of(dialogContext).pop(int.tryParse(input.text)),
+                Navigator.of(dialogContext).pop(int.tryParse(requested)),
             child: const Text('Go'),
           ),
         ],
       ),
     );
-    input.dispose();
-    if (!mounted || selected == null || selected < 1 || selected > total) {
+     if (!mounted || selected == null || selected < 1 || selected > total) {
       return;
     }
     final next = selected - 1;
