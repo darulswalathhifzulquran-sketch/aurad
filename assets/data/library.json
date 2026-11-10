@@ -1121,7 +1121,8 @@
       "title": "Sharafal Anam Mawlid",
       "ar": "مولد شرف الأنام",
       "en": "",
-      "pages": []
+      "pages": [],
+      "pdfAsset": "assets/books/sharafal_anam_moulid_light.pdf"
     },
     {
       "id": "mankoos-mawlid",
@@ -1252,7 +1253,8 @@
           ]
         }
       ],
-      "flow": true
+      "flow": true,
+      "pdfAsset": "assets/books/mankoos_moulid_light.pdf"
     },
     {
       "id": "mawlid-1",
