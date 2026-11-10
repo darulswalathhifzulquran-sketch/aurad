@@ -749,17 +749,26 @@ class _ReaderScreenState extends State<ReaderScreen>
 
   Widget _pdfBody(String asset) {
     final dark = app.dark;
+    // These two Mawlid books have separately prepared, exact user-approved
+    // light and dark borders. Do not invert or overlay their PDFs.
+    final themedMawlid = widget.item.id == 'mankoos-mawlid' ||
+        widget.item.id == 'mawlid-sharafal-anam';
+    final pdfToOpen = themedMawlid && dark
+        ? asset.replaceFirst('_light.pdf', '_dark.pdf')
+        : asset;
     return Stack(
       children: [
         PdfViewer.asset(
-          asset,
+          pdfToOpen,
+          key: ValueKey(pdfToOpen),
           controller: _pdfController,
           params: PdfViewerParams(
             backgroundColor: dark ? Colors.black : Colors.grey,
-            pageImageColorFilter: darkDocumentColorFilterFor(dark),
+            pageImageColorFilter:
+                themedMawlid ? null : darkDocumentColorFilterFor(dark),
             // Match the existing dark-mode gold book framing on every PDF page,
             // not just Flutter-rendered text pages. This follows PDF zoom/scroll.
-            pageOverlaysBuilder: dark
+            pageOverlaysBuilder: dark && !themedMawlid
                 ? (context, pageRect, page) => [
                       Positioned.fill(
                         child: IgnorePointer(
