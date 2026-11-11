@@ -57,58 +57,82 @@ def heading(text, filename, dark):
     return png(blue.crop(bb) if bb else blue)
 
 def page_art(source_page, kind, idx, dark):
+    """Extract only printed dark Arabic; no former border/artwork/background.
+
+    The previous pipeline placed an entire old page inside the new frame,
+    producing double borders, tiny script and visible cropped ornaments.
+    This edition trims to the actual remaining ink bounding box.
+    """
     rect = source_page.rect
-    # Capture ALL Arabic, keeping outside-of-page margin only; avoid removing
-    # any of the long Sharaf lines.
-    margins = (.06,.055,.06,.07) if kind=="mankoos" else (.028,.032,.028,.045)
-    left, top, right, bottom = margins
-    clip = pymupdf.Rect(rect.x0+rect.width*left,rect.y0+rect.height*top,
-                        rect.x1-rect.width*right,rect.y1-rect.height*bottom)
-    pix = source_page.get_pixmap(matrix=pymupdf.Matrix(3.0,3.0),
-                                clip=clip,colorspace=pymupdf.csRGB,alpha=False)
-    rgb = Image.frombytes("RGB",(pix.width,pix.height),pix.samples)
-    data = np.asarray(rgb).astype(np.int16)
-    black = np.min(data,axis=2)
-    alpha = np.uint8(np.clip((246-black)*5,0,255))
+    px = source_page.get_pixmap(
+        matrix=pymupdf.Matrix(3.5, 3.5),
+        colorspace=pymupdf.csRGB, alpha=False,
+    )
+    rgb = Image.frombytes("RGB", (px.width, px.height), px.samples)
+    data = np.asarray(rgb, dtype=np.int16)
+    H, W = data.shape[:2]
 
-    # Remove the original decorative title/Bismillah on first page.
+    # Keep only black/grey ink, suppress gold/green decorative illustrations.
+    hi = data.max(axis=2)
+    lo = data.min(axis=2)
+    neutral = (hi-lo <= 26)
+    darkness = np.clip((220-lo)*4,0,255)
+    ink = (neutral & (lo < 205)).astype(np.uint8)*darkness.astype(np.uint8)
+
+    # Remove source page's outer strips, including original decorative frame.
+    # Never erase inside the central reading column.
+    side = .15 if kind=="mankoos" else .105
+    ink[:int(.035*H),:] = 0
+    ink[int(.960*H):,:] = 0
+    ink[:, :int(side*W)] = 0
+    ink[:, int((1-side)*W):] = 0
+
+    # First page: remove source decorative heading; insert the owner's blue
+    # calligraphy in a separate frame region.
     if idx == 0:
-        # Covers former image heading only, not the following prose.
-        fraction = .19 if kind == "mankoos" else .145
-        alpha[:int(alpha.shape[0]*fraction),:] = 0
+        ink[:int((.22 if kind=="mankoos" else .18)*H),:] = 0
 
-    # Green artwork on Manqoos page 13:
-    # detect the green pixels, and erase its whole bounding shape,
-    # including pale anti-aliased edges. Never touch other pages.
+    # Remove Manqoos final green design *including* its faded black shadow.
+    # Restrict to detected green artwork's region, not the full page.
     if kind=="mankoos" and idx==12:
-        green = ((data[:,:,1] > data[:,:,0]+12) &
-                 (data[:,:,1] > data[:,:,2]+8) &
-                 (data[:,:,1] > 35))
-        ys,xs = np.where(green)
-        if len(xs)>150:
-            pad = 24
-            x0=max(0,int(xs.min())-pad); x1=min(alpha.shape[1],int(xs.max())+pad)
-            y0=max(0,int(ys.min())-pad); y1=min(alpha.shape[0],int(ys.max())+pad)
-            # Remove entire decoration region if only artwork occupies it.
-            alpha[y0:y1,x0:x1]=0
-            print(f"Manqoos final green decoration cleared: {x0},{y0}-{x1},{y1}")
+        green=((data[:,:,1]>data[:,:,0]+12)&
+               (data[:,:,1]>data[:,:,2]+9)&
+               (data[:,:,1]>40))
+        yy,xx=np.where(green)
+        if len(xx)>100:
+            pad=max(20,int(W*.018))
+            l=max(0,int(xx.min())-pad); r=min(W,int(xx.max())+pad)
+            t=max(0,int(yy.min())-pad); d=min(H,int(yy.max())+pad)
+            ink[t:d,l:r]=0
+            print("  Removed Manqoos green calligraphy and shadow")
 
-    # Remove only the last-page decorative picture in Sharaf. Source image
-    # block coordinates, rather than manually erasing Arabic lines.
+    # Sharaf's last page has embedded decorative image artwork.
     if kind=="sharaf" and idx==29:
         for block in source_page.get_text("dict").get("blocks",[]):
             if block.get("type")!=1: continue
             box=pymupdf.Rect(block["bbox"])
-            if box.y0 < rect.y0+rect.height*.45: continue
-            x0=int((box.x0-clip.x0)/clip.width*alpha.shape[1])
-            x1=int((box.x1-clip.x0)/clip.width*alpha.shape[1])
-            y0=int((box.y0-clip.y0)/clip.height*alpha.shape[0])
-            y1=int((box.y1-clip.y0)/clip.height*alpha.shape[0])
-            alpha[max(0,y0):min(alpha.shape[0],y1),
-                  max(0,x0):min(alpha.shape[1],x1)] = 0
+            if box.y0<rect.y0+rect.height*.45: continue
+            x0=max(0,int(box.x0/rect.width*W)-5)
+            x1=min(W,int(box.x1/rect.width*W)+5)
+            y0=max(0,int(box.y0/rect.height*H)-5)
+            y1=min(H,int(box.y1/rect.height*H)+5)
+            ink[y0:y1,x0:x1]=0
 
-    out=Image.new("RGBA",rgb.size,(255,255,255,0)) if dark else rgb.convert("RGBA")
-    out.putalpha(Image.fromarray(alpha))
+    # Crop to ink extents. This prevents huge blank margins or tiny script.
+    where=np.where(ink>70)
+    if where[0].size<30:
+        raise ValueError(f"No Arabic ink detected in {kind} page {idx+1}")
+    pad_x=int(W*.016); pad_y=int(H*.010)
+    x0=max(0,int(where[1].min())-pad_x)
+    x1=min(W,int(where[1].max())+pad_x+1)
+    y0=max(0,int(where[0].min())-pad_y)
+    y1=min(H,int(where[0].max())+pad_y+1)
+    ink=ink[y0:y1,x0:x1]
+    if dark:
+        out=Image.new("RGBA", (x1-x0,y1-y0), (255,255,255,0))
+    else:
+        out=Image.new("RGBA", (x1-x0,y1-y0), (0,0,0,0))
+    out.putalpha(Image.fromarray(ink))
     return png(out)
 
 def build(kind, source_file, base, expected, count, title, title_image, mode):
@@ -124,8 +148,8 @@ def build(kind, source_file, base, expected, count, title, title_image, mode):
         # INSET safe area: content must not cross inner blue/gold lines.
         # Use an equal scale factor (no stretched or clipped Arabic).
         # Leave title space above first page; other pages use more of height.
-        top=.258 if idx==0 else .130
-        target=pymupdf.Rect(width*.155,height*top,width*.845,height*.865)
+        top=.275 if idx==0 else .145
+        target=pymupdf.Rect(width*.132,height*top,width*.868,height*.857)
         art=page_art(source[idx],kind,idx,mode=="dark")
         page.insert_image(target,stream=art,keep_proportion=True)
         if idx==0:
