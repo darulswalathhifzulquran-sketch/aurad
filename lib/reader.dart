@@ -688,8 +688,7 @@ class _ReaderScreenState extends State<ReaderScreen>
     sc.removeListener(_scrollChanged);
     ctrl.dispose();
     sc.dispose();
-    _lightPdfController.dispose();
-    _darkPdfController.dispose();
+
     super.dispose();
   }
 
@@ -811,6 +810,22 @@ class _ReaderScreenState extends State<ReaderScreen>
             viewerOverlayBuilder: (context, size, handleLinkTap) => const [],
           ),
         ),
+        if (_pdfPageCount > 1) ...[
+          Positioned(
+            left: 4,
+            top: 0,
+            bottom: 0,
+            child: Center(child: _pageArrow(
+              Icons.chevron_left, 'Next page', 1)),
+          ),
+          Positioned(
+            right: 42,
+            top: 0,
+            bottom: 0,
+            child: Center(child: _pageArrow(
+              Icons.chevron_right, 'Previous page', -1)),
+          ),
+        ],
         if (_pdfPageCount > 1)
           Positioned(
             top: 0,
@@ -873,6 +888,46 @@ class _ReaderScreenState extends State<ReaderScreen>
       sc.jumpTo(totalPages <= 1 ? 0 : maxOffset * next / (totalPages - 1));
     }
     if (mounted) setState(() => index = next);
+  }
+
+  Future<void> _jumpRelative(int delta) async {
+    if (widget.item.pdfAsset.isNotEmpty) {
+      final count = _pdfPageCount;
+      if (count < 1 || !_pdfController.isReady) return;
+      final next = (index + 1 + delta).clamp(1, count).toInt();
+      await _pdfController.goToPage(pageNumber: next);
+      if (mounted) setState(() => index = next - 1);
+      return;
+    }
+    if (paged) {
+      if (!ctrl.hasClients) return;
+      final next = (index + delta).clamp(0, _scrollPageCount - 1).toInt();
+      ctrl.jumpToPage(next);
+      if (mounted) setState(() => index = next);
+      return;
+    }
+    if (!sc.hasClients || _scrollPageCount < 1) return;
+    final next = (index + delta).clamp(0, _scrollPageCount - 1).toInt();
+    // Approximate page scroll for Flutter text/image readers.
+    final extent = sc.position.maxScrollExtent;
+    sc.jumpTo(_scrollPageCount == 1
+        ? 0
+        : extent * next / (_scrollPageCount - 1));
+    if (mounted) setState(() => index = next);
+  }
+
+  Widget _pageArrow(IconData icon, String tooltip, int delta) {
+    return Material(
+      color: app.dark ? Colors.white24 : Colors.black26,
+      shape: const CircleBorder(),
+      child: IconButton(
+        tooltip: tooltip,
+        icon: Icon(icon),
+        iconSize: 24,
+        color: Colors.white,
+        onPressed: () => _jumpRelative(delta),
+      ),
+    );
   }
 
   void _go(int to, int total) {
