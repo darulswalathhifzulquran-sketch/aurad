@@ -1015,6 +1015,22 @@ class _ReaderScreenState extends State<ReaderScreen>
               ),
             ),
             Positioned(
+              left: 4,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: _pageArrow(Icons.chevron_left, 'Next page', 1),
+              ),
+            ),
+            Positioned(
+              right: 42,
+              top: 0,
+              bottom: 0,
+              child: Center(
+                child: _pageArrow(Icons.chevron_right, 'Previous page', -1),
+              ),
+            ),
+            Positioned(
               top: 0,
               right: 0,
               bottom: 0,
