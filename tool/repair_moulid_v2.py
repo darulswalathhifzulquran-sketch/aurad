@@ -9,7 +9,7 @@ Output files use the already-registered paths in assets/data/library.json.
 from pathlib import Path
 from io import BytesIO
 import pymupdf
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 import numpy as np
 import arabic_reshaper
 from bidi.algorithm import get_display
@@ -21,9 +21,9 @@ OUT = ROOT / "assets" / "books"
 PAGE_W = 21 * 72
 PAGE_H = 29.7 * 72
 # Content stays away from the exact original frame lines.
-BODY_LEFT = 0.135
-BODY_RIGHT = 0.865
-BODY_BOTTOM = 0.86
+BODY_LEFT = 0.116
+BODY_RIGHT = 0.884
+BODY_BOTTOM = 0.903
 
 BOOKS = [
     ("mankoos", ["Manqoos moulid-3-19.pdf", "Manqoos moulid.pdf",
@@ -101,23 +101,53 @@ def source_text_image(source_page, kind, idx, dark):
     cropped=data[y0:y1,x0:x1]
     if cropped.size==0: raise RuntimeError("Empty source crop")
 
-    # Pixel-black print mask, preserving antialias and thin diacritics.
+    # Antialiased source ink: no hard binary black/white threshold.
+    # Colored source ornaments are excluded; all dark neutral Arabic strokes
+    # including hairline diacritics remain. Supersampling smooths PDF zoom.
     lo=cropped.min(axis=2); hi=cropped.max(axis=2)
-    # Colored source ornaments are not text. Keep neutral black ink.
-    neutral=hi-lo < 54
-    ink=np.uint8(np.clip((243-lo)*4,0,255))
-    ink[~neutral]=0
+    chroma=hi-lo
+    neutral=np.clip((62-chroma)*.08,0,1)
+    darkness=np.clip((252-lo)*2.2,0,255)
+    ink=np.uint8(np.clip(darkness*neutral,0,255))
 
-    # Remove original tiny decorative page number and bottom plaque if
-    # preserved by the inset; avoid deleting any content in the center.
-    # The last Manqoos green image is below the text (bottom crop 48%).
-    ys,xs=np.where(ink>24)
+    ys,xs=np.where(ink>28)
     if xs.size<10:
         raise RuntimeError(f"No original Arabic text on {kind} page {idx+1}")
-    # Transparent image: dark ink on white, white ink on black.
-    image=Image.new("RGBA",(x1-x0,y1-y0),
+    # Trim excessive white space *within* the source crop.
+    pad_x=max(7,int((x1-x0)*.018))
+    pad_y=max(5,int((y1-y0)*.012))
+    lx=max(0,int(xs.min())-pad_x); rx=min(ink.shape[1],int(xs.max())+pad_x+1)
+    ty=max(0,int(ys.min())-pad_y); by=min(ink.shape[0],int(ys.max())+pad_y+1)
+    ink=ink[ty:by,lx:rx]
+
+    # Add breathing space between printed lines, instead of stretching
+    # letter shapes. Rows that form a continuous ink run stay untouched.
+    active=np.count_nonzero(ink>30,axis=1)>max(3,int(ink.shape[1]*.006))
+    gaps=[]
+    start=None
+    for row,on in enumerate(active):
+        if not on and start is None: start=row
+        if on and start is not None:
+            if row-start>=5: gaps.append((start,row))
+            start=None
+    if len(gaps)>=7:
+        spacer=max(1,min(24,int(ink.shape[1]*.027)))
+        pieces=[]
+        last=0
+        for a,b in gaps:
+            pieces.append(ink[last:a,:])
+            pieces.append(np.zeros((spacer,ink.shape[1]),dtype=np.uint8))
+            last=b
+        pieces.append(ink[last:,:])
+        ink=np.concatenate(pieces,axis=0)
+
+    # Smooth upsampling is a presentation improvement, not extra source
+    # information. Zoom detail ultimately depends on the original PDF.
+    alpha=Image.fromarray(ink).resize(
+        (ink.shape[1]*2,ink.shape[0]*2),Image.Resampling.LANCZOS)
+    image=Image.new("RGBA",alpha.size,
                     (255,255,255,0) if dark else (0,0,0,0))
-    image.putalpha(Image.fromarray(ink))
+    image.putalpha(alpha)
     return as_png(image)
 
 def render_book(book,mode):
@@ -137,15 +167,15 @@ def render_book(book,mode):
                           keep_proportion=False)
         # Aspect-preserving fit (never stretch Arabic text or spill into frame)
         box=pymupdf.Rect(PAGE_W*BODY_LEFT,
-                         PAGE_H*(.285 if index==0 else .125),
+                         PAGE_H*(.245 if index==0 else .090),
                          PAGE_W*BODY_RIGHT,PAGE_H*BODY_BOTTOM)
         page.insert_image(box,
                           stream=source_text_image(source[index],kind,index,
                                                    mode=="dark"),
                           keep_proportion=True)
         if index==0:
-            title_box=pymupdf.Rect(PAGE_W*.23,PAGE_H*.125,
-                                  PAGE_W*.77,PAGE_H*.235)
+            title_box=pymupdf.Rect(PAGE_W*.20,PAGE_H*.10,
+                                  PAGE_W*.80,PAGE_H*.220)
             page.insert_image(title_box,stream=title_png(
                 title,title_image,mode=="dark"),keep_proportion=True)
     OUT.mkdir(parents=True,exist_ok=True)
