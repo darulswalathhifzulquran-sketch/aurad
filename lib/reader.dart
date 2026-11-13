@@ -810,34 +810,86 @@ class _ReaderScreenState extends State<ReaderScreen>
             viewerOverlayBuilder: (context, size, handleLinkTap) => const [],
           ),
         ),
-        if (_pdfPageCount > 1) ...[
-          Positioned(
-            left: 4,
-            top: 0,
-            bottom: 0,
-            child: Center(child: _pageArrow(
-              Icons.chevron_left, 'Next page', 1)),
-          ),
-          Positioned(
-            right: 42,
-            top: 0,
-            bottom: 0,
-            child: Center(child: _pageArrow(
-              Icons.chevron_right, 'Previous page', -1)),
-          ),
-        ],
-        if (_pdfPageCount > 1)
-          Positioned(
-            top: 0,
-            right: 0,
-            bottom: 0,
-            child: AutoScrollSpeedSlider(
-              value: _autoScrollSpeed,
-              onChanged: _setAutoScrollSpeed,
-            ),
-          ),
+
       ],
     );
+  }
+
+  Future<void> _showPageSlider() async {
+    final total = widget.item.pdfAsset.isNotEmpty
+        ? _pdfPageCount
+        : (paged ? widget.item.pages.length : _scrollPageCount);
+    if (total < 1) return;
+    var chosen = (index + 1).clamp(1, total).toInt();
+    final selected = await showDialog<int>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, refresh) => AlertDialog(
+          title: Text('Page $chosen / $total'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Slider(
+                value: chosen.toDouble(),
+                min: 1,
+                max: total.toDouble(),
+                divisions: total > 1 ? total - 1 : null,
+                label: '$chosen',
+                onChanged: total < 2
+                    ? null
+                    : (value) => refresh(() => chosen = value.round()),
+              ),
+              TextField(
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Go to page (1-$total)',
+                  hintText: '$chosen',
+                ),
+                onChanged: (value) {
+                  final page = int.tryParse(value);
+                  if (page != null && page >= 1 && page <= total) {
+                    refresh(() => chosen = page);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => refresh(
+                () => chosen = (chosen - 1).clamp(1, total).toInt()),
+              child: const Icon(Icons.chevron_left),
+            ),
+            TextButton(
+              onPressed: () => refresh(
+                () => chosen = (chosen + 1).clamp(1, total).toInt()),
+              child: const Icon(Icons.chevron_right),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(chosen),
+              child: const Text('Go'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || selected == null) return;
+    final next = selected - 1;
+    if (widget.item.pdfAsset.isNotEmpty) {
+      if (_pdfController.isReady) {
+        await _pdfController.goToPage(pageNumber: selected);
+      }
+    } else if (paged && ctrl.hasClients) {
+      ctrl.jumpToPage(next);
+    } else if (sc.hasClients) {
+      final maxOffset = sc.position.maxScrollExtent;
+      sc.jumpTo(total <= 1 ? 0 : maxOffset * next / (total - 1));
+    }
+    if (mounted) setState(() => index = next);
   }
 
   Future<void> _askReaderPage() async {
@@ -1014,31 +1066,7 @@ class _ReaderScreenState extends State<ReaderScreen>
                 ),
               ),
             ),
-            Positioned(
-              left: 4,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: _pageArrow(Icons.chevron_left, 'Next page', 1),
-              ),
-            ),
-            Positioned(
-              right: 42,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: _pageArrow(Icons.chevron_right, 'Previous page', -1),
-              ),
-            ),
-            Positioned(
-              top: 0,
-              right: 0,
-              bottom: 0,
-              child: AutoScrollSpeedSlider(
-                value: _autoScrollSpeed,
-                onChanged: _setAutoScrollSpeed,
-              ),
-            ),
+
           ],
         );
       },
@@ -1116,9 +1144,9 @@ class _ReaderScreenState extends State<ReaderScreen>
                   ),
             actions: [
               IconButton(
-                tooltip: 'Go to page',
-                icon: const Icon(Icons.find_in_page_outlined),
-                onPressed: _askReaderPage,
+                tooltip: 'Page slider / go to page',
+                icon: const Icon(Icons.tune),
+                onPressed: _showPageSlider,
               ),
               themeToggleAction(),
               IconButton(
