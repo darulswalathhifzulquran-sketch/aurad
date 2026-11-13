@@ -51,6 +51,10 @@ def as_png(image):
 def title_png(title, png_name, dark):
     """User-provided calligraphy first; printed fallback if not provided."""
     path = DL / png_name
+    if not path.exists():
+        matches = sorted(DL.glob("*" + png_name.replace(".png", "") + "*.png"))
+        if matches:
+            path = matches[-1]
     if path.exists():
         raw = Image.open(path).convert("RGBA")
         rgb = np.asarray(raw.convert("RGB"), dtype=np.int16)
@@ -109,6 +113,23 @@ def source_text_image(source_page, kind, idx, dark):
     neutral=np.clip((62-chroma)*.08,0,1)
     darkness=np.clip((252-lo)*2.2,0,255)
     ink=np.uint8(np.clip(darkness*neutral,0,255))
+
+    # Sharaf al-Anam: remove the separate final-page picture, never an
+    # entire scanned page and never any neighboring Arabic text.
+    if kind == "sharaf" and idx == 29:
+        for block in source_page.get_text("dict").get("blocks", []):
+            if block.get("type") != 1:
+                continue
+            box = pymupdf.Rect(block["bbox"])
+            if box.y0 < rect.height * .48 or box.width > rect.width * .97:
+                continue
+            xa=max(0,int(box.x0/rect.width*w)-x0)
+            xb=min(x1-x0,int(box.x1/rect.width*w)-x0)
+            ya=max(0,int(box.y0/rect.height*h)-y0)
+            yb=min(y1-y0,int(box.y1/rect.height*h)-y0)
+            if xb>xa and yb>ya:
+                ink[ya:yb,xa:xb]=0
+                print("  Removed separate Sharaf final-page design image")
 
     ys,xs=np.where(ink>28)
     if xs.size<10:
