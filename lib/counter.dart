@@ -16,25 +16,37 @@ class _CounterScreenState extends State<CounterScreen> {
   bool _targetVibration = true;
 
   void _tap() {
+    final before = app.counter;
     app.incCounter();
-    if (_targetVibration && app.target > 0 && app.counter >= app.target) {
-      HapticFeedback.heavyImpact();
-    } else {
+    final completed = app.target > 0 && before < app.target &&
+        app.counter >= app.target;
+    if (completed) {
+      if (_targetVibration) HapticFeedback.heavyImpact();
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('🎉 TARGET COMPLETE!'),
+          duration: Duration(seconds: 4)),
+      );
+    } else if (_targetVibration) {
       HapticFeedback.selectionClick();
     }
   }
 
   Future<void> _setCustomTarget() async {
-    final controller = TextEditingController(
-        text: app.target > 0 ? '${app.target}' : '');
+    // Avoid a TextEditingController disposed during the dialog's exit
+    // animation, which can trigger Flutter framework assertions on web.
+    var typed = app.target > 0 ? '${app.target}' : '';
     final selected = await showDialog<int>(
       context: context,
-      builder: (ctx) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Custom target'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
+        content: TextFormField(
+          initialValue: typed,
+          autofocus: false,
           keyboardType: TextInputType.number,
+          onChanged: (value) => typed = value,
+          onFieldSubmitted: (value) => Navigator.of(dialogContext)
+              .pop(int.tryParse(value.trim())),
           decoration: const InputDecoration(
             labelText: 'Target count',
             hintText: 'Enter a number',
@@ -42,18 +54,18 @@ class _CounterScreenState extends State<CounterScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(
-                int.tryParse(controller.text.trim())),
+            onPressed: () => Navigator.of(dialogContext)
+                .pop(int.tryParse(typed.trim())),
             child: const Text('Set target'),
           ),
         ],
       ),
     );
-    controller.dispose();
+    if (!mounted) return;
     if (selected != null && selected > 0 && selected <= 999999) {
       app.setTarget(selected);
     }
@@ -116,7 +128,7 @@ class _CounterScreenState extends State<CounterScreen> {
         final target = app.target;
         final targetText = target == 0 ? '∞' : '$target';
         final customSelected =
-            target != 0 && ![33, 100, 313, 1000].contains(target);
+            target != 0 && ![11, 33, 100, 313, 1000].contains(target);
         return Scaffold(
           appBar: AppBar(
             title: const Text('Counter'),
@@ -149,6 +161,7 @@ class _CounterScreenState extends State<CounterScreen> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
+                          _targetChip('11', 11),
                           _targetChip('33', 33),
                           _targetChip('100', 100),
                           _targetChip('313', 313),
