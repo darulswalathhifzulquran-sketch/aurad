@@ -216,6 +216,15 @@ class _CounterScreenState extends State<CounterScreen> {
                                   color: Color(0xFF6DDBF6),
                                   fontWeight: FontWeight.w600,
                                 )),
+                            if (target > 0 && counter >= target) ...[
+                              const SizedBox(height: 10),
+                              const Text('✓ TARGET COMPLETE',
+                                  style: TextStyle(
+                                    color: Color(0xFF91F4A9),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  )),
+                            ],
                           ],
                         ),
                       ),
