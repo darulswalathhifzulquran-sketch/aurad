@@ -1,65 +1,44 @@
 import 'package:flutter/material.dart';
 
-/// Shared page-footer plaque used by every book reader.
-/// The Arabic is rendered as vector font glyphs, not a blurry bitmap.
-/// This is the small bottom badge only, not a page or border replacement.
+/// Shared book-page footer. The reference art is always preferred and retains
+/// the EXACT original Arabic lettering including the رضي الله عنه emblem.
+/// No rasterization of Quran / book body content is involved.
 class AcademyFooter extends StatelessWidget {
   final bool dark;
   const AcademyFooter({super.key, required this.dark});
 
+  static const asset = 'assets/images/academy_footer_exact.png';
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final h = constraints.maxHeight;
-        final fontSize = (h * 0.48).clamp(7.0, 25.0).toDouble();
-        return Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: dark ? const Color(0xFF050505) : Colors.white,
-            border: Border.all(
-              color: dark ? const Color(0xFFEBCB84) : Colors.black,
-              width: (h * 0.055).clamp(1.0, 2.0).toDouble(),
-            ),
-            borderRadius: BorderRadius.circular(
-              (h * 0.19).clamp(3.0, 10.0).toDouble(),
+    return Image.asset(
+      asset,
+      fit: BoxFit.fill,
+      filterQuality: FilterQuality.high,
+      errorBuilder: (context, error, stackTrace) => DecoratedBox(
+        decoration: BoxDecoration(
+          color: dark ? const Color(0xFF070707) : Colors.white,
+          border: Border.all(
+            color: dark ? const Color(0xFFEBCB84) : Colors.black,
+            width: 1.25,
+          ),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: const FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            'جامعة الإمام النووي رضي الله عنه',
+            maxLines: 1,
+            textDirection: TextDirection.rtl,
+            style: TextStyle(
+              fontFamily: 'Amiri',
+              fontWeight: FontWeight.bold,
+              fontSize: 19,
+              color: Colors.black,
             ),
           ),
-          padding: EdgeInsets.symmetric(horizontal: h * .12),
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Directionality(
-              textDirection: TextDirection.rtl,
-              child: Text(
-                'جامعة الإمام النووي ﷺ',
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                style: TextStyle(
-                  fontFamily: 'Amiri',
-                  fontFamilyFallback: const [
-                    'ArabicFont',
-                    'Noto Naskh Arabic',
-                    'Traditional Arabic',
-                  ],
-                  fontWeight: FontWeight.bold,
-                  fontSize: fontSize,
-                  height: 1.0,
-                  color: dark ? Colors.white : Colors.black,
-                  shadows: dark
-                      ? null
-                      : const [
-                          Shadow(
-                            color: Color(0x33000000),
-                            offset: Offset(0, 1),
-                            blurRadius: 1,
-                          ),
-                        ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
