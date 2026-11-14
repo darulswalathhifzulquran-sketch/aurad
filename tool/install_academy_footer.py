@@ -16,7 +16,6 @@ def install():
     choices=[
        DOWNLOADS/"academy_footer_exact.png",
        DOWNLOADS/"academy_footer.png",
-       DOWNLOADS/"download(1).png",
     ]
     source=next((p for p in choices if p.is_file()),None)
     if source is None:
