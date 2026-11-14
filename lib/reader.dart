@@ -606,16 +606,26 @@ class PageSheet extends StatelessWidget {
               ),
             ),
           ),
-          if (!quran)
+          if (!quran) ...[
             Positioned(
-              left: width * 0.29,
-              bottom: height * 0.009,
-              width: width * 0.42,
-              height: height * 0.034,
+              left: width * 0.235,
+              bottom: height * 0.004,
+              width: width * 0.53,
+              height: height * 0.058,
+              child: ColoredBox(
+                color: dark ? Colors.black : Colors.white,
+              ),
+            ),
+            Positioned(
+              left: width * 0.28,
+              bottom: height * 0.010,
+              width: width * 0.44,
+              height: height * 0.038,
               child: IgnorePointer(
                 child: AcademyFooter(dark: dark),
               ),
             ),
+          ],
         ],
       ),
     );
@@ -798,16 +808,28 @@ class _ReaderScreenState extends State<ReaderScreen>
                 ),
               ),
             if (widget.item.category != 'quran' &&
-                widget.item.category != 'juz')
+                widget.item.category != 'juz') ...[
+              Positioned(
+                left: pageRect.width * 0.235,
+                bottom: pageRect.height * 0.003,
+                width: pageRect.width * 0.53,
+                height: pageRect.height * 0.065,
+                child: IgnorePointer(
+                  child: ColoredBox(
+                    color: darkView ? Colors.black : Colors.white,
+                  ),
+                ),
+              ),
               Positioned(
                 left: pageRect.width * 0.28,
-                bottom: pageRect.height * 0.007,
+                bottom: pageRect.height * 0.010,
                 width: pageRect.width * 0.44,
-                height: pageRect.height * 0.038,
+                height: pageRect.height * 0.040,
                 child: IgnorePointer(
                   child: AcademyFooter(dark: darkView),
                 ),
               ),
+            ],
           ],
           underflowAnchor: PdfPageAnchor.center,
           sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
