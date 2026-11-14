@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'app_theme.dart';
+import 'academy_footer.dart';
 import 'dark_document_renderer.dart';
 import 'models.dart';
 import 'auto_scroll_speed_slider.dart';
@@ -605,6 +606,16 @@ class PageSheet extends StatelessWidget {
               ),
             ),
           ),
+          if (!quran)
+            Positioned(
+              left: width * 0.29,
+              bottom: height * 0.009,
+              width: width * 0.42,
+              height: height * 0.034,
+              child: IgnorePointer(
+                child: AcademyFooter(dark: dark),
+              ),
+            ),
         ],
       ),
     );
@@ -769,22 +780,35 @@ class _ReaderScreenState extends State<ReaderScreen>
         params: PdfViewerParams(
           backgroundColor: darkView ? Colors.black : Colors.grey,
           pageImageColorFilter: darkDocumentColorFilterFor(darkView),
-          pageOverlaysBuilder: darkView && !isThemed
-              ? (context, pageRect, page) => [
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: const Color(0xFFEBCB84),
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
+          // Bottom academy plaque is common to every book PDF page.
+          // Render in Flutter so it stays sharp when zooming and doesn't
+          // depend on a separately named image in Downloads.
+          pageOverlaysBuilder: (context, pageRect, page) => [
+            if (darkView && !isThemed)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: const Color(0xFFEBCB84),
+                        width: 1.5,
                       ),
                     ),
-                  ]
-              : null,
+                  ),
+                ),
+              ),
+            if (widget.item.category != 'quran' &&
+                widget.item.category != 'juz')
+              Positioned(
+                left: pageRect.width * 0.28,
+                bottom: pageRect.height * 0.007,
+                width: pageRect.width * 0.44,
+                height: pageRect.height * 0.038,
+                child: IgnorePointer(
+                  child: AcademyFooter(dark: darkView),
+                ),
+              ),
+          ],
           underflowAnchor: PdfPageAnchor.center,
           sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
             calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
