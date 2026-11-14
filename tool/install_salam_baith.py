@@ -94,7 +94,7 @@ def build():
     if len(original)!=2:
         raise ValueError("Expected exactly two pages in Salam Baith PDF")
     title=title_image()
-    footer=badge_image()
+    footer=None  # Flutter renders a sharp shared academy footer
     edited=pymupdf.open()
     for i in range(2):
         p=original[i]
