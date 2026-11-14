@@ -830,7 +830,7 @@ class _ReaderScreenState extends State<ReaderScreen>
     }
     if (mounted) setState(() {
       index = next;
-      _sliderDragPage = null;
+      
     });
   }
 
