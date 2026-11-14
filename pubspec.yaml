@@ -29,7 +29,7 @@ flutter:
     - assets/images/aurad_reference_home.png
     - assets/images/border.png
     - assets/images/quran_border.png
-    - assets/images/academy_footer_exact.png
+    - assets/images/
     - quran.pdf
   fonts:
     - family: ArabicFont
