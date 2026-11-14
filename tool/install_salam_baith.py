@@ -94,7 +94,10 @@ def build():
     if len(original)!=2:
         raise ValueError("Expected exactly two pages in Salam Baith PDF")
     title=title_image()
-    footer=None  # Flutter renders a sharp shared academy footer
+    if not (ROOT/"assets/images/academy_footer_exact.png").is_file():
+        raise FileNotFoundError(
+            "Run python tool/install_academy_footer.py before rebuilding PDFs")
+    footer=None  # Flutter renders one exact image, not two
     edited=pymupdf.open()
     for i in range(2):
         p=original[i]
@@ -107,12 +110,10 @@ def build():
                            fill=(1,1,1),color=None,overlay=True)
             page.insert_image(pymupdf.Rect(.24*w,.085*h,.76*w,.212*h),
                 stream=title,keep_proportion=True,overlay=True)
-        if footer:
-            # Replace small old attribution plaque; leave red ornate frame.
-            page.draw_rect(pymupdf.Rect(.36*w,.964*h,.64*w,.990*h),
-                           fill=(1,1,1),color=None,overlay=True)
-            page.insert_image(pymupdf.Rect(.30*w,.951*h,.70*w,.994*h),
-                stream=footer,keep_proportion=False,overlay=True)
+        # Mask the old printed plaque, including its outline; the single
+        # common Flutter footer appears on top at the bottom of the page.
+        page.draw_rect(pymupdf.Rect(.235*w,.931*h,.765*w,.995*h),
+                       fill=(1,1,1),color=None,overlay=True)
     OUT.parent.mkdir(parents=True,exist_ok=True)
     if OUT.exists():
         backup=OUT.with_name("salam_baith.before_update.pdf")
