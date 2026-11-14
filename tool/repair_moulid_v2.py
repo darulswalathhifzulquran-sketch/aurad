@@ -182,8 +182,9 @@ def build(book,badge):
                 remove_manqoos_green(page,original)
         if base=="sharafal_anam_moulid" and i==count-1:
             remove_last_sharaf_calligraphy(page)
-        # Footer is rendered sharply by Flutter AcademyFooter on every page.
-        # Do not embed arbitrary Downloads/download.png (it can be a chart).
+        # Clear the ORIGINAL embedded badge. Flutter will draw ONE academy
+        # image overlay in exactly this place; no second plaque survives.
+        cover_white(page,(.235,.931,.765,.995))
 
     OUT.mkdir(parents=True,exist_ok=True)
     for mode in ("light","dark"):
@@ -203,7 +204,10 @@ def build(book,badge):
     src.close()
 
 def main():
-    badge=None  # Common Flutter overlay handles the footer on every page
+    if not (ROOT/"assets/images/academy_footer_exact.png").is_file():
+        raise FileNotFoundError(
+            "Run python tool/install_academy_footer.py before rebuilding PDFs")
+    badge=None
     for book in BOOKS:
         build(book,badge)
     print("DONE. Printed page numbers retained. Native PDF Arabic retained.")
