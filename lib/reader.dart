@@ -670,7 +670,6 @@ class _ReaderScreenState extends State<ReaderScreen>
   int index = 0;
   int _pdfPageCount = 0;
   int _scrollPageCount = 0;
-  double? _sliderDragPage;
 
   // Quran (surah / juz): pages turn sideways. Everything else: scrolling.
   bool get paged =>
@@ -1162,66 +1161,28 @@ class _ReaderScreenState extends State<ReaderScreen>
                         ),
                     ],
                   ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(34),
-              child: SizedBox(
-                height: 34,
-                child: Builder(
-                  builder: (context) {
-                    final pageTotal = item.pdfAsset.isNotEmpty
-                        ? _pdfPageCount
-                        : (paged ? total : shown.length);
-                    if (pageTotal < 2) return const SizedBox.shrink();
-                    final display = (_sliderDragPage ?? (index + 1).toDouble())
-                        .clamp(1.0, pageTotal.toDouble()).toDouble();
-                    return Row(
-                      children: [
-                        IconButton(
-                          tooltip: 'Previous page',
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(minWidth: 34),
-                          icon: const Icon(Icons.chevron_left, size: 20),
-                          onPressed: display <= 1
-                              ? null
-                              : () => _navigateToPage(
-                                  display.round() - 1, pageTotal),
-                        ),
-                        Expanded(
-                          child: Slider(
-                            min: 1,
-                            max: pageTotal.toDouble(),
-                            divisions: pageTotal - 1,
-                            value: display,
-                            activeColor: const Color(0xFF90CAF9),
-                            inactiveColor: Colors.white30,
-                            onChanged: (value) =>
-                                setState(() => _sliderDragPage = value),
-                            onChangeEnd: (value) =>
-                                _navigateToPage(value.round(), pageTotal),
-                          ),
-                        ),
-                        Text(
-                          '${display.round()}/$pageTotal',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 11),
-                        ),
-                        IconButton(
-                          tooltip: 'Next page',
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(minWidth: 34),
-                          icon: const Icon(Icons.chevron_right, size: 20),
-                          onPressed: display >= pageTotal
-                              ? null
-                              : () => _navigateToPage(
-                                  display.round() + 1, pageTotal),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
             actions: [
+              IconButton(
+                tooltip: 'Find page',
+                icon: const Icon(Icons.find_in_page_outlined),
+                onPressed: _askReaderPage,
+              ),
+              if (item.pdfAsset.isNotEmpty) ...[
+                IconButton(
+                  tooltip: 'Previous page',
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: _pdfPageCount > 1 && index > 0
+                      ? () => _jumpRelative(-1)
+                      : null,
+                ),
+                IconButton(
+                  tooltip: 'Next page',
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: _pdfPageCount > 1 && index < _pdfPageCount - 1
+                      ? () => _jumpRelative(1)
+                      : null,
+                ),
+              ],
               themeToggleAction(),
               IconButton(
                 tooltip: 'Bookmark',
