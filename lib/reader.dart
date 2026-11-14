@@ -754,62 +754,77 @@ class _ReaderScreenState extends State<ReaderScreen>
     if (mounted && index != current) setState(() => index = current);
   }
 
+  /// Keep both Moulid PDF modes mounted so toggling the theme does not
+  /// reopen/reparse a PDF document on every press.
   Widget _pdfBody(String asset) {
-    final dark = app.dark;
-    // These two Mawlid books have separately prepared, exact user-approved
-    // light and dark borders. Do not invert or overlay their PDFs.
-    final themedMawlid = _isThemedMawlid;
-    final pdfToOpen = themedMawlid && dark
-        ? asset.replaceFirst('_light.pdf', '_dark.pdf')
-        : asset;
-    return Stack(
-      children: [
-        PdfViewer.asset(
-          pdfToOpen,
-          key: ValueKey(pdfToOpen),
-          controller: _pdfController,
-          initialPageNumber: index + 1,
-          params: PdfViewerParams(
-            backgroundColor: dark ? Colors.black : Colors.grey,
-            pageImageColorFilter: darkDocumentColorFilterFor(dark),
-            // Match the existing dark-mode gold book framing on every PDF page,
-            // not just Flutter-rendered text pages. This follows PDF zoom/scroll.
-            pageOverlaysBuilder: dark && !themedMawlid
-                ? (context, pageRect, page) => [
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: const Color(0xFFEBCB84),
-                                width: 1.5,
-                              ),
+    final isThemed = _isThemedMawlid;
+    final selectedDark = app.dark;
+
+    Widget pdfView(String path, PdfViewerController controller, bool darkView) {
+      return PdfViewer.asset(
+        path,
+        key: ValueKey(path),
+        controller: controller,
+        initialPageNumber: index + 1,
+        params: PdfViewerParams(
+          backgroundColor: darkView ? Colors.black : Colors.grey,
+          pageImageColorFilter: darkDocumentColorFilterFor(darkView),
+          pageOverlaysBuilder: darkView && !isThemed
+              ? (context, pageRect, page) => [
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: const Color(0xFFEBCB84),
+                              width: 1.5,
                             ),
                           ),
                         ),
                       ),
-                    ]
-                : null,
-            underflowAnchor: PdfPageAnchor.center,
-            sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
-              calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
-            ),
-            onViewerReady: (document, controller) {
-              if (!mounted) return;
-              final targetPage = (index + 1).clamp(1, document.pages.length);
-              _pdfPageCount = document.pages.length;
-              if (controller.pageNumber != targetPage) {
-                // Keep the selected book page when switching light/dark PDFs.
-                controller.goToPage(pageNumber: targetPage,
-                    duration: Duration.zero);
-              }
-              setState(() {});
-            },
-            onPageChanged: _pdfPageChanged,
-            viewerOverlayBuilder: (context, size, handleLinkTap) => const [],
+                    ),
+                  ]
+              : null,
+          underflowAnchor: PdfPageAnchor.center,
+          sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+            calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
           ),
+          onViewerReady: (document, readyController) {
+            if (!mounted) return;
+            _pdfPageCount = document.pages.length;
+            final wanted = (index + 1).clamp(1, document.pages.length);
+            if (readyController.pageNumber != wanted) {
+              readyController.goToPage(
+                  pageNumber: wanted, duration: Duration.zero);
+            }
+            if (selectedDark == darkView) setState(() {});
+          },
+          onPageChanged: (pageNumber) {
+            if (app.dark == darkView || !isThemed) {
+              _pdfPageChanged(pageNumber);
+            }
+          },
+          viewerOverlayBuilder: (context, size, handleLinkTap) => const [],
         ),
+      );
+    }
 
+    if (!isThemed) {
+      return pdfView(asset, _lightPdfController, selectedDark);
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final active = selectedDark ? _darkPdfController : _lightPdfController;
+      if (active.isReady && active.pageNumber != index + 1) {
+        active.goToPage(pageNumber: index + 1, duration: Duration.zero);
+      }
+    });
+    final darkAsset = asset.replaceFirst('_light.pdf', '_dark.pdf');
+    return IndexedStack(
+      index: selectedDark ? 1 : 0,
+      children: [
+        pdfView(asset, _lightPdfController, false),
+        pdfView(darkAsset, _darkPdfController, true),
       ],
     );
   }
