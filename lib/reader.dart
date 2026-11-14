@@ -670,6 +670,7 @@ class _ReaderScreenState extends State<ReaderScreen>
   int index = 0;
   int _pdfPageCount = 0;
   int _scrollPageCount = 0;
+  double? _sliderDragPage;
 
   // Quran (surah / juz): pages turn sideways. Everything else: scrolling.
   bool get paged =>
@@ -771,8 +772,7 @@ class _ReaderScreenState extends State<ReaderScreen>
           initialPageNumber: index + 1,
           params: PdfViewerParams(
             backgroundColor: dark ? Colors.black : Colors.grey,
-            pageImageColorFilter:
-                themedMawlid ? null : darkDocumentColorFilterFor(dark),
+            pageImageColorFilter: darkDocumentColorFilterFor(dark),
             // Match the existing dark-mode gold book framing on every PDF page,
             // not just Flutter-rendered text pages. This follows PDF zoom/scroll.
             pageOverlaysBuilder: dark && !themedMawlid
@@ -813,6 +813,26 @@ class _ReaderScreenState extends State<ReaderScreen>
 
       ],
     );
+  }
+
+  Future<void> _navigateToPage(int requested, int total) async {
+    if (total < 1) return;
+    final selected = requested.clamp(1, total).toInt();
+    final next = selected - 1;
+    if (widget.item.pdfAsset.isNotEmpty) {
+      if (_pdfController.isReady) {
+        await _pdfController.goToPage(pageNumber: selected);
+      }
+    } else if (paged && ctrl.hasClients) {
+      ctrl.jumpToPage(next);
+    } else if (sc.hasClients) {
+      final maxOffset = sc.position.maxScrollExtent;
+      sc.jumpTo(total <= 1 ? 0 : maxOffset * next / (total - 1));
+    }
+    if (mounted) setState(() {
+      index = next;
+      _sliderDragPage = null;
+    });
   }
 
   Future<void> _showPageSlider() async {
@@ -1142,12 +1162,66 @@ class _ReaderScreenState extends State<ReaderScreen>
                         ),
                     ],
                   ),
-            actions: [
-              IconButton(
-                tooltip: 'Page slider / go to page',
-                icon: const Icon(Icons.tune),
-                onPressed: _showPageSlider,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(34),
+              child: SizedBox(
+                height: 34,
+                child: Builder(
+                  builder: (context) {
+                    final pageTotal = item.pdfAsset.isNotEmpty
+                        ? _pdfPageCount
+                        : (paged ? total : shown.length);
+                    if (pageTotal < 2) return const SizedBox.shrink();
+                    final display = (_sliderDragPage ?? (index + 1).toDouble())
+                        .clamp(1.0, pageTotal.toDouble()).toDouble();
+                    return Row(
+                      children: [
+                        IconButton(
+                          tooltip: 'Previous page',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 34),
+                          icon: const Icon(Icons.chevron_left, size: 20),
+                          onPressed: display <= 1
+                              ? null
+                              : () => _navigateToPage(
+                                  display.round() - 1, pageTotal),
+                        ),
+                        Expanded(
+                          child: Slider(
+                            min: 1,
+                            max: pageTotal.toDouble(),
+                            divisions: pageTotal - 1,
+                            value: display,
+                            activeColor: const Color(0xFF90CAF9),
+                            inactiveColor: Colors.white30,
+                            onChanged: (value) =>
+                                setState(() => _sliderDragPage = value),
+                            onChangeEnd: (value) =>
+                                _navigateToPage(value.round(), pageTotal),
+                          ),
+                        ),
+                        Text(
+                          '${display.round()}/$pageTotal',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 11),
+                        ),
+                        IconButton(
+                          tooltip: 'Next page',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(minWidth: 34),
+                          icon: const Icon(Icons.chevron_right, size: 20),
+                          onPressed: display >= pageTotal
+                              ? null
+                              : () => _navigateToPage(
+                                  display.round() + 1, pageTotal),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
+            ),
+            actions: [
               themeToggleAction(),
               IconButton(
                 tooltip: 'Bookmark',
