@@ -114,6 +114,33 @@ def remove_last_sharaf_calligraphy(page):
     # Last-page illustration is isolated well below the Arabic du'a text.
     cover_white(page,(.17,.575,.83,.884))
 
+
+def renumber_manqoos_page(page, number):
+    """Replace printed source numbering 3-15 with clean 1-13, keeping
+    all Arabic verses and the decorative border untouched."""
+    from PIL import Image, ImageDraw, ImageFont
+    page_w, page_h = page.rect.width, page.rect.height
+    # Printed numeral lies at the top-centre above the Arabic body.
+    number_area = (.455, .004, .545, .053)
+    cover_white(page, number_area)
+    label = str(number).translate(str.maketrans(
+        "0123456789", "٠١٢٣٤٥٦٧٨٩"))
+    image = Image.new("RGBA", (240, 120), (255, 255, 255, 0))
+    draw = ImageDraw.Draw(image)
+    try:
+        font = ImageFont.truetype("arial.ttf", 68)
+    except OSError:
+        font = ImageFont.load_default()
+        label = str(number)
+    draw.text((120, 60), label, font=font, anchor="mm",
+              fill=(12, 33, 51, 255))
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    page.insert_image(pymupdf.Rect(page_w*.471, page_h*.013,
+                    page_w*.529, page_h*.052),
+                    stream=buffer.getvalue(), overlay=True,
+                    keep_proportion=False)
+
 def remove_manqoos_green(page,source):
     # Green artwork is a colored standalone ornament, not Arabic body text.
     # Determine its actual location from source pixels, not guessed margins.
@@ -149,8 +176,10 @@ def build(book,badge):
         original=src[i]
         page=result.new_page(width=original.rect.width,height=original.rect.height)
         page.show_pdf_page(page.rect,src,i,keep_proportion=False)
-        if base=="mankoos_moulid" and i==count-1:
-            remove_manqoos_green(page,original)
+        if base=="mankoos_moulid":
+            renumber_manqoos_page(page, i+1)
+            if i==count-1:
+                remove_manqoos_green(page,original)
         if base=="sharafal_anam_moulid" and i==count-1:
             remove_last_sharaf_calligraphy(page)
         # Preserve every Sharaf al-Anam printed page-number capsule.
