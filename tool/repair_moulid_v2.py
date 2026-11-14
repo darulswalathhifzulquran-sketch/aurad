@@ -182,8 +182,8 @@ def build(book,badge):
                 remove_manqoos_green(page,original)
         if base=="sharafal_anam_moulid" and i==count-1:
             remove_last_sharaf_calligraphy(page)
-        # Preserve every Sharaf al-Anam printed page-number capsule.
-        put_footer(page,badge)
+        # Footer is rendered sharply by Flutter AcademyFooter on every page.
+        # Do not embed arbitrary Downloads/download.png (it can be a chart).
 
     OUT.mkdir(parents=True,exist_ok=True)
     for mode in ("light","dark"):
@@ -203,7 +203,7 @@ def build(book,badge):
     src.close()
 
 def main():
-    badge=get_footer_image()
+    badge=None  # Common Flutter overlay handles the footer on every page
     for book in BOOKS:
         build(book,badge)
     print("DONE. Printed page numbers retained. Native PDF Arabic retained.")
