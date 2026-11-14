@@ -1,8 +1,7 @@
-"""Install original Manqoos and Sharaf Moulids while preserving source resolution.
+"""Rebuild original Moulid PDF app assets with precise, non-destructive edits.
 
-Run from project root: python tool/repair_moulid_v2.py
-Only the specified Sharaf print decorations are covered, never retyped.
-Footer is taken from the user's own light border art, if available.
+The original Arabic stays PDF-native (not OCR or a pixelated image).
+Input files are searched in the user's Windows Downloads directory.
 """
 from pathlib import Path
 from io import BytesIO
@@ -18,6 +17,7 @@ BOOKS = [
         "Manqoos moulid.pdf",
     ], "mankoos_moulid", 13, 17),
     ("Sharaf al-Anam", [
+        "sharaful anam orgn [Autosaved]  111111 bn(3).pdf",
         "sharaful anam orgn [Autosaved]  111111 bn(2).pdf",
         "sharaful anam orgn [Autosaved]  111111 bn.pdf",
     ], "sharafal_anam_moulid", 30, 30),
@@ -25,110 +25,159 @@ BOOKS = [
 
 def find_source(names):
     for name in names:
-        path = DL / name
-        if path.is_file():
-            return path
-    raise FileNotFoundError(
-        "Original PDF missing from Downloads: " + ", ".join(names))
+        p = DL / name
+        if p.is_file():
+            return p
+    raise FileNotFoundError("Save original PDF in Downloads: " + " / ".join(names))
 
-def cover_white(page, coords):
+def rect_for(page, coords):
     r = page.rect
-    box = pymupdf.Rect(
-        r.x0 + r.width * coords[0], r.y0 + r.height * coords[1],
-        r.x0 + r.width * coords[2], r.y0 + r.height * coords[3])
-    page.draw_rect(box, color=None, fill=(1, 1, 1), overlay=True)
+    return pymupdf.Rect(r.x0+r.width*coords[0],r.y0+r.height*coords[1],
+                        r.x0+r.width*coords[2],r.y0+r.height*coords[3])
 
-def remove_sharaf_number(page):
-    # Cover the entire number capsule, including the grey-black outline.
-    # Only the top-centre paper area; do not touch Arabic body text.
-    cover_white(page, (.455, .004, .545, .071))
+def cover_white(page,coords):
+    page.draw_rect(rect_for(page,coords), color=None, fill=(1,1,1),overlay=True)
 
-def remove_last_sharaf_artwork(page):
-    # Screenshot-confirmed: isolated calligraphy below the final du'a.
-    # Keep the top text and all four decorative frame corners intact.
-    cover_white(page, (.165, .565, .84, .885))
+def get_footer_image():
+    from PIL import Image, ImageDraw
+    # Prefer the exact artwork the user supplied, saved as download.png.
+    asset = next((p for p in (DL/"moulid_footer.png",DL/"download.png",
+                   DL/"academy_footer.png") if p.is_file()),None)
+    if asset:
+        im = Image.open(asset).convert("RGBA")
+        # User's design is a white rounded badge on an external black field.
+        # Remove ONLY exterior black, retaining black lettering inside badge.
+        pixels = im.load()
+        w,h=im.size
+        white_bbox=im.convert("RGB").point(
+            lambda v: 255 if v>175 else 0).getbbox()
+        if white_bbox:
+            l,t,r,b=white_bbox
+            l=max(0,l-3);t=max(0,t-3);r=min(w,r+3);b=min(h,b+3)
+            im=im.crop((l,t,r,b))
+            # Black outside the plaque becomes transparent; enclosed black
+            # Arabic letters remain opaque because their background is white.
+            rgb=im.convert("RGB")
+            from PIL import ImageDraw
+            # Per-row segmented white plaque spans (excluding text holes).
+            mask=Image.new("L",im.size,0)
+            d=ImageDraw.Draw(mask)
+            rw,rh=im.size
+            for y in range(rh):
+                spans=[]
+                inside=False
+                start=0
+                for x in range(rw):
+                    c=rgb.getpixel((x,y))
+                    bright=min(c)>175
+                    if bright and not inside:
+                        start=x;inside=True
+                    elif not bright and inside:
+                        if x-start>=max(2,rw//200):spans.append((start,x))
+                        inside=False
+                if inside and rw-start>=max(2,rw//200):
+                    spans.append((start,rw))
+                if spans:
+                    # Outer white capsule silhouette must be broad, not one
+                    # isolated Arabic stroke.
+                    left=spans[0][0];right=spans[-1][1]
+                    if right-left>rw*.6:
+                        d.line((left,y,right,y),fill=255,width=1)
+            im.putalpha(mask)
+            visible=mask.getbbox()
+            if visible:
+                im=im.crop(visible)
+        print("FOOTER ART: using exact saved user picture",asset.name)
+    else:
+        border=DL/"moulid_light.png"
+        if not border.is_file():
+            print("FOOTER ART MISSING: save the 4th screenshot as Downloads/download.png")
+            return None
+        old=Image.open(border).convert("RGB")
+        w,h=old.size
+        im=old.crop((int(w*.28),int(h*.918),int(w*.72),int(h*.994))).convert("RGBA")
+        print("FOOTER ART: using previously approved moulid_light.png plaque")
+    buf=BytesIO()
+    im.save(buf,format="PNG")
+    return buf.getvalue()
 
-def footer_art():
-    """Get the academy badge from the user's exact previously approved border."""
+def put_footer(page,badge):
+    if not badge:
+        return
+    # Old source plaque is around the bottom centre. Never cover the body
+    # or the ornate four corners; unlike the former broad .934-.999 mask.
+    cover_white(page,(.305,.957,.695,.991))
+    dest=rect_for(page,(.300,.952,.700,.992))
+    page.insert_image(dest,stream=badge,overlay=True,keep_proportion=False)
+
+def remove_last_sharaf_calligraphy(page):
+    # Last-page illustration is isolated well below the Arabic du'a text.
+    cover_white(page,(.17,.575,.83,.884))
+
+def remove_manqoos_green(page,source):
+    # Green artwork is a colored standalone ornament, not Arabic body text.
+    # Determine its actual location from source pixels, not guessed margins.
     try:
         from PIL import Image
-    except ImportError:
-        return None
-    user_badge = DL / "moulid_footer.png"
-    if user_badge.is_file():
-        image = Image.open(user_badge).convert("RGB")
-    else:
-        border = DL / "moulid_light.png"
-        if not border.is_file():
-            print("FOOTER NOTE: save moulid_footer.png in Downloads to replace old attribution")
-            return None
-        original = Image.open(border).convert("RGB")
-        w, h = original.size
-        image = original.crop((
-            int(w * .26), int(h * .912),
-            int(w * .74), int(h * .995)))
-    data = BytesIO()
-    image.save(data, format="PNG")
-    return data.getvalue()
+        pix=source.get_pixmap(matrix=pymupdf.Matrix(1.0,1.0),
+                              colorspace=pymupdf.csRGB,alpha=False)
+        im=Image.frombytes("RGB",(pix.width,pix.height),pix.samples)
+        xs=[];ys=[]
+        for y in range(0,im.height,2):
+            for x in range(0,im.width,2):
+                r,g,b=im.getpixel((x,y))
+                if g>r*1.45 and g>b*1.28 and g>58:
+                    xs.append(x);ys.append(y)
+        if len(xs)>70:
+            box=(max(0,(min(xs)-4)/im.width),
+                 max(0,(min(ys)-4)/im.height),
+                 min(1,(max(xs)+4)/im.width),
+                 min(1,(max(ys)+4)/im.height))
+            cover_white(page,box)
+            print("  Removed green Manqoos art:",[round(z,3) for z in box])
+    except Exception as exc:
+        print("  Green ornament inspection skipped:",exc)
 
-def replace_footer(page, image):
-    if not image:
-        return
-    # Paint over the old 'Majlis Salat al-Saadah' capsule, then place
-    # academy branding. This does not affect the main page text.
-    cover_white(page, (.245, .934, .755, .999))
-    r = page.rect
-    dest = pymupdf.Rect(r.width*.258, r.height*.924,
-                        r.width*.742, r.height*.996)
-    page.insert_image(dest, stream=image, overlay=True,
-                      keep_proportion=False)
-
-def build(book, badge):
-    name, names, base, count, expected = book
-    source_path = find_source(names)
-    original = pymupdf.open(str(source_path))
-    if len(original) != expected:
-        raise ValueError(
-            f"{name}: expected {expected} original pages, found {len(original)}")
-    output = pymupdf.open()
+def build(book,badge):
+    title,names,base,count,expected=book
+    path=find_source(names)
+    src=pymupdf.open(str(path))
+    if len(src)!=expected:
+        raise ValueError(f"{title}: expected {expected}, got {len(src)} pages in {path.name}")
+    result=pymupdf.open()
     for i in range(count):
-        source_page = original[i]
-        page = output.new_page(width=source_page.rect.width,
-                               height=source_page.rect.height)
-        # Retain every original PDF vector glyph/diacritic and table line.
-        page.show_pdf_page(page.rect, original, i, keep_proportion=False)
-        if base == "sharafal_anam_moulid":
-            remove_sharaf_number(page)
-            if i == count-1:
-                remove_last_sharaf_artwork(page)
-        replace_footer(page, badge)
+        original=src[i]
+        page=result.new_page(width=original.rect.width,height=original.rect.height)
+        page.show_pdf_page(page.rect,src,i,keep_proportion=False)
+        if base=="mankoos_moulid" and i==count-1:
+            remove_manqoos_green(page,original)
+        if base=="sharafal_anam_moulid" and i==count-1:
+            remove_last_sharaf_calligraphy(page)
+        # Preserve every Sharaf al-Anam printed page-number capsule.
+        put_footer(page,badge)
 
-    OUT.mkdir(parents=True, exist_ok=True)
-    for mode in ("light", "dark"):
-        path = OUT / f"{base}_{mode}.pdf"
-        pending = path.with_suffix(".pending.pdf")
-        if pending.exists():
-            pending.unlink()
-        output.save(str(pending), garbage=4, deflate=True)
-        test = pymupdf.open(str(pending))
-        valid = len(test) == count
-        test.close()
-        if not valid:
-            raise RuntimeError("Invalid output page count")
-        if path.is_file():
-            backup = OUT / f"{base}_{mode}.before_original.pdf"
-            if not backup.is_file():
-                backup.write_bytes(path.read_bytes())
-        pending.replace(path)
-        print(f"APP ASSET READY: {path.name} ({count} original pages)")
-    output.close()
-    original.close()
+    OUT.mkdir(parents=True,exist_ok=True)
+    for mode in ("light","dark"):
+        output=OUT/f"{base}_{mode}.pdf"
+        temp=output.with_suffix(".pending.pdf")
+        if temp.exists():temp.unlink()
+        result.save(str(temp),garbage=4,deflate=True)
+        check=pymupdf.open(str(temp))
+        if len(check)!=count:raise ValueError("Page count verification failed")
+        check.close()
+        if output.exists():
+            backup=OUT/f"{base}_{mode}.backup_before_update.pdf"
+            if not backup.exists():backup.write_bytes(output.read_bytes())
+        temp.replace(output)
+        print(f"APP ASSET READY: {output.name} ({count} pages)")
+    result.close()
+    src.close()
 
 def main():
-    badge = footer_art()
+    badge=get_footer_image()
     for book in BOOKS:
-        build(book, badge)
-    print("DONE. Original PDF text preserved; dark color handled by Flutter.")
+        build(book,badge)
+    print("DONE. Printed page numbers retained. Native PDF Arabic retained.")
 
-if __name__ == "__main__":
+if __name__=="__main__":
     main()
