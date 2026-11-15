@@ -54,13 +54,13 @@ def find_source(working):
         return incoming
     candidates = []
     with ZipFile(incoming) as archive:
-        for member in archive.infolist():
+        for member_index, member in enumerate(archive.infolist()):
             if member.is_dir() or not member.filename.lower().endswith(".pdf"):
                 continue
             # Avoid traversal and unbounded extraction of untrusted ZIP files.
             if member.file_size > 400 * 1024 * 1024 or member.file_size < 1024:
                 continue
-            path = working / f"candidate_{len(candidates)}.pdf"
+            path = working / f"candidate_{member_index}.pdf"
             with archive.open(member) as src, open(path, "wb") as dst:
                 while True:
                     data = src.read(1024 * 1024)
