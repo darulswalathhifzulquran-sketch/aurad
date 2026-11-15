@@ -199,7 +199,7 @@ def build(book,badge):
             remove_last_sharaf_calligraphy(page)
         # Clear the ORIGINAL embedded badge. Flutter will draw ONE academy
         # image overlay in exactly this place; no second plaque survives.
-        cover_white(page,(.235,.931,.765,.995))
+        cover_white(page,(.355,.952,.645,.994))
 
     OUT.mkdir(parents=True,exist_ok=True)
     for mode in ("light","dark"):
