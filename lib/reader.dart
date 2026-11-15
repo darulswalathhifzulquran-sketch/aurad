@@ -808,16 +808,29 @@ class _ReaderScreenState extends State<ReaderScreen>
                 ),
               ),
             ),
-          if (decoratedBook)
+          if (decoratedBook) ...[
+            // Older source PDFs sometimes contain a second plaque just above
+            // the visible badge. Clear the complete CENTRAL footer zone first.
+            // Keep the ornamental frame and page margins outside this region.
             Positioned(
-              left: pageRect.width * 0.285,
+              left: pageRect.width * 0.292,
+              bottom: pageRect.height * 0.003,
+              width: pageRect.width * 0.416,
+              height: pageRect.height * 0.080,
+              child: IgnorePointer(
+                child: ColoredBox(color: dark ? Colors.black : Colors.white),
+              ),
+            ),
+            Positioned(
+              left: pageRect.width * 0.305,
               bottom: pageRect.height * 0.010,
-              width: pageRect.width * 0.430,
-              height: pageRect.height * 0.039,
+              width: pageRect.width * 0.390,
+              height: pageRect.height * 0.042,
               child: IgnorePointer(
                 child: AcademyFooter(dark: dark),
               ),
             ),
+          ],
         ],
         underflowAnchor: PdfPageAnchor.center,
         sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
