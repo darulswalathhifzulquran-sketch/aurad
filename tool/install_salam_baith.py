@@ -58,56 +58,48 @@ def badge_image():
     return None
 
 def title_image():
-    """Extract the user's EXACT navy-blue 'سلام البيت' calligraphy.
+    """Install the user's latest GREEN 'سلام بيت' image, not an old title.
 
-    The last supplied reference has dark navy glyphs on black background,
-    unlike the old PINK design. Preserve original glyph pixels, do not retype.
+    No Arabic letters are retyped. Preserve the uploaded calligraphy's
+    exact green pixels, remove only its white background.
     """
     choices = [
-        DOWNLOADS / "salam_baith_final_calligraphy.png",
-        DOWNLOADS / "dec37185-c755-4674-802d-13ca7848256b(1).png",
-        DOWNLOADS / "salam_calligraphy.png",
-        DOWNLOADS / "salam_baith_calligraphy.png",
+        DOWNLOADS / "salam_baith_green_calligraphy.png",
+        DOWNLOADS / "dec37185-c755-4674-802d-13ca7848256b(2).png",
     ]
     source = next((p for p in choices if p.is_file()), None)
     if source is None:
         raise FileNotFoundError(
-            "Missing latest Salam Baith calligraphy image. Download the "
-            "fourth reference image and save it as "
-            "Downloads/salam_calligraphy.png")
+            "GREEN TITLE MISSING. Save the latest green Salam Baith "
+            "calligraphy to Downloads/salam_baith_green_calligraphy.png. "
+            "Old pink/blue title will NOT be substituted.")
     original = Image.open(source).convert("RGBA")
+    if original.width < 80 or original.height < 30:
+        raise ValueError("Calligraphy PNG too small")
     w, h = original.size
-    if w < 40 or h < 20:
-        raise ValueError("Salam calligraphy image is too small")
-    pixels = original.load()
-    corners = [pixels[0,0],pixels[w-1,0],
-               pixels[0,h-1],pixels[w-1,h-1]]
-    black_background = sum(max(c[:3]) < 72 for c in corners) >= 3
-    result = Image.new("RGBA", (w,h), (0,0,0,0))
-    output = result.load()
+    output = Image.new("RGBA", (w, h), (0,0,0,0))
+    src=original.load()
+    dest=output.load()
+    count=0
     for y in range(h):
         for x in range(w):
-            red, green, blue, old_alpha = pixels[x,y]
-            if black_background:
-                # Preserve navy/blue Arabic strokes while removing black.
-                # The soft threshold retains antialiased letter edges.
-                strength = max(0, blue - max(9, red*0.95, green*0.94))
-                alpha = max(0, min(255, int(strength * 24)))
-                if blue < 16:
-                    alpha = 0
-            else:
-                # White source: keep original ink, remove blank paper only.
-                alpha = max(0, min(255, int((248-min(red,green,blue))*7)))
-            alpha = alpha * old_alpha // 255
-            if alpha > 0:
-                output[x,y] = (red,green,blue,alpha)
-    bbox = result.getbbox()
-    if bbox is None:
+            red, green, blue, a=src[x,y]
+            # Actual green letter ink: leave hue untouched, use green
+            # predominance for alpha so white background stays invisible.
+            dominance = green - max(red,blue)
+            alpha = max(0,min(255,int(dominance*4.0)))
+            alpha = alpha*a//255
+            if alpha>0:
+                dest[x,y]=(red,green,blue,alpha)
+                count+=1
+    box=output.getbbox()
+    if count < 150 or not box:
         raise ValueError(
-            "Could not identify navy Arabic letters in the supplied photo")
-    art = result.crop(bbox)
-    print("SALAM TITLE: EXACT navy-blue supplied calligraphy:", source)
-    return to_png_bytes(art)
+            "GREEN TITLE NOT DETECTED. The selected picture is not "
+            "the user's green سلام بيت calligraphy.")
+    artwork=output.crop(box)
+    print("GREEN SALAM TITLE:", source.name, artwork.width, "x", artwork.height)
+    return to_png_bytes(artwork)
 
 
 def build():
