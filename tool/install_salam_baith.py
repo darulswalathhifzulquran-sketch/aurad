@@ -112,7 +112,7 @@ def build():
                 stream=title,keep_proportion=True,overlay=True)
         # Mask the old printed plaque, including its outline; the single
         # common Flutter footer appears on top at the bottom of the page.
-        page.draw_rect(pymupdf.Rect(.235*w,.931*h,.765*w,.995*h),
+        page.draw_rect(pymupdf.Rect(.355*w,.952*h,.645*w,.994*h),
                        fill=(1,1,1),color=None,overlay=True)
     OUT.parent.mkdir(parents=True,exist_ok=True)
     if OUT.exists():
