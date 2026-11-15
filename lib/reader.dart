@@ -544,6 +544,7 @@ class PageSheet extends StatelessWidget {
   final double width;
   final bool dark;
   final bool quran;
+  final bool showAcademyFooter;
   final double baseFont; // font size at reference width 400
   const PageSheet(
       {super.key,
@@ -551,6 +552,7 @@ class PageSheet extends StatelessWidget {
       required this.width,
       required this.dark,
       required this.quran,
+      this.showAcademyFooter = true,
       required this.baseFont});
 
   double _fontSize() => baseFont * (width / 400.0);
@@ -606,26 +608,20 @@ class PageSheet extends StatelessWidget {
               ),
             ),
           ),
-          if (!quran) ...[
+          // Non-PDF pages use the existing original book border.
+          // Do not draw a white rectangle over it: the artwork already
+          // contains the complete badge, and the white rectangle was
+          // covering the book's ornamental border.
+          if (!quran && showAcademyFooter)
             Positioned(
-              left: width * 0.32,
-              bottom: height * 0.008,
-              width: width * 0.36,
-              height: height * 0.036,
-              child: ColoredBox(
-                color: dark ? Colors.black : Colors.white,
-              ),
-            ),
-            Positioned(
-              left: width * 0.348,
-              bottom: height * 0.010,
-              width: width * 0.304,
-              height: height * 0.028,
+              left: width * 0.33,
+              bottom: height * 0.011,
+              width: width * 0.34,
+              height: height * 0.034,
               child: IgnorePointer(
                 child: AcademyFooter(dark: dark),
               ),
             ),
-          ],
         ],
       ),
     );
@@ -814,24 +810,16 @@ class _ReaderScreenState extends State<ReaderScreen>
                   ),
                 ),
               ),
+            // Swalath pages must keep the book's ORIGINAL footer untouched.
+            // The source of the white halo was the extra wide ColoredBox.
             if (widget.item.category != 'quran' &&
-                widget.item.category != 'juz') ...[
+                widget.item.category != 'juz' &&
+                widget.item.category != 'swalath') ...[
               Positioned(
-                left: pageRect.width * 0.32,
-                bottom: pageRect.height * 0.008,
-                width: pageRect.width * 0.36,
-                height: pageRect.height * 0.036,
-                child: IgnorePointer(
-                  child: ColoredBox(
-                    color: darkView ? Colors.black : Colors.white,
-                  ),
-                ),
-              ),
-              Positioned(
-                left: pageRect.width * 0.348,
-                bottom: pageRect.height * 0.010,
-                width: pageRect.width * 0.304,
-                height: pageRect.height * 0.028,
+                left: pageRect.width * 0.330,
+                bottom: pageRect.height * 0.009,
+                width: pageRect.width * 0.340,
+                height: pageRect.height * 0.035,
                 child: IgnorePointer(
                   child: AcademyFooter(dark: darkView),
                 ),
@@ -1117,6 +1105,7 @@ class _ReaderScreenState extends State<ReaderScreen>
                         width: pageW,
                         dark: app.dark,
                         quran: true,
+                        showAcademyFooter: false,
                         baseFont: bases[i]),
                   ),
                 ),
@@ -1144,6 +1133,7 @@ class _ReaderScreenState extends State<ReaderScreen>
               width: pageW,
               dark: app.dark,
               quran: false,
+              showAcademyFooter: widget.item.category != 'swalath',
               baseFont: bases.single,
             ),
           );
@@ -1162,6 +1152,7 @@ class _ReaderScreenState extends State<ReaderScreen>
                     width: pageW,
                     dark: app.dark,
                     quran: false,
+              showAcademyFooter: widget.item.category != 'swalath',
                     baseFont: bases[i],
                   ),
                 ),
