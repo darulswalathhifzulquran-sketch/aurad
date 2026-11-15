@@ -1,6 +1,6 @@
 """Install the user's latest APPROVED Quran source (PDF or ZIP) unchanged.
 
-Save the file last uploaded in this chat ("quran pdf(8)") to Windows Downloads.
+Save the file last uploaded in this chat ("quran pdf") to Windows Downloads.
 Then run: python tool/install_final_quran.py
 
 The supplied file was an archive. Search its PDF members for exactly 604 pages
@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOWNLOADS = Path.home() / "Downloads"
 DEST = ROOT / "quran.pdf"
 CANDIDATES = [
+    "quran pdf", "quran-new.zip", "quran pdf.zip",
     "quran pdf(8)", "quran pdf(8).zip", "quran pdf(8).pdf",
     "quran pdf (8)", "quran pdf (8).zip", "quran pdf (8).pdf",
     "quran pdf(7)", "quran pdf(7).zip", "quran pdf(7).pdf",
@@ -47,7 +48,7 @@ def find_source(working):
                      if (DOWNLOADS / name).is_file()), None)
     if incoming is None:
         raise RuntimeError(
-            "Final upload missing from Downloads. Save 'quran pdf(8)' from "
+            "Final upload missing from Downloads. Save 'quran pdf' (or quran-new.zip) from "
             "the ChatGPT attachment to Downloads first. No change made.")
     if not is_zipfile(incoming):
         if check_pdf(incoming) != 604:
