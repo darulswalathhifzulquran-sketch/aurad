@@ -1034,9 +1034,7 @@ class _ReaderScreenState extends State<ReaderScreen>
     }
     final next = selected - 1;
     if (widget.item.pdfAsset.isNotEmpty) {
-      if (_pdfController.isReady) {
-        await _pdfController.goToPage(pageNumber: selected);
-      }
+      await _jumpToPdfPage(selected);
     } else if (paged && ctrl.hasClients) {
       ctrl.jumpToPage(next);
     } else if (sc.hasClients) {
