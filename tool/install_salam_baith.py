@@ -58,44 +58,54 @@ def badge_image():
     return None
 
 def title_image():
-    """Preserve the supplied PINK Salam Baith calligraphy, not blue text."""
+    """Extract the user's EXACT navy-blue 'سلام البيت' calligraphy.
+
+    The last supplied reference has dark navy glyphs on black background,
+    unlike the old PINK design. Preserve original glyph pixels, do not retype.
+    """
     choices = [
         DOWNLOADS / "salam_calligraphy.png",
         DOWNLOADS / "salam_baith_calligraphy.png",
+        DOWNLOADS / "dec37185-c755-4674-802d-13ca7848256b(1).png",
     ]
     source = next((p for p in choices if p.is_file()), None)
     if source is None:
-        print("TITLE MISSING: Save the provided pink calligraphy as "
-              "Downloads/salam_calligraphy.png")
-        return None
+        raise FileNotFoundError(
+            "Missing latest Salam Baith calligraphy image. Download the "
+            "fourth reference image and save it as "
+            "Downloads/salam_calligraphy.png")
     original = Image.open(source).convert("RGBA")
     w, h = original.size
-    if w < 10 or h < 10:
-        raise ValueError("Salam calligraphy picture is too small")
-    rgb = original.convert("RGB")
-    corners = [rgb.getpixel((0, 0)), rgb.getpixel((w-1, 0)),
-               rgb.getpixel((0, h-1)), rgb.getpixel((w-1, h-1))]
-    dark_bg = sum(max(p) < 65 for p in corners) >= 3
-    out = Image.new("RGBA", (w, h), (0,0,0,0))
-    inp = original.load()
-    dst = out.load()
+    if w < 40 or h < 20:
+        raise ValueError("Salam calligraphy image is too small")
+    pixels = original.load()
+    corners = [pixels[0,0],pixels[w-1,0],
+               pixels[0,h-1],pixels[w-1,h-1]]
+    black_background = sum(max(c[:3]) < 72 for c in corners) >= 3
+    result = Image.new("RGBA", (w,h), (0,0,0,0))
+    output = result.load()
     for y in range(h):
         for x in range(w):
-            red, green, blue, existing_alpha = inp[x, y]
-            if dark_bg:
-                # Pink and magenta strokes, but not black background.
-                active = red > 85 and red > green * 1.35 and blue > 45
+            red, green, blue, old_alpha = pixels[x,y]
+            if black_background:
+                # Preserve navy/blue Arabic strokes while removing black.
+                # The soft threshold retains antialiased letter edges.
+                strength = max(0, blue - max(9, red*0.95, green*0.94))
+                alpha = max(0, min(255, int(strength * 24)))
+                if blue < 16:
+                    alpha = 0
             else:
-                # Keep the original ink in a white-background image.
-                active = min(red,green,blue) < 190
-            if active:
-                dst[x,y] = (red,green,blue,existing_alpha)
-    bbox = out.getbbox()
-    if not bbox:
-        print("TITLE MISSING: no pink lettering detected in", source)
-        return None
-    art = out.crop(bbox)
-    print("SALAM TITLE: exact user-supplied calligraphy:", source.name)
+                # White source: keep original ink, remove blank paper only.
+                alpha = max(0, min(255, int((248-min(red,green,blue))*7)))
+            alpha = alpha * old_alpha // 255
+            if alpha > 0:
+                output[x,y] = (red,green,blue,alpha)
+    bbox = result.getbbox()
+    if bbox is None:
+        raise ValueError(
+            "Could not identify navy Arabic letters in the supplied photo")
+    art = result.crop(bbox)
+    print("SALAM TITLE: EXACT navy-blue supplied calligraphy:", source)
     return to_png_bytes(art)
 
 
