@@ -11,7 +11,7 @@ class AcademyFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
+    final image = Image.asset(
       asset,
       fit: BoxFit.fill,
       filterQuality: FilterQuality.high,
@@ -40,5 +40,30 @@ class AcademyFooter extends StatelessWidget {
         ),
       ),
     );
+    // Reference image is black lettering on white. In a dark PDF,
+    // invert the badge too, giving the original small black plaque with
+    // white writing and no white halo around its edges.
+    if (!dark) return image;
+    return const ColorFiltered(
+      colorFilter: ColorFilter.matrix([
+        -1, 0, 0, 0, 255,
+        0, -1, 0, 0, 255,
+        0, 0, -1, 0, 255,
+        0, 0, 0, 1, 0,
+      ]),
+      child: _AcademyFooterImage(),
+    );
   }
+}
+
+class _AcademyFooterImage extends StatelessWidget {
+  const _AcademyFooterImage();
+
+  @override
+  Widget build(BuildContext context) => Image.asset(
+    AcademyFooter.asset,
+    fit: BoxFit.fill,
+    filterQuality: FilterQuality.high,
+    errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+  );
 }
