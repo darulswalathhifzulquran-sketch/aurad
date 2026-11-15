@@ -679,8 +679,8 @@ class _ReaderScreenState extends State<ReaderScreen>
   final ScrollController sc = ScrollController();
   final PdfViewerController _lightPdfController = PdfViewerController();
   final PdfViewerController _darkPdfController = PdfViewerController();
-  PdfViewerController get _pdfController =>
-      app.dark && _isThemedMawlid ? _darkPdfController : _lightPdfController;
+  // One controller keeps the same PDF document mounted across light/dark.
+  PdfViewerController get _pdfController => _lightPdfController;
   bool get _isThemedMawlid =>
       widget.item.id == 'mankoos-mawlid' ||
       widget.item.id == 'mawlid-sharafal-anam';
@@ -778,99 +778,68 @@ class _ReaderScreenState extends State<ReaderScreen>
     if (mounted && index != current) setState(() => index = current);
   }
 
-  /// Keep both Moulid PDF modes mounted so toggling the theme does not
-  /// reopen/reparse a PDF document on every press.
+  /// Render a single PDF document and only change its color treatment
+  /// when the user toggles the theme. Recreating another PDF viewer on the
+  /// first toggle caused blank black frames and a long loading delay.
   Widget _pdfBody(String asset) {
-    final isThemed = _isThemedMawlid;
-    final selectedDark = app.dark;
-
-    Widget pdfView(String path, PdfViewerController controller, bool darkView) {
-      return PdfViewer.asset(
-        path,
-        key: ValueKey(path),
-        controller: controller,
-        initialPageNumber: index + 1,
-        params: PdfViewerParams(
-          backgroundColor: darkView ? Colors.black : Colors.grey,
-          pageImageColorFilter: darkDocumentColorFilterFor(darkView),
-          // Bottom academy plaque is common to every book PDF page.
-          // Render in Flutter so it stays sharp when zooming and doesn't
-          // depend on a separately named image in Downloads.
-          pageOverlaysBuilder: (context, pageRect, page) => [
-            if (darkView && !isThemed)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xFFEBCB84),
-                        width: 1.5,
-                      ),
+    final dark = app.dark;
+    final decoratedBook = widget.item.category != 'quran' &&
+        widget.item.category != 'juz' &&
+        widget.item.category != 'swalath';
+    return PdfViewer.asset(
+      asset,
+      key: ValueKey(asset),
+      controller: _pdfController,
+      initialPageNumber: index + 1,
+      params: PdfViewerParams(
+        backgroundColor: dark ? Colors.black : Colors.grey,
+        pageImageColorFilter: darkDocumentColorFilterFor(dark),
+        pageOverlaysBuilder: (context, pageRect, page) => [
+          if (dark && !_isThemedMawlid)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: const Color(0xFFEBCB84),
+                      width: 1.5,
                     ),
                   ),
                 ),
               ),
-            // Swalath pages must keep the book's ORIGINAL footer untouched.
-            // The source of the white halo was the extra wide ColoredBox.
-            if (widget.item.category != 'quran' &&
-                widget.item.category != 'juz' &&
-                widget.item.category != 'swalath') ...[
-              Positioned(
-                left: pageRect.width * 0.330,
-                bottom: pageRect.height * 0.009,
-                width: pageRect.width * 0.340,
-                height: pageRect.height * 0.035,
-                child: IgnorePointer(
-                  child: AcademyFooter(dark: darkView),
-                ),
+            ),
+          if (decoratedBook)
+            Positioned(
+              left: pageRect.width * 0.285,
+              bottom: pageRect.height * 0.010,
+              width: pageRect.width * 0.430,
+              height: pageRect.height * 0.039,
+              child: IgnorePointer(
+                child: AcademyFooter(dark: dark),
               ),
-            ],
-          ],
-          underflowAnchor: PdfPageAnchor.center,
-          sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
-            calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
-          ),
-          onViewerReady: (document, readyController) {
-            if (!mounted) return;
-            _pdfPageCount = document.pages.length;
-            final wanted = (index + 1).clamp(1, document.pages.length);
-            if (readyController.pageNumber != wanted) {
-              readyController.goToPage(
-                  pageNumber: wanted, duration: Duration.zero);
-            }
-            if (selectedDark == darkView) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) setState(() {});
-              });
-            }
-          },
-          onPageChanged: (pageNumber) {
-            if (app.dark == darkView || !isThemed) {
-              _pdfPageChanged(pageNumber);
-            }
-          },
-          viewerOverlayBuilder: (context, size, handleLinkTap) => const [],
+            ),
+        ],
+        underflowAnchor: PdfPageAnchor.center,
+        sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+          calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
         ),
-      );
-    }
-
-    if (!isThemed) {
-      return pdfView(asset, _lightPdfController, selectedDark);
-    }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final active = selectedDark ? _darkPdfController : _lightPdfController;
-      if (active.isReady && active.pageNumber != index + 1) {
-        active.goToPage(pageNumber: index + 1, duration: Duration.zero);
-      }
-    });
-    final darkAsset = asset.replaceFirst('_light.pdf', '_dark.pdf');
-    return IndexedStack(
-      index: selectedDark ? 1 : 0,
-      children: [
-        pdfView(asset, _lightPdfController, false),
-        pdfView(darkAsset, _darkPdfController, true),
-      ],
+        onViewerReady: (document, readyController) {
+          if (!mounted) return;
+          final count = document.pages.length;
+          final changed = _pdfPageCount != count;
+          _pdfPageCount = count;
+          final wanted = (index + 1).clamp(1, count);
+          if (readyController.pageNumber != wanted) {
+            readyController.goToPage(
+              pageNumber: wanted,
+              duration: Duration.zero,
+            );
+          }
+          if (changed) setState(() {});
+        },
+        onPageChanged: _pdfPageChanged,
+        viewerOverlayBuilder: (context, size, handleLinkTap) => const [],
+      ),
     );
   }
 
