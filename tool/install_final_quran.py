@@ -58,7 +58,7 @@ def find_source(working):
             if member.is_dir() or not member.filename.lower().endswith(".pdf"):
                 continue
             # Avoid traversal and unbounded extraction of untrusted ZIP files.
-            if member.file_size > 400 * 1024 * 1024 or member.file_size < 1024:
+            if member.file_size > 2 * 1024 * 1024 * 1024 or member.file_size < 1024:
                 continue
             path = working / f"candidate_{member_index}.pdf"
             with archive.open(member) as src, open(path, "wb") as dst:
