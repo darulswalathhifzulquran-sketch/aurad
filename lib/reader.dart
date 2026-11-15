@@ -896,10 +896,9 @@ class _ReaderScreenState extends State<ReaderScreen>
     if (active.isReady) {
       await active.goToPage(pageNumber: target, duration: Duration.zero);
     }
-    if (mounted) {
-      // Keep pending guard until matching onPageChanged callback arrives.
-      setState(() => index = target - 1);
-    }
+    // The instantaneous jump has completed. Resume regular scroll updates.
+    _requestedPdfPage = null;
+    if (mounted) setState(() => index = target - 1);
   }
 
   Future<void> _navigateToPage(int requested, int total) async {
