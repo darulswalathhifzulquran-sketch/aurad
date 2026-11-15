@@ -97,7 +97,7 @@ def find_source(working):
                 "Current app Quran was NOT changed.")
         def numeric_key(member):
             stem = Path(member.filename).stem
-            nums = re.findall(r"\\d+", stem)
+            nums = re.findall(r"\d+", stem)
             return int(nums[-1]) if nums else None
         keys = [numeric_key(member) for member in image_members]
         if any(k is None for k in keys) or len(set(keys)) != 604:
