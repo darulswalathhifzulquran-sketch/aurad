@@ -608,19 +608,19 @@ class PageSheet extends StatelessWidget {
           ),
           if (!quran) ...[
             Positioned(
-              left: width * 0.235,
-              bottom: height * 0.004,
-              width: width * 0.53,
-              height: height * 0.058,
+              left: width * 0.32,
+              bottom: height * 0.008,
+              width: width * 0.36,
+              height: height * 0.036,
               child: ColoredBox(
                 color: dark ? Colors.black : Colors.white,
               ),
             ),
             Positioned(
-              left: width * 0.28,
+              left: width * 0.348,
               bottom: height * 0.010,
-              width: width * 0.44,
-              height: height * 0.038,
+              width: width * 0.304,
+              height: height * 0.028,
               child: IgnorePointer(
                 child: AcademyFooter(dark: dark),
               ),
@@ -690,6 +690,7 @@ class _ReaderScreenState extends State<ReaderScreen>
       widget.item.id == 'mawlid-sharafal-anam';
   int index = 0;
   int _pdfPageCount = 0;
+  int? _requestedPdfPage;
   int _scrollPageCount = 0;
 
   // Quran (surah / juz): pages turn sideways. Everything else: scrolling.
@@ -771,6 +772,12 @@ class _ReaderScreenState extends State<ReaderScreen>
 
   void _pdfPageChanged(int? pageNumber) {
     if (pageNumber == null || _pdfPageCount == 0) return;
+    // Programmatic jumps may report several intermediate pages while
+    // the PDF view is rebuilding. Ignore those until the target is visible.
+    if (_requestedPdfPage != null) {
+      if (pageNumber != _requestedPdfPage) return;
+      _requestedPdfPage = null;
+    }
     final current = (pageNumber - 1).clamp(0, _pdfPageCount - 1);
     if (mounted && index != current) setState(() => index = current);
   }
@@ -810,10 +817,10 @@ class _ReaderScreenState extends State<ReaderScreen>
             if (widget.item.category != 'quran' &&
                 widget.item.category != 'juz') ...[
               Positioned(
-                left: pageRect.width * 0.235,
-                bottom: pageRect.height * 0.003,
-                width: pageRect.width * 0.53,
-                height: pageRect.height * 0.065,
+                left: pageRect.width * 0.32,
+                bottom: pageRect.height * 0.008,
+                width: pageRect.width * 0.36,
+                height: pageRect.height * 0.036,
                 child: IgnorePointer(
                   child: ColoredBox(
                     color: darkView ? Colors.black : Colors.white,
@@ -821,10 +828,10 @@ class _ReaderScreenState extends State<ReaderScreen>
                 ),
               ),
               Positioned(
-                left: pageRect.width * 0.28,
+                left: pageRect.width * 0.348,
                 bottom: pageRect.height * 0.010,
-                width: pageRect.width * 0.44,
-                height: pageRect.height * 0.040,
+                width: pageRect.width * 0.304,
+                height: pageRect.height * 0.028,
                 child: IgnorePointer(
                   child: AcademyFooter(dark: darkView),
                 ),
@@ -843,7 +850,11 @@ class _ReaderScreenState extends State<ReaderScreen>
               readyController.goToPage(
                   pageNumber: wanted, duration: Duration.zero);
             }
-            if (selectedDark == darkView) setState(() {});
+            if (selectedDark == darkView) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) setState(() {});
+              });
+            }
           },
           onPageChanged: (pageNumber) {
             if (app.dark == darkView || !isThemed) {
@@ -875,14 +886,28 @@ class _ReaderScreenState extends State<ReaderScreen>
     );
   }
 
+  Future<void> _jumpToPdfPage(int page) async {
+    final target = page.clamp(1, _pdfPageCount).toInt();
+    // Set logical state BEFORE moving the viewport. This prevents the
+    // old page from being restored when the PDF viewer rebuilds.
+    _requestedPdfPage = target;
+    if (mounted) setState(() => index = target - 1);
+    final active = _pdfController;
+    if (active.isReady) {
+      await active.goToPage(pageNumber: target, duration: Duration.zero);
+    }
+    if (mounted) {
+      // Keep pending guard until matching onPageChanged callback arrives.
+      setState(() => index = target - 1);
+    }
+  }
+
   Future<void> _navigateToPage(int requested, int total) async {
     if (total < 1) return;
     final selected = requested.clamp(1, total).toInt();
     final next = selected - 1;
     if (widget.item.pdfAsset.isNotEmpty) {
-      if (_pdfController.isReady) {
-        await _pdfController.goToPage(pageNumber: selected);
-      }
+      await _jumpToPdfPage(selected);
     } else if (paged && ctrl.hasClients) {
       ctrl.jumpToPage(next);
     } else if (sc.hasClients) {
@@ -1027,8 +1052,7 @@ class _ReaderScreenState extends State<ReaderScreen>
       final count = _pdfPageCount;
       if (count < 1 || !_pdfController.isReady) return;
       final next = (index + 1 + delta).clamp(1, count).toInt();
-      await _pdfController.goToPage(pageNumber: next);
-      if (mounted) setState(() => index = next - 1);
+      await _jumpToPdfPage(next);
       return;
     }
     if (paged) {
