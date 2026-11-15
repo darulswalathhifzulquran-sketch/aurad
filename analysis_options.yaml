@@ -18,6 +18,14 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # Windows development backups are not part of the Flutter application.
+    - lib_backup_before_darkmode/**
+    - lib/**/lib/**
+    - tool/backups/**
+    - '**/backup/**'
+    - '**/backups/**'
+    - '**/*.bak.dart'
+    - '**/*_backup.dart'
 
 linter:
   # The lint rules applied to this project can be customized in the
