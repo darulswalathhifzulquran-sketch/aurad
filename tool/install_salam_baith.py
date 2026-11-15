@@ -58,35 +58,46 @@ def badge_image():
     return None
 
 def title_image():
-    p=DOWNLOADS/"salam_calligraphy.png"
-    if not p.is_file():
-        print("TITLE NOTE: Save the supplied Salam Baith calligraphy as Downloads/salam_calligraphy.png")
+    """Preserve the supplied PINK Salam Baith calligraphy, not blue text."""
+    choices = [
+        DOWNLOADS / "salam_calligraphy.png",
+        DOWNLOADS / "salam_baith_calligraphy.png",
+    ]
+    source = next((p for p in choices if p.is_file()), None)
+    if source is None:
+        print("TITLE MISSING: Save the provided pink calligraphy as "
+              "Downloads/salam_calligraphy.png")
         return None
-    img=Image.open(p).convert("RGB")
-    from PIL import ImageChops
-    # Extract ink from either transparent/white or dark background design.
-    w,h=img.size
-    mask=Image.new("L",(w,h),0)
-    pixels=img.load();out=mask.load()
-    corners=[pixels[0,0],pixels[w-1,0],pixels[0,h-1],pixels[w-1,h-1]]
-    dark_bg=sum(sum(c)<140 for c in corners)>=3
+    original = Image.open(source).convert("RGBA")
+    w, h = original.size
+    if w < 10 or h < 10:
+        raise ValueError("Salam calligraphy picture is too small")
+    rgb = original.convert("RGB")
+    corners = [rgb.getpixel((0, 0)), rgb.getpixel((w-1, 0)),
+               rgb.getpixel((0, h-1)), rgb.getpixel((w-1, h-1))]
+    dark_bg = sum(max(p) < 65 for p in corners) >= 3
+    out = Image.new("RGBA", (w, h), (0,0,0,0))
+    inp = original.load()
+    dst = out.load()
     for y in range(h):
         for x in range(w):
-            r,g,b=pixels[x,y]
+            red, green, blue, existing_alpha = inp[x, y]
             if dark_bg:
-                # Reference lettering is dark navy against black.
-                a=255 if b>r+7 and b>g+3 and b>14 else 0
+                # Pink and magenta strokes, but not black background.
+                active = red > 85 and red > green * 1.35 and blue > 45
             else:
-                a=255 if min(r,g,b)<170 else 0
-            out[x,y]=a
-    box=mask.getbbox()
-    if not box:
-        print("TITLE NOTE: no usable calligraphy detected, retaining source")
+                # Keep the original ink in a white-background image.
+                active = min(red,green,blue) < 190
+            if active:
+                dst[x,y] = (red,green,blue,existing_alpha)
+    bbox = out.getbbox()
+    if not bbox:
+        print("TITLE MISSING: no pink lettering detected in", source)
         return None
-    mask=mask.crop(box)
-    ink=Image.new("RGBA",mask.size,(32,89,154,0))
-    ink.putalpha(mask)
-    return to_png_bytes(ink)
+    art = out.crop(bbox)
+    print("SALAM TITLE: exact user-supplied calligraphy:", source.name)
+    return to_png_bytes(art)
+
 
 def build():
     source=find_source()
