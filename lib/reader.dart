@@ -816,7 +816,7 @@ class _ReaderScreenState extends State<ReaderScreen>
               left: pageRect.width * 0.292,
               bottom: pageRect.height * 0.003,
               width: pageRect.width * 0.416,
-              height: pageRect.height * 0.080,
+              height: pageRect.height * 0.060,
               child: IgnorePointer(
                 child: ColoredBox(color: dark ? Colors.black : Colors.white),
               ),
