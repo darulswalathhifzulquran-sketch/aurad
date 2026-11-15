@@ -64,9 +64,10 @@ def title_image():
     unlike the old PINK design. Preserve original glyph pixels, do not retype.
     """
     choices = [
+        DOWNLOADS / "salam_baith_final_calligraphy.png",
+        DOWNLOADS / "dec37185-c755-4674-802d-13ca7848256b(1).png",
         DOWNLOADS / "salam_calligraphy.png",
         DOWNLOADS / "salam_baith_calligraphy.png",
-        DOWNLOADS / "dec37185-c755-4674-802d-13ca7848256b(1).png",
     ]
     source = next((p for p in choices if p.is_file()), None)
     if source is None:
