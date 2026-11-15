@@ -1271,7 +1271,8 @@
       "title": "Badr Mawlid",
       "ar": "مولد البدر",
       "en": "",
-      "pages": []
+      "pages": [],
+      "pdfAsset": "assets/books/badr_moulid.pdf"
     },
     {
       "id": "mawlid-3",
