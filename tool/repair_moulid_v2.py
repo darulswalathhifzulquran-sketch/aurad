@@ -116,30 +116,45 @@ def remove_last_sharaf_calligraphy(page):
 
 
 def renumber_manqoos_page(page, number):
-    """Replace printed source numbering 3-15 with clean 1-13, keeping
-    all Arabic verses and the decorative border untouched."""
+    """Small, crisp isolated Arabic page number (1-13), not a long bar.
+
+    Only the printed number/capsule at the upper middle is replaced;
+    surrounding Quran/Moulid text remains native PDF.
+    """
     from PIL import Image, ImageDraw, ImageFont
-    page_w, page_h = page.rect.width, page.rect.height
-    # Printed numeral lies at the top-centre above the Arabic body.
-    number_area = (.455, .004, .545, .053)
-    cover_white(page, number_area)
-    label = str(number).translate(str.maketrans(
-        "0123456789", "٠١٢٣٤٥٦٧٨٩"))
-    image = Image.new("RGBA", (240, 120), (255, 255, 255, 0))
-    draw = ImageDraw.Draw(image)
-    try:
-        font = ImageFont.truetype("arial.ttf", 68)
-    except OSError:
-        font = ImageFont.load_default()
-        label = str(number)
-    draw.text((120, 60), label, font=font, anchor="mm",
-              fill=(12, 33, 51, 255))
-    buffer = BytesIO()
-    image.save(buffer, format="PNG")
-    page.insert_image(pymupdf.Rect(page_w*.471, page_h*.013,
-                    page_w*.529, page_h*.052),
-                    stream=buffer.getvalue(), overlay=True,
-                    keep_proportion=False)
+    w,h=page.rect.width,page.rect.height
+    cover_white(page, (.455, .006, .545, .054))
+    # Draw at high resolution then embed as small top centre page mark.
+    canvas=Image.new("RGBA",(220,135),(255,255,255,0))
+    draw=ImageDraw.Draw(canvas)
+    label=str(number).translate(str.maketrans(
+        "0123456789","٠١٢٣٤٥٦٧٨٩"))
+    fonts=[
+        "C:/Windows/Fonts/arial.ttf",
+        str(ROOT/"assets/fonts/Amiri-Regular.ttf"),
+    ]
+    font=None
+    for path in fonts:
+        try:
+            font=ImageFont.truetype(path,78)
+            break
+        except OSError:
+            continue
+    if font is None:
+        font=ImageFont.load_default()
+        label=str(number)
+    # White plaque with very thin isolated black outline. No connecting line.
+    draw.rounded_rectangle((33,8,187,126),radius=15,
+                           fill=(255,255,255,255),
+                           outline=(25,25,25,255),width=3)
+    draw.text((110,65), label,font=font,anchor="mm",
+              fill=(12,12,12,255))
+    stream=BytesIO()
+    canvas.save(stream,format="PNG")
+    page.insert_image(pymupdf.Rect(w*.475,h*.012,w*.525,h*.046),
+                      stream=stream.getvalue(),overlay=True,
+                      keep_proportion=False)
+
 
 def remove_manqoos_green(page,source):
     # Green artwork is a colored standalone ornament, not Arabic body text.
