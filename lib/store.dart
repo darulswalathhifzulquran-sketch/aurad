@@ -455,7 +455,8 @@ void fixArabicNames(List<Item> items) {
     } else if (it.category == 'mala') {
       it.ar = fix(it.ar, '\u0645\u0627\u0644\u0627');
     } else if (it.category == 'ratib') {
-      it.ar = fix(it.ar, '\u0631\u0627\u062a\u0628');
+      it.ar = it.ar.replaceAll('راتب', 'راتيب');
+      it.ar = fix(it.ar, 'راتيب');
     }
   }
 }
@@ -496,7 +497,7 @@ void curateItems(List<Item> items) {
   ensure('mawlid-ajmeer', 'mawlid', 'Ajmeer Mawlid',
       '\u0645\u0648\u0644\u062f \u0623\u062c\u0645\u064a\u0631');
   ensure('ratib-muhyiddeen', 'ratib', 'Muhyiddeen Ratib',
-      '\u0645\u062d\u064a\u064a \u0627\u0644\u062f\u064a\u0646 \u0631\u0627\u062a\u0628');
+      '\u0645\u062d\u064a\u064a \u0627\u0644\u062f\u064a\u0646 \u0631\u0627\u062a\u064a\u0628');
   ensure('ratib-rifai', 'ratib', 'Rifai Ratib',
-      '\u0627\u0644\u0631\u0641\u0627\u0639\u064a \u0631\u0627\u062a\u0628');
+      '\u0627\u0644\u0631\u0641\u0627\u0639\u064a \u0631\u0627\u062a\u064a\u0628');
 }
