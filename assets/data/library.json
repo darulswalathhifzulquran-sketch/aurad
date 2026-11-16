@@ -1475,7 +1475,8 @@
       "title": "Hizbun Nasr",
       "ar": "حزب النصر",
       "en": "",
-      "pages": []
+      "pages": [],
+      "pdfAsset": "assets/books/hizbun_nasr.pdf"
     },
     {
       "id": "dua-5",
@@ -1747,6 +1748,15 @@
       "title": "Juz 30 - Amma",
       "ar": "الجزء ٣٠ - عم",
       "en": "",
+      "pages": []
+    },
+    {
+      "id": "majlisunnoor-1",
+      "category": "majlisunnoor",
+      "title": "Majlisunnoor",
+      "ar": "مجلس النور",
+      "en": "Majlisunnoor",
+      "pdfAsset": "assets/books/majlisunnoor.pdf",
       "pages": []
     }
   ]
