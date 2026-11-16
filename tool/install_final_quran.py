@@ -107,7 +107,7 @@ def find_source(working):
                     "No existing Quran was changed.")
             numbers = []
             for member in ai_members:
-                match = re.match(r"^(\\d{3})", Path(member.filename).name)
+                match = re.match(r"^(\d{3})", Path(member.filename).name)
                 if match is None:
                     raise RuntimeError(
                         f"Missing numeric Quran page prefix: {member.filename}. "
@@ -118,7 +118,7 @@ def find_source(working):
                     "AI file numbers are not exactly 001 to 604. "
                     "No existing Quran was changed.")
             ai_members.sort(key=lambda m: int(
-                re.match(r"^(\\d{3})", Path(m.filename).name).group(1)))
+                re.match(r"^(\d{3})", Path(m.filename).name).group(1)))
             with archive.open(ai_members[0]) as sample:
                 header = sample.read(20)
             print("First AI page header:", repr(header))
