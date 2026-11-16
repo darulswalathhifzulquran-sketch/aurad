@@ -5,7 +5,7 @@ to Windows Downloads (or copy them to the project root).
 Run: python tool/install_latest_books.py
 
 Preserves every byte of the original Arabic and page design.
-Only the reader's shared academy-footer overlay changes visually.
+Reader shows the PDF's OWN footer exactly; no app overlay replaces it.
 """
 from pathlib import Path
 import hashlib
