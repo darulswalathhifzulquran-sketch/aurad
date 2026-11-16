@@ -17,8 +17,8 @@ DOWNLOADS=Path.home()/"Downloads"
 DEST=ROOT/"assets"/"books"
 
 BOOKS=(
-    (("majlisunnoor(1).pdf","majlisunnoor.pdf","Majlisunnoor.pdf"),"majlisunnoor.pdf",17),
-    (("hizbu nnasr(1).pdf","hizbu nnasr.pdf","hizbun_nasr.pdf","hizbu nasr.pdf"),"hizbun_nasr.pdf",3),
+    (("majlisunnoor(1).pdf",),"majlisunnoor.pdf",17),
+    (("hizbu nnasr(1).pdf",),"hizbun_nasr.pdf",3),
 )
 
 def filehash(p):
