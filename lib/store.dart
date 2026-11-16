@@ -387,6 +387,14 @@ Future<void> loadExtras(List<Item> items) async {
       final m = e as Map<String, dynamic>;
       final cat = m['category'] as String;
       final id = m['id'] as String;
+      // A newer, user-supplied original PDF takes precedence over old
+      // picture-based extra content. Do not create a duplicate Majlis
+      // entry or overwrite its PDF with a legacy 20-page image set.
+      if (items.any((it) =>
+          it.category == cat && it.pdfAsset.isNotEmpty &&
+          (it.id == id || cat == 'majlisunnoor'))) {
+        continue;
+      }
       name = id;
       final pages =
           (m['pages'] as List).map((p) => PageData.fromJson(p)).toList();
