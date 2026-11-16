@@ -608,20 +608,31 @@ class PageSheet extends StatelessWidget {
               ),
             ),
           ),
-          // Non-PDF pages use the existing original book border.
-          // Do not draw a white rectangle over it: the artwork already
-          // contains the complete badge, and the white rectangle was
-          // covering the book's ornamental border.
-          if (!quran && showAcademyFooter)
+          // A single academy badge replaces any old bottom-centre footer.
+          // The cover is limited to the footer band, away from the Arabic
+          // reading area and ornamental corners.
+          if (!quran && showAcademyFooter) ...[
             Positioned(
-              left: width * 0.33,
-              bottom: height * 0.011,
-              width: width * 0.34,
-              height: height * 0.034,
+              left: width * 0.295,
+              bottom: height * 0.004,
+              width: width * 0.410,
+              height: height * 0.055,
+              child: IgnorePointer(
+                child: ColoredBox(
+                  color: dark ? Colors.black : Colors.white,
+                ),
+              ),
+            ),
+            Positioned(
+              left: width * 0.303,
+              bottom: height * 0.010,
+              width: width * 0.394,
+              height: height * 0.041,
               child: IgnorePointer(
                 child: AcademyFooter(dark: dark),
               ),
             ),
+          ],
         ],
       ),
     );
@@ -783,9 +794,10 @@ class _ReaderScreenState extends State<ReaderScreen>
   /// first toggle caused blank black frames and a long loading delay.
   Widget _pdfBody(String asset) {
     final dark = app.dark;
+    // One shared footer for ALL books, including Swalath and Dua.
+    // Only the Quran/Juz keep their untouched original mushaf pages.
     final decoratedBook = widget.item.category != 'quran' &&
-        widget.item.category != 'juz' &&
-        widget.item.category != 'swalath';
+        widget.item.category != 'juz';
     return PdfViewer.asset(
       asset,
       key: ValueKey(asset),
@@ -813,19 +825,19 @@ class _ReaderScreenState extends State<ReaderScreen>
             // the visible badge. Clear the complete CENTRAL footer zone first.
             // Keep the ornamental frame and page margins outside this region.
             Positioned(
-              left: pageRect.width * 0.292,
-              bottom: pageRect.height * 0.003,
-              width: pageRect.width * 0.416,
-              height: pageRect.height * 0.060,
+              left: pageRect.width * 0.295,
+              bottom: pageRect.height * 0.004,
+              width: pageRect.width * 0.410,
+              height: pageRect.height * 0.055,
               child: IgnorePointer(
                 child: ColoredBox(color: dark ? Colors.black : Colors.white),
               ),
             ),
             Positioned(
-              left: pageRect.width * 0.305,
+              left: pageRect.width * 0.303,
               bottom: pageRect.height * 0.010,
-              width: pageRect.width * 0.390,
-              height: pageRect.height * 0.042,
+              width: pageRect.width * 0.394,
+              height: pageRect.height * 0.041,
               child: IgnorePointer(
                 child: AcademyFooter(dark: dark),
               ),
@@ -1115,7 +1127,7 @@ class _ReaderScreenState extends State<ReaderScreen>
               width: pageW,
               dark: app.dark,
               quran: false,
-              showAcademyFooter: widget.item.category != 'swalath',
+              showAcademyFooter: widget.item.category != 'quran' && widget.item.category != 'juz',
               baseFont: bases.single,
             ),
           );
@@ -1134,7 +1146,7 @@ class _ReaderScreenState extends State<ReaderScreen>
                     width: pageW,
                     dark: app.dark,
                     quran: false,
-              showAcademyFooter: widget.item.category != 'swalath',
+              showAcademyFooter: widget.item.category != 'quran' && widget.item.category != 'juz',
                     baseFont: bases[i],
                   ),
                 ),
