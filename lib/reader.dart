@@ -795,10 +795,9 @@ class _ReaderScreenState extends State<ReaderScreen>
   /// first toggle caused blank black frames and a long loading delay.
   Widget _pdfBody(String asset) {
     final dark = app.dark;
-    // One shared footer for ALL books, including Swalath and Dua.
-    // Only the Quran/Juz keep their untouched original mushaf pages.
-    final decoratedBook = widget.item.category != 'quran' &&
-        widget.item.category != 'juz';
+    // The user requests the exact, unmodified source PDF artwork.
+    // Never paint a new footer, masking rectangle, border or title
+    // on top of a user-uploaded PDF: its own footer is authoritative.
     return PdfViewer.asset(
       asset,
       key: ValueKey(asset),
@@ -807,44 +806,6 @@ class _ReaderScreenState extends State<ReaderScreen>
       params: PdfViewerParams(
         backgroundColor: dark ? Colors.black : Colors.grey,
         pageImageColorFilter: darkDocumentColorFilterFor(dark),
-        pageOverlaysBuilder: (context, pageRect, page) => [
-          if (dark && !_isThemedMawlid)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: const Color(0xFFEBCB84),
-                      width: 1.5,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if (decoratedBook) ...[
-            // Older source PDFs sometimes contain a second plaque just above
-            // the visible badge. Clear the complete CENTRAL footer zone first.
-            // Keep the ornamental frame and page margins outside this region.
-            Positioned(
-              left: pageRect.width * 0.295,
-              bottom: pageRect.height * 0.004,
-              width: pageRect.width * 0.410,
-              height: pageRect.height * 0.055,
-              child: IgnorePointer(
-                child: ColoredBox(color: dark ? Colors.black : Colors.white),
-              ),
-            ),
-            Positioned(
-              left: pageRect.width * 0.303,
-              bottom: pageRect.height * 0.010,
-              width: pageRect.width * 0.394,
-              height: pageRect.height * 0.041,
-              child: IgnorePointer(
-                child: AcademyFooter(dark: dark),
-              ),
-            ),
-          ],
-        ],
         underflowAnchor: PdfPageAnchor.center,
         sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
           calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
@@ -1270,50 +1231,17 @@ class _ReaderScreenState extends State<ReaderScreen>
                         ? _pagedBody(shown, bases)
                         : _scrollBody(shown, bases),
               ),
-              // The Qur'an-style vertical page control also belongs in
-              // every multi-page PDF, Baith, Moulid, Swalath, Dua and Ratib.
-              // Its value is a page number, NOT an arbitrary scroll offset.
-              if ((item.pdfAsset.isNotEmpty
-                          ? _pdfPageCount
-                          : (paged ? shown.length : _scrollPageCount)) >
-                      1)
+              // Use the SAME auto-scroll-speed slider as the original
+              // Qur'an screen. It scrolls continuously at the chosen speed;
+              // it is not a page-jump slider.
+              if (item.pdfAsset.isNotEmpty || (!paged && shown.length > 1))
                 Positioned(
+                  top: 0,
                   right: 0,
-                  top: 16,
-                  bottom: 16,
-                  width: 44,
-                  child: RotatedBox(
-                    quarterTurns: 3,
-                    child: Slider(
-                      min: 1,
-                      max: (item.pdfAsset.isNotEmpty
-                              ? _pdfPageCount
-                              : (paged ? shown.length : _scrollPageCount))
-                          .toDouble(),
-                      divisions: (item.pdfAsset.isNotEmpty
-                              ? _pdfPageCount
-                              : (paged ? shown.length : _scrollPageCount)) -
-                          1,
-                      value: (_draggedSliderPage ?? (index + 1))
-                          .clamp(
-                            1,
-                            item.pdfAsset.isNotEmpty
-                                ? _pdfPageCount
-                                : (paged ? shown.length : _scrollPageCount),
-                          )
-                          .toDouble(),
-                      label: '${_draggedSliderPage ?? (index + 1)}',
-                      onChanged: (page) {
-                        setState(() => _draggedSliderPage = page.round());
-                      },
-                      onChangeEnd: (page) {
-                        final total = item.pdfAsset.isNotEmpty
-                            ? _pdfPageCount
-                            : (paged ? shown.length : _scrollPageCount);
-                        setState(() => _draggedSliderPage = null);
-                        _navigateToPage(page.round(), total);
-                      },
-                    ),
+                  bottom: 0,
+                  child: AutoScrollSpeedSlider(
+                    value: _autoScrollSpeed,
+                    onChanged: _setAutoScrollSpeed,
                   ),
                 ),
             ],
