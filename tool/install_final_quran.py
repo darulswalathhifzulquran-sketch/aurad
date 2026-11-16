@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DOWNLOADS = Path.home() / "Downloads"
 DEST = ROOT / "quran.pdf"
 CANDIDATES = [
+    "quran pdf(9)", "quran pdf(9).zip", "quran pdf(9).pdf",
+    "quran pdf (9)", "quran pdf (9).zip", "quran pdf (9).pdf",
     "quran pdf", "quran-new.zip", "quran pdf.zip",
     "quran pdf(8)", "quran pdf(8).zip", "quran pdf(8).pdf",
     "quran pdf (8)", "quran pdf (8).zip", "quran pdf (8).pdf",
@@ -44,11 +46,15 @@ def check_pdf(path):
         return None
 
 def find_source(working):
-    incoming = next((DOWNLOADS / name for name in CANDIDATES
+    # The user explicitly chose the ninth upload. Never select an older
+    # copy just because it is present in Downloads.
+    incoming = next((DOWNLOADS / name for name in CANDIDATES[:6]
                      if (DOWNLOADS / name).is_file()), None)
+    if incoming is not None:
+        print("LATEST USER SOURCE:", incoming.name)
     if incoming is None:
         raise RuntimeError(
-            "Final upload missing from Downloads. Save 'quran pdf' (or quran-new.zip) from "
+            "Final upload missing from Downloads. Save 'quran pdf(9)' from "
             "the ChatGPT attachment to Downloads first. No change made.")
     if not is_zipfile(incoming):
         if check_pdf(incoming) != 604:
