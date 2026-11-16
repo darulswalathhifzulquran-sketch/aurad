@@ -1,6 +1,6 @@
 """Install the two ORIGINAL PDFs supplied on 2026-11-16.
 
-Download majlisunnoor.pdf, hizbu nnasr.pdf from this conversation
+Download majlisunnoor(1).pdf, hizbu nnasr(1).pdf from this conversation
 to Windows Downloads (or copy them to the project root).
 Run: python tool/install_latest_books.py
 
@@ -17,8 +17,8 @@ DOWNLOADS=Path.home()/"Downloads"
 DEST=ROOT/"assets"/"books"
 
 BOOKS=(
-    (("majlisunnoor.pdf","Majlisunnoor.pdf"),"majlisunnoor.pdf",17),
-    (("hizbu nnasr.pdf","hizbun_nasr.pdf","hizbu nasr.pdf"),"hizbun_nasr.pdf",3),
+    (("majlisunnoor(1).pdf","majlisunnoor.pdf","Majlisunnoor.pdf"),"majlisunnoor.pdf",17),
+    (("hizbu nnasr(1).pdf","hizbu nnasr.pdf","hizbun_nasr.pdf","hizbu nasr.pdf"),"hizbun_nasr.pdf",3),
 )
 
 def filehash(p):
