@@ -43,6 +43,6 @@ if ($LASTEXITCODE -ne 0) { throw "Flutter Web build failed" }
 if (-not (Test-Path "build/web/index.html")) { throw "Web build output missing" }
 
 Write-Host "Deploying verified web app to the linked Netlify site..." -ForegroundColor Cyan
-npx --yes netlify-cli deploy --prod --dir "build/web"
+npx --yes netlify-cli deploy --prod --no-build --dir "build/web"
 if ($LASTEXITCODE -ne 0) { throw "Netlify publish failed" }
 Write-Host "Published. Copy the Production URL printed above to share the app." -ForegroundColor Green
