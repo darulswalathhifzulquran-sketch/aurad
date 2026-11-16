@@ -699,6 +699,7 @@ class _ReaderScreenState extends State<ReaderScreen>
   int _pdfPageCount = 0;
   int? _requestedPdfPage;
   int _scrollPageCount = 0;
+  int? _draggedSliderPage;
 
   // Quran (surah / juz): pages turn sideways. Everything else: scrolling.
   bool get paged =>
@@ -1260,11 +1261,63 @@ class _ReaderScreenState extends State<ReaderScreen>
               ),
             ],
           ),
-          body: item.pdfAsset.isNotEmpty
-              ? _pdfBody(item.pdfAsset)
-              : paged
-                  ? _pagedBody(shown, bases)
-                  : _scrollBody(shown, bases),
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: item.pdfAsset.isNotEmpty
+                    ? _pdfBody(item.pdfAsset)
+                    : paged
+                        ? _pagedBody(shown, bases)
+                        : _scrollBody(shown, bases),
+              ),
+              // The Qur'an-style vertical page control also belongs in
+              // every multi-page PDF, Baith, Moulid, Swalath, Dua and Ratib.
+              // Its value is a page number, NOT an arbitrary scroll offset.
+              if ((item.pdfAsset.isNotEmpty
+                          ? _pdfPageCount
+                          : (paged ? shown.length : _scrollPageCount)) >
+                      1)
+                Positioned(
+                  right: 0,
+                  top: 16,
+                  bottom: 16,
+                  width: 44,
+                  child: RotatedBox(
+                    quarterTurns: 3,
+                    child: Slider(
+                      min: 1,
+                      max: (item.pdfAsset.isNotEmpty
+                              ? _pdfPageCount
+                              : (paged ? shown.length : _scrollPageCount))
+                          .toDouble(),
+                      divisions: (item.pdfAsset.isNotEmpty
+                              ? _pdfPageCount
+                              : (paged ? shown.length : _scrollPageCount)) -
+                          1,
+                      value: (_draggedSliderPage ?? (index + 1))
+                          .clamp(
+                            1,
+                            item.pdfAsset.isNotEmpty
+                                ? _pdfPageCount
+                                : (paged ? shown.length : _scrollPageCount),
+                          )
+                          .toDouble(),
+                      label: '${_draggedSliderPage ?? (index + 1)}',
+                      onChanged: (page) {
+                        setState(() => _draggedSliderPage = page.round());
+                      },
+                      onChangeEnd: (page) {
+                        final total = item.pdfAsset.isNotEmpty
+                            ? _pdfPageCount
+                            : (paged ? shown.length : _scrollPageCount);
+                        setState(() => _draggedSliderPage = null);
+                        _navigateToPage(page.round(), total);
+                      },
+                    ),
+                  ),
+                ),
+            ],
+          ),
           bottomNavigationBar: paged
               ? BottomAppBar(
                   child: Row(
