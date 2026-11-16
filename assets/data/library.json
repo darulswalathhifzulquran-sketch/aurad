@@ -16,7 +16,7 @@
       "id": "mawlid",
       "name": "മൗലിദുകൾ",
       "ar": "المواليد",
-      "en": "Mawlid"
+      "en": "Moulid"
     },
     {
       "id": "mala",
@@ -1119,7 +1119,7 @@
     {
       "id": "mawlid-sharafal-anam",
       "category": "mawlid",
-      "title": "Sharafal Anam Mawlid",
+      "title": "Sharafal Anam Moulid",
       "ar": "مولد شرف الأنام",
       "en": "",
       "pages": [],
@@ -1128,7 +1128,7 @@
     {
       "id": "mankoos-mawlid",
       "category": "mawlid",
-      "title": "Mankoos Mawlid",
+      "title": "Mankoos Moulid",
       "ar": "مولد منقوص",
       "en": "",
       "pages": [
@@ -1260,7 +1260,7 @@
     {
       "id": "mawlid-1",
       "category": "mawlid",
-      "title": "Manqool Mawlid",
+      "title": "Manqool Moulid",
       "ar": "مولد منقول",
       "en": "",
       "pages": []
@@ -1268,7 +1268,7 @@
     {
       "id": "mawlid-2",
       "category": "mawlid",
-      "title": "Badr Mawlid",
+      "title": "Badr Moulid",
       "ar": "مولد البدر",
       "en": "",
       "pages": [],
@@ -1277,7 +1277,7 @@
     {
       "id": "mawlid-3",
       "category": "mawlid",
-      "title": "Dawoodul Hakeem Mawlid",
+      "title": "Dawoodul Hakeem Moulid",
       "ar": "مولد داود الحكيم",
       "en": "",
       "pages": []
@@ -1285,7 +1285,7 @@
     {
       "id": "mawlid-4",
       "category": "mawlid",
-      "title": "Shamsul Ulama Mawlid",
+      "title": "Shamsul Ulama Moulid",
       "ar": "مولد شمس العلماء",
       "en": "",
       "pages": []
@@ -1293,7 +1293,7 @@
     {
       "id": "mawlid-5",
       "category": "mawlid",
-      "title": "Mamburam Mawlid",
+      "title": "Mamburam Moulid",
       "ar": "مولد ممبرم",
       "en": "",
       "pages": []
@@ -1301,7 +1301,7 @@
     {
       "id": "mawlid-6",
       "category": "mawlid",
-      "title": "Madavoor Mawlid",
+      "title": "Madavoor Moulid",
       "ar": "مولد مدوور",
       "en": "",
       "pages": []
@@ -1309,7 +1309,7 @@
     {
       "id": "mawlid-7",
       "category": "mawlid",
-      "title": "Muhyiddeen Mawlid",
+      "title": "Muhyiddeen Moulid",
       "ar": "مولد محيي الدين",
       "en": "",
       "pages": []
@@ -1317,7 +1317,7 @@
     {
       "id": "mawlid-8",
       "category": "mawlid",
-      "title": "Rifai Mawlid",
+      "title": "Rifai Moulid",
       "ar": "مولد الرفاعي",
       "en": "",
       "pages": []
@@ -1325,7 +1325,7 @@
     {
       "id": "mawlid-nimatul-kubra",
       "category": "mawlid",
-      "title": "An-Ni'matul Kubra Mawlid",
+      "title": "An-Ni'matul Kubra Moulid",
       "ar": "النعمة الكبرى",
       "en": "",
       "pages": []
