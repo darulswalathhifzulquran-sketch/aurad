@@ -92,6 +92,78 @@ def find_source(working):
         raise RuntimeError(
             "Multiple 604-page PDFs found in ZIP; cannot choose safely. "
             "No changes made.")
+    # Adobe Illustrator source: 604 .ai documents, one per page.
+    # PDF-compatible AI files can be imported as lossless VECTOR pages.
+    # Non-PDF-compatible AI files must first be exported from Illustrator:
+    # do not rasterize, OCR, or guess an alternate Quran edition.
+    with ZipFile(incoming) as archive:
+        ai_members = [m for m in archive.infolist()
+                      if not m.is_dir() and m.filename.lower().endswith(".ai")]
+        if ai_members:
+            print("Adobe Illustrator page members:", len(ai_members))
+            if len(ai_members) != 604:
+                raise RuntimeError(
+                    f"Found {len(ai_members)} .ai page files, expected 604. "
+                    "No existing Quran was changed.")
+            numbers = []
+            for member in ai_members:
+                match = re.match(r"^(\\d{3})", Path(member.filename).name)
+                if match is None:
+                    raise RuntimeError(
+                        f"Missing numeric Quran page prefix: {member.filename}. "
+                        "No existing Quran was changed.")
+                numbers.append(int(match.group(1)))
+            if sorted(numbers) != list(range(1, 605)):
+                raise RuntimeError(
+                    "AI file numbers are not exactly 001 to 604. "
+                    "No existing Quran was changed.")
+            ai_members.sort(key=lambda m: int(
+                re.match(r"^(\\d{3})", Path(m.filename).name).group(1)))
+            with archive.open(ai_members[0]) as sample:
+                header = sample.read(20)
+            print("First AI page header:", repr(header))
+            if not header.startswith(b"%PDF-"):
+                raise RuntimeError(
+                    "These .ai files do not start with a PDF-compatible header. "
+                    "Export all 604 pages to PDF from Adobe Illustrator, "
+                    "keeping original fonts and layout. No Quran changed.")
+            target = working / "approved_quran_from_illustrator.pdf"
+            result = pymupdf.open()
+            try:
+                for idx, member in enumerate(ai_members, start=1):
+                    raw = archive.read(member)
+                    if not raw.startswith(b"%PDF-"):
+                        raise RuntimeError(
+                            f"AI file {member.filename} is not PDF-compatible. "
+                            "No changes were made to the app Quran.")
+                    source_page = pymupdf.open(
+                        stream=raw, filetype="pdf")
+                    try:
+                        if len(source_page) != 1:
+                            raise RuntimeError(
+                                f"AI document {member.filename} contains "
+                                f"{len(source_page)} PDF pages; expected 1.")
+                        rect = source_page[0].rect
+                        output_page = result.new_page(
+                            width=rect.width, height=rect.height)
+                        output_page.show_pdf_page(
+                            output_page.rect, source_page, 0,
+                            keep_proportion=False)
+                    finally:
+                        source_page.close()
+                    if idx % 50 == 0:
+                        print(f"Preserved {idx}/604 vector Quran pages")
+                result.save(str(target), garbage=3, deflate=True)
+            finally:
+                result.close()
+            if check_pdf(target) != 604:
+                raise RuntimeError(
+                    "Vector Quran export failed page-count validation. "
+                    "Existing app Quran remains unchanged.")
+            print("SUCCESS: 604 AI pages converted from PDF-compatible "
+                  "vector data, without text editing or rasterization.")
+            return target
+
     # Some shared Quran downloads are ZIPs containing one high-quality
     # image per page rather than one PDF. Assemble in exact numeric order.
     with ZipFile(incoming) as archive:
