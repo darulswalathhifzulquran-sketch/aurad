@@ -398,17 +398,9 @@ Future<void> loadExtras(List<Item> items) async {
       name = id;
       final pages =
           (m['pages'] as List).map((p) => PageData.fromJson(p)).toList();
-      // is the first picture really inside the app?
-      for (final b in pages.first.blocks) {
-        if (b.type == 'image') {
-          try {
-            await rootBundle.load(b.asset);
-          } catch (_) {
-            problems.add('picture missing: ${b.asset}');
-          }
-          break;
-        }
-      }
+      // Do not download/decode every book's first image before Home opens.
+      // Image.asset loads an image only when that page is actually shown.
+      // Missing images are handled by the relevant reader's error UI.
       final match =
           ((m['match'] ?? []) as List).map((x) => x.toString().toLowerCase());
       Item? target;
