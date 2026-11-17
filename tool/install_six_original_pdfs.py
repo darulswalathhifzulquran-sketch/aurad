@@ -39,13 +39,39 @@ def digest(path):
             h.update(chunk)
     return h.hexdigest()
 
+def find_source(source_name, item_id):
+    requested = DOWNLOADS / source_name
+    if requested.is_file():
+        return requested
+    if item_id != "swalath-saadha":
+        return requested
+    # Different browser/Windows downloads may normalize the apostrophe
+    # or backtick. Never select an unrelated PDF or an old version.
+    matches = []
+    for candidate in DOWNLOADS.glob("*.pdf"):
+        name = candidate.name.casefold()
+        if name.startswith("swalathu sa") and "autosaved" in name and "(3)" in name:
+            matches.append(candidate)
+    if len(matches) == 1:
+        print(f"FOUND SA'ADHA UNDER ALTERNATE NAME: {matches[0].name}")
+        return matches[0]
+    if matches:
+        print("AMBIGUOUS SA'ADHA FILES:", ", ".join(x.name for x in matches))
+    else:
+        print("SA'ADHA DOWNLOAD NOT FOUND. Nearby files:")
+        for candidate in DOWNLOADS.glob("*.pdf"):
+            if "saad" in candidate.name.lower() or "adha" in candidate.name.lower():
+                print("   ", candidate.name)
+    return requested
+
+
 def main():
     catalog = json.loads((ROOT / "assets/data/library.json").read_text(encoding="utf-8"))
     by_id = {entry["id"]: entry for entry in catalog["items"]}
     prepared = []
     errors = []
     for source_name, target_name, expected_pages, item_id in BOOKS:
-        src = DOWNLOADS / source_name
+        src = find_source(source_name, item_id)
         dest = ASSETS / target_name
         if not src.is_file():
             errors.append(f"MISSING DOWNLOAD: {source_name}")
