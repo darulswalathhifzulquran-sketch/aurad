@@ -6,9 +6,24 @@ import 'reader.dart';
 import 'mushaf.dart';
 import 'quran_line_reader.dart';
 
+const List<String> kJuzOpeningNames = [
+  'الم', 'سيقول', 'تلك الرسل', 'لن تنالوا', 'والمحصنات',
+  'لا يحب الله', 'وإذا سمعوا', 'ولو أننا', 'قال الملأ', 'واعلموا',
+  'يعتذرون', 'وما من دابة', 'وما أبرئ', 'ربما', 'سبحان الذي',
+  'قال ألم', 'اقترب', 'قد أفلح', 'وقال الذين', 'أمن خلق',
+  'اتل ما أوحي', 'ومن يقنت', 'وما لي', 'فمن أظلم', 'إليه يرد',
+  'حم', 'قال فما خطبكم', 'قد سمع', 'تبارك الذي', 'عم',
+];
+
+String _arabicDigits(int number) => number.toString().replaceAllMapped(
+  RegExp(r'[0-9]'),
+  (match) => String.fromCharCode(0x0660 + int.parse(match.group(0)!)),
+);
+
 /// Left: English letters. Right: Arabic.
 Widget itemTile(BuildContext context, Item it) {
-  final isQuran = it.category == 'quran' || it.category == 'juz';
+  final isJuz = it.category == 'juz';
+  final isQuran = it.category == 'quran' || isJuz;
   final dim =
       !it.hasContent && it.pdfAsset.isEmpty && !(mushafReady && isQuran);
   // Reuse the established Swalath dark-mode gold across other book folders.
@@ -31,7 +46,24 @@ Widget itemTile(BuildContext context, Item it) {
       : '';
   return ListTile(
     tileColor: goldBookStyle ? Colors.black : null,
-    title: Row(
+    title: isJuz && number != null && number >= 1 && number <= 30
+      ? Directionality(
+          textDirection: TextDirection.rtl,
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '${_arabicDigits(number)} - ${kJuzOpeningNames[number - 1]}',
+              textDirection: TextDirection.rtl,
+              style: TextStyle(
+                fontFamily: kArabicFont,
+                fontFamilyFallback: kFontFallback,
+                fontSize: 24,
+                color: color,
+              ),
+            ),
+          ),
+        )
+      : Row(
       children: [
         Expanded(
           child: Text(
