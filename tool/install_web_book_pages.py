@@ -33,7 +33,9 @@ def main():
             missing.append(str(path.relative_to(ROOT)))
             continue
         item_id = book["id"]
-        target = OUTPUT / item_id
+        # Keep images directly in the declared Flutter asset directory:
+        # pubspec directory entries do NOT recursively include subdirectories.
+        target = OUTPUT
         target.mkdir(parents=True, exist_ok=True)
         with pymupdf.open(path) as pdf:
             count = len(pdf)
@@ -41,7 +43,7 @@ def main():
                 missing.append(asset + " (empty PDF)")
                 continue
             for i, page in enumerate(pdf):
-                dst = target / f"page_{i+1:04d}.jpg"
+                dst = target / f"{item_id}_page_{i+1:04d}.jpg"
                 if dst.exists() and dst.stat().st_size > 6000 and dst.stat().st_mtime >= path.stat().st_mtime:
                     continue
                 factor = HEIGHT / page.rect.height
