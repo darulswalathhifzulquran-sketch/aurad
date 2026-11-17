@@ -805,11 +805,11 @@ class _ReaderScreenState extends State<ReaderScreen>
       initialPageNumber: index + 1,
       params: PdfViewerParams(
         backgroundColor: dark ? Colors.black : Colors.grey,
-        // PDF pages are the user's approved artwork, including their
-        // original page numbers and academy footer. Display their exact
-        // source colors in light AND dark mode. Never invert, recolor,
-        // crop or mask source PDF page artwork.
-        pageImageColorFilter: null,
+        // Dark mode renders PDF white paper as black, black ink as
+        // white, and the original decorative colors as their
+        // complementary tones (blue/gold-style border treatment).
+        // No page bytes, page numbers, text or footer are modified.
+        pageImageColorFilter: darkDocumentColorFilterFor(dark),
         underflowAnchor: PdfPageAnchor.center,
         sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
           calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
