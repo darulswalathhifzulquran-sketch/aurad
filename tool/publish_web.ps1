@@ -41,8 +41,20 @@ if ($LASTEXITCODE -ne 0) { throw "flutter pub get failed" }
 flutter build web --release
 if ($LASTEXITCODE -ne 0) { throw "Flutter Web build failed" }
 if (-not (Test-Path "build/web/index.html")) { throw "Web build output missing" }
+# Ensure source PDFs actually exist inside the public Flutter Web build.
+$webPdfAssets = @(
+    "build/web/assets/assets/books/majlisunnoor.pdf",
+    "build/web/assets/assets/books/hizbun_nasr.pdf",
+    "build/web/assets/assets/books/salam_baith.pdf"
+)
+foreach ($pdf in $webPdfAssets) {
+    if (-not (Test-Path $pdf)) {
+        throw "Book PDF missing in web build: $pdf. Publish stopped."
+    }
+    Write-Host "WEB PDF INCLUDED: $pdf"
+}
 
 Write-Host "Deploying verified web app to the linked Netlify site..." -ForegroundColor Cyan
-npx --yes netlify-cli deploy --prod --no-build --dir "build/web"
+npx.cmd --yes netlify-cli deploy --prod --no-build --dir "build/web"
 if ($LASTEXITCODE -ne 0) { throw "Netlify publish failed" }
 Write-Host "Published. Copy the Production URL printed above to share the app." -ForegroundColor Green
