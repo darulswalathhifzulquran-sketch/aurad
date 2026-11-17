@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'fast_web_page_image.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'auto_scroll_speed_slider.dart';
@@ -133,33 +134,7 @@ class _WebBookReaderState extends State<WebBookReader>
         child: SizedBox(
           width: width,
           height: height,
-          child: ColorFiltered(
-            colorFilter: ColorFilter.matrix(dark ? const [
-              -1.0, 0, 0, 0, 255,
-              0, -1.0, 0, 0, 255,
-              0, 0, -1.0, 0, 255,
-              0, 0, 0, 1, 0,
-            ] : const [
-              1.0, 0, 0, 0, 0,
-              0, 1.0, 0, 0, 0,
-              0, 0, 1.0, 0, 0,
-              0, 0, 0, 1, 0,
-            ]),
-            child: Image.asset(
-              file,
-              key: ValueKey('web-book-${widget.item.id}-$page'),
-              fit: BoxFit.contain,
-              gaplessPlayback: true,
-              errorBuilder: (_, error, stack) => Center(
-                child: Text(
-                  'This page is missing from the web build. Run '
-                  'python tool/install_web_book_pages.py and republish.',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.redAccent),
-                ),
-              ),
-            ),
-          ),
+          child: FastWebPageImage(asset: file, dark: dark),
         ),
       ),
     );
