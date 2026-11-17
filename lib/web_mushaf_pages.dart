@@ -124,7 +124,10 @@ class _WebMushafPagesState extends State<WebMushafPages>
         child: SizedBox(
           width: w,
           height: h,
-          child: FastWebPageImage(asset: _pageAsset(p), dark: dark),
+          // Display the original Qur'an page artwork and print colors,
+          // without the newer full-page negative/green night effect.
+          // Changing the app theme never re-renders Qur'an letters.
+          child: FastWebPageImage(asset: _pageAsset(p), dark: false),
         ),
       ),
     );
