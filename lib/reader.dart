@@ -805,14 +805,11 @@ class _ReaderScreenState extends State<ReaderScreen>
       initialPageNumber: index + 1,
       params: PdfViewerParams(
         backgroundColor: dark ? Colors.black : Colors.grey,
-        // The user's latest Majlisunnoor and Hizbun Nasr PDFs are
-        // authoritative artworks. Never recolor their page numbers,
-        // borders, Arabic lettering or original academy footer.
-        pageImageColorFilter:
-            (widget.item.id == 'majlisunnoor-1' ||
-                    widget.item.id == 'dua-4')
-                ? null
-                : darkDocumentColorFilterFor(dark),
+        // PDF pages are the user's approved artwork, including their
+        // original page numbers and academy footer. Display their exact
+        // source colors in light AND dark mode. Never invert, recolor,
+        // crop or mask source PDF page artwork.
+        pageImageColorFilter: null,
         underflowAnchor: PdfPageAnchor.center,
         sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
           calculateInitialZoom: (_, __, fitPageScale, ___) => fitPageScale,
