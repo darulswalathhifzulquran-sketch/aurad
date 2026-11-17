@@ -47,21 +47,34 @@ def find_source(source_name, item_id):
         return requested
     # Different browser/Windows downloads may normalize the apostrophe
     # or backtick. Never select an unrelated PDF or an old version.
+    # The source attached by the user in this conversation is exactly
+    # 344092 bytes (one PDF page). Only consider matching-size alternate
+    # filenames, never arbitrarily use a previously downloaded revision.
+    expected_size = 344092
     matches = []
+    nearby = []
     for candidate in DOWNLOADS.glob("*.pdf"):
         name = candidate.name.casefold()
-        if name.startswith("swalathu sa") and "autosaved" in name and "(3)" in name:
-            matches.append(candidate)
+        if name.startswith("swalathu sa") and "autosaved" in name:
+            nearby.append(candidate)
+            if candidate.stat().st_size == expected_size:
+                matches.append(candidate)
     if len(matches) == 1:
-        print(f"FOUND SA'ADHA UNDER ALTERNATE NAME: {matches[0].name}")
+        print("FOUND SA'ADHA: matching the uploaded PDF's exact byte length:")
+        print(" ", matches[0].name, "(", expected_size, "bytes)")
         return matches[0]
-    if matches:
-        print("AMBIGUOUS SA'ADHA FILES:", ", ".join(x.name for x in matches))
-    else:
-        print("SA'ADHA DOWNLOAD NOT FOUND. Nearby files:")
-        for candidate in DOWNLOADS.glob("*.pdf"):
-            if "saad" in candidate.name.lower() or "adha" in candidate.name.lower():
-                print("   ", candidate.name)
+    if len(matches) > 1:
+        hashes = {digest(candidate) for candidate in matches}
+        if len(hashes) == 1:
+            print("FOUND SA'ADHA: multiple identical files; using", matches[0].name)
+            return matches[0]
+        print("AMBIGUOUS: multiple differently encoded Sa'adha PDFs have")
+        print("the expected size. Save the uploaded (3) PDF under its exact name.")
+    print("SA'ADHA DOWNLOAD NOT FOUND with the supplied file's size (344092 bytes).")
+    print("Available related PDFs:")
+    for candidate in nearby:
+        print(" ", candidate.name, candidate.stat().st_size, "bytes")
+
     return requested
 
 
