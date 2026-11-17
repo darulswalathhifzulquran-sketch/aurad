@@ -1,19 +1,31 @@
 [build]
   publish = "build/web"
 
-# Flutter web: direct navigation and refresh should return the app shell.
+# Missing image/PDF requests should never be cached as SPA fallbacks.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = false
 
-[[headers]]
-  for = "/*.pdf"
-  [headers.values]
-    Cache-Control = "public, max-age=86400"
-
+# These filenames are reused every deployment. Cache validation must happen
+# on refresh, otherwise a previous 404/SPA fallback or page image can persist.
 [[headers]]
   for = "/assets/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/*.pdf"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/flutter_bootstrap.js"
+  [headers.values]
+    Cache-Control = "no-cache, max-age=0, must-revalidate"
