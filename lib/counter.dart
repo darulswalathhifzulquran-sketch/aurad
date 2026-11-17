@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'target_vibration_stub.dart' if (dart.library.js_interop) 'target_vibration_web.dart' as vibration;
 import 'app_theme.dart';
 import 'store.dart';
 
@@ -20,15 +20,11 @@ class _CounterScreenState extends State<CounterScreen> {
     app.incCounter();
     final completed = app.target > 0 && before < app.target &&
         app.counter >= app.target;
-    if (completed) {
-      if (_targetVibration) HapticFeedback.heavyImpact();
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('🎉 TARGET COMPLETE!'),
-          duration: Duration(seconds: 4)),
-      );
-    } else if (_targetVibration) {
-      HapticFeedback.selectionClick();
+    if (_targetVibration) {
+      if (completed) {
+        vibration.vibrateForTarget();
+      }
+      // No banner, toast, snackbar or target-completion box.
     }
   }
 
@@ -216,15 +212,7 @@ class _CounterScreenState extends State<CounterScreen> {
                                   color: Color(0xFF6DDBF6),
                                   fontWeight: FontWeight.w600,
                                 )),
-                            if (target > 0 && counter >= target) ...[
-                              const SizedBox(height: 10),
-                              const Text('✓ TARGET COMPLETE',
-                                  style: TextStyle(
-                                    color: Color(0xFF91F4A9),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15,
-                                  )),
-                            ],
+
                           ],
                         ),
                       ),
