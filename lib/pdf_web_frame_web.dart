@@ -13,7 +13,7 @@ Widget webPdfFrame({required String asset, required bool dark}) {
   // and keeps query strings (e.g., tracking parameters) out of the asset URL.
   final pdfUrl = Uri.base.resolve('assets/$asset').toString();
   return HtmlElementView.fromTagName(
-    key: ValueKey('browser-pdf-$asset'),
+    key: ValueKey('browser-pdf-$asset-$dark'),
     tagName: 'iframe',
     onElementCreated: (Object element) {
       final iframe = element as web.HTMLIFrameElement;
