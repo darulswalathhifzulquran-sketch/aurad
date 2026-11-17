@@ -37,7 +37,7 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.dark != widget.dark) _updateTheme();
     if (oldWidget.asset != widget.asset && _image != null) {
-      _image!.src = Uri.base.resolve('assets/${widget.asset}').toString();
+      _image!.src = Uri.base.resolve('assets/${widget.asset}?reader=20261117b').toString();
     }
   }
 
@@ -49,7 +49,7 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
       onElementCreated: (Object element) {
         final image = element as web.HTMLImageElement;
         _image = image;
-        image.alt = 'Original Arabic book page';
+        image.alt = 'Original Arabic book page failed to load: ${widget.asset}';
         image.draggable = false;
         image.style.width = '100%';
         image.style.height = '100%';
