@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'pdf_web_frame_stub.dart' if (dart.library.js_interop) 'pdf_web_frame_web.dart' as pdf_web;
 import 'package:flutter/scheduler.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'app_theme.dart';
@@ -795,6 +797,12 @@ class _ReaderScreenState extends State<ReaderScreen>
   /// first toggle caused blank black frames and a long loading delay.
   Widget _pdfBody(String asset) {
     final dark = app.dark;
+    // On Web, use native browser PDF rendering. This avoids an empty black
+    // reader if PDFium WASM fails on Netlify, and displays source pages
+    // immediately without retyping any PDF content.
+    if (kIsWeb) {
+      return pdf_web.webPdfFrame(asset: asset, dark: dark);
+    }
     // The user requests the exact, unmodified source PDF artwork.
     // Never paint a new footer, masking rectangle, border or title
     // on top of a user-uploaded PDF: its own footer is authoritative.
