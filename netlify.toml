@@ -10,6 +10,18 @@
 
 # These filenames are reused every deployment. Cache validation must happen
 # on refresh, otherwise a previous 404/SPA fallback or page image can persist.
+# Individual rendered JPEG pages are generated from the source PDFs.
+# Cache them for repeat visits, especially on mobile data connections.
+[[headers]]
+  for = "/assets/assets/quran_pages/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
+[[headers]]
+  for = "/assets/assets/web_books/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=86400"
+
 [[headers]]
   for = "/assets/*"
   [headers.values]
