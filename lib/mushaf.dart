@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'web_mushaf_pages.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'auto_scroll_speed_slider.dart';
@@ -349,6 +351,10 @@ class _MushafScreenState extends State<MushafScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Static Netlify hosting cannot reliably initialize the 604-page
+    // PDFium/WASM renderer. Web uses instant, lazy-loaded original page
+    // artwork; native platforms keep their existing vector PDF viewer.
+    if (kIsWeb) return WebMushafPages(startPage: widget.startPage);
     return ListenableBuilder(
       listenable: app,
       builder: (context, _) {
