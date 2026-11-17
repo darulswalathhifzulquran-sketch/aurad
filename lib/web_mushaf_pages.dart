@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'fast_web_page_image.dart';
 import 'package:flutter/scheduler.dart';
 import 'auto_scroll_speed_slider.dart';
 import 'store.dart';
@@ -123,36 +124,7 @@ class _WebMushafPagesState extends State<WebMushafPages>
         child: SizedBox(
           width: w,
           height: h,
-          child: ColorFiltered(
-            colorFilter: ColorFilter.matrix(dark ? const [
-              -1.0, 0, 0, 0, 255,
-              0, -1.0, 0, 0, 255,
-              0, 0, -1.0, 0, 255,
-              0, 0, 0, 1, 0,
-            ] : const [
-              1.0, 0, 0, 0, 0,
-              0, 1.0, 0, 0, 0,
-              0, 0, 1.0, 0, 0,
-              0, 0, 0, 1, 0,
-            ]),
-            child: Image.asset(
-              _pageAsset(p),
-              key: ValueKey('quran-page-$p'),
-              fit: BoxFit.contain,
-              gaplessPlayback: true,
-              errorBuilder: (context, error, stack) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Text(
-                    'Quran page $p is not available yet. Run '
-                    'python tool/install_quran_web_pages.py and publish again.',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.redAccent),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          child: FastWebPageImage(asset: _pageAsset(p), dark: dark),
         ),
       ),
     );
