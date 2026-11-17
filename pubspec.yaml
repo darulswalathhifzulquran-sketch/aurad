@@ -25,6 +25,8 @@ flutter:
     - assets/data/
     - assets/extra_items.json
     - assets/books/
+    - assets/web_books/
+    - assets/quran_pages/
     - assets/quran - Copy/info.json
     - assets/pages/
     - assets/images/aurad_reference_home.png
