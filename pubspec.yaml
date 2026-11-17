@@ -12,6 +12,7 @@ dependencies:
   pdfrx: ^2.10.1
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5
+  web: ^1.1.1 # Browser-native PDF iframe on Flutter Web
 
 dev_dependencies:
   flutter_test:
