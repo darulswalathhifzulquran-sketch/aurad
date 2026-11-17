@@ -17,15 +17,17 @@ class _CounterScreenState extends State<CounterScreen> {
 
   void _tap() {
     final before = app.counter;
-    app.incCounter();
-    final completed = app.target > 0 && before < app.target &&
-        app.counter >= app.target;
-    if (_targetVibration) {
-      if (completed) {
-        vibration.vibrateForTarget();
-      }
-      // No banner, toast, snackbar or target-completion box.
+    final completed = app.target > 0 &&
+        before < app.target &&
+        before < 99999 &&
+        before + 1 >= app.target;
+    // Invoke vibration directly within the tap's user activation, BEFORE
+    // notifying and rebuilding listeners. Mobile Chrome requires this.
+    // This fires only on the count crossing the configured target.
+    if (completed && _targetVibration) {
+      vibration.vibrateForTarget();
     }
+    app.incCounter();
   }
 
   Future<void> _setCustomTarget() async {
