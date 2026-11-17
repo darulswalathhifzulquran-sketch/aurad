@@ -59,10 +59,18 @@ class AppState extends ChangeNotifier {
     await loadMushaf();
     final quranLoaded = !mushafReady;
     if (quranLoaded) await loadQuran(items);
-    await loadExtras(items);
+    // Start the Home screen without blocking it on the extra book catalog.
+    // Extra pages are incorporated shortly afterwards and notify folder UIs.
     curateItems(items);
     fixArabicNames(items);
-    return AppState._(prefs, cats, items, quranLoaded: quranLoaded);
+    final state = AppState._(prefs, cats, items, quranLoaded: quranLoaded);
+    Future<void>.delayed(const Duration(milliseconds: 250), () async {
+      await loadExtras(state.items);
+      curateItems(state.items);
+      fixArabicNames(state.items);
+      state.notifyListeners();
+    });
+    return state;
   }
 
   Future<void> ensureQuranLoaded() {
