@@ -17,7 +17,10 @@ Widget webPdfFrame({required String asset, required bool dark}) {
     tagName: 'iframe',
     onElementCreated: (Object element) {
       final iframe = element as web.HTMLIFrameElement;
-      iframe.src = '$pdfUrl#toolbar=1&navpanes=0&view=FitH';
+      // Chrome/Edge honors toolbar=0, and view=Fit starts with the WHOLE
+      // A4 page in view rather than magnifying it to the screen width.
+      // No PDF content is modified; only browser display flags change.
+      iframe.src = '$pdfUrl#toolbar=0&navpanes=0&view=Fit';
       iframe.title = 'Read the original PDF';
       iframe.style.border = '0';
       iframe.style.width = '100%';
