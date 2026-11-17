@@ -126,7 +126,7 @@ class _WebBookReaderState extends State<WebBookReader>
   }
 
   Widget _pageImage(int page, double width, double height, bool dark) {
-    final file = 'assets/web_books/${widget.item.id}/page_${page.toString().padLeft(4, '0')}.jpg';
+    final file = 'assets/web_books/${widget.item.id}_page_${page.toString().padLeft(4, '0')}.jpg';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Center(
