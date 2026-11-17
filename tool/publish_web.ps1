@@ -58,9 +58,9 @@ $webPdfAssets = @(
     "build/web/assets/assets/books/salam_baith.pdf",
     "build/web/assets/assets/quran_pages/page_0001.jpg",
     "build/web/assets/assets/quran_pages/page_0604.jpg",
-    "build/web/assets/assets/web_books/majlisunnoor-1/page_0001.jpg",
-    "build/web/assets/assets/web_books/dua-4/page_0001.jpg",
-    "build/web/assets/assets/web_books/baith-3/page_0001.jpg",
+    "build/web/assets/assets/web_books/majlisunnoor-1_page_0001.jpg",
+    "build/web/assets/assets/web_books/dua-4_page_0001.jpg",
+    "build/web/assets/assets/web_books/baith-3_page_0001.jpg",
     "build/web/assets/assets/data/web_books_manifest.json"
 )
 foreach ($pdf in $webPdfAssets) {
