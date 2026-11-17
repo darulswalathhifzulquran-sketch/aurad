@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'web_book_reader.dart';
 import 'pdf_web_frame_stub.dart' if (dart.library.js_interop) 'pdf_web_frame_web.dart' as pdf_web;
 import 'package:flutter/scheduler.dart';
 import 'package:pdfrx/pdfrx.dart';
@@ -1136,6 +1137,11 @@ class _ReaderScreenState extends State<ReaderScreen>
   @override
   Widget build(BuildContext context) {
     final item = widget.item;
+    // Original PDF book pages on Web are pre-rendered one page at a time.
+    // This avoids native PDF plugin loading, grey background and theme flashes.
+    if (kIsWeb && item.pdfAsset.isNotEmpty) {
+      return WebBookReader(item: item);
+    }
     return ListenableBuilder(
       listenable: app,
       builder: (context, _) {
