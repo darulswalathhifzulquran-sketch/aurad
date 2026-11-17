@@ -36,16 +36,32 @@ for path, expected in files:
 '@ | python -
 if ($LASTEXITCODE -ne 0) { throw "PDF verification failed" }
 
+# Build page-by-page reader assets once from the user's EXACT original PDFs.
+# Subsequent runs reuse the existing images, so only changed pages are built.
+python ".\\tool\\install_web_book_pages.py"
+if ($LASTEXITCODE -ne 0) { throw "Book web-page preparation failed" }
+python ".\\tool\\install_quran_web_pages.py"
+if ($LASTEXITCODE -ne 0) { throw "Quran web-page preparation failed" }
+if (-not (Test-Path "assets/quran_pages/page_0604.jpg")) {
+    throw "Quran web images missing; publish stopped"
+}
+
 flutter pub get
 if ($LASTEXITCODE -ne 0) { throw "flutter pub get failed" }
-flutter build web --release
+flutter build web --release --no-wasm-dry-run
 if ($LASTEXITCODE -ne 0) { throw "Flutter Web build failed" }
 if (-not (Test-Path "build/web/index.html")) { throw "Web build output missing" }
 # Ensure source PDFs actually exist inside the public Flutter Web build.
 $webPdfAssets = @(
     "build/web/assets/assets/books/majlisunnoor.pdf",
     "build/web/assets/assets/books/hizbun_nasr.pdf",
-    "build/web/assets/assets/books/salam_baith.pdf"
+    "build/web/assets/assets/books/salam_baith.pdf",
+    "build/web/assets/assets/quran_pages/page_0001.jpg",
+    "build/web/assets/assets/quran_pages/page_0604.jpg",
+    "build/web/assets/assets/web_books/majlisunnoor-1/page_0001.jpg",
+    "build/web/assets/assets/web_books/dua-4/page_0001.jpg",
+    "build/web/assets/assets/web_books/baith-3/page_0001.jpg",
+    "build/web/assets/assets/data/web_books_manifest.json"
 )
 foreach ($pdf in $webPdfAssets) {
     if (-not (Test-Path $pdf)) {
