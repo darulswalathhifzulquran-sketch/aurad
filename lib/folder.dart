@@ -47,51 +47,67 @@ Widget itemTile(BuildContext context, Item it) {
   return ListTile(
     tileColor: goldBookStyle ? Colors.black : null,
     title: isJuz && number != null && number >= 1 && number <= 30
-      ? Directionality(
-          textDirection: TextDirection.rtl,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              '${_arabicDigits(number)} - ${kJuzOpeningNames[number - 1]}',
-              textDirection: TextDirection.rtl,
-              style: TextStyle(
-                fontFamily: kArabicFont,
-                fontFamilyFallback: kFontFallback,
-                fontSize: 24,
-                color: color,
+        ? Row(
+            children: [
+              Expanded(
+                child: Text(
+                  englishTitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Arial',
+                    fontSize: 17,
+                    color: color,
+                  ),
+                ),
               ),
-            ),
-          ),
-        )
-      : Row(
-      children: [
-        Expanded(
-          child: Text(
-            isNumberedQuran ? '$number. $englishTitle' : it.title,
-            style: TextStyle(
-              fontSize: 17,
-              color: color,
-              fontFamily: 'Arial',
-              letterSpacing: 0,
-              wordSpacing: 0,
-            ),
-          ),
-        ),
-        if (it.ar.isNotEmpty)
-          Directionality(
-            textDirection: TextDirection.rtl,
-            child: Text(
-              isNumberedQuran ? '$arabicNumber - ${it.ar}' : it.ar,
-              style: TextStyle(
-                fontFamily: kArabicFont,
-                fontFamilyFallback: kFontFallback,
-                fontSize: 24,
-                color: color,
+              const SizedBox(width: 12),
+              Directionality(
+                textDirection: TextDirection.rtl,
+                child: Text(
+                  '${_arabicDigits(number)} - ${kJuzOpeningNames[number - 1]}',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    // Use Sakkal Majalla on systems that provide it.
+                    // Amiri remains the existing fallback when unavailable.
+                    fontFamily: 'Sakkal Majalla',
+                    fontFamilyFallback: const ['Amiri', 'ArabicFont'],
+                    fontSize: 26,
+                    color: color,
+                  ),
+                ),
               ),
-            ),
+            ],
+          )
+        : Row(
+            children: [
+              Expanded(
+                child: Text(
+                  isNumberedQuran ? '$number. $englishTitle' : it.title,
+                  style: TextStyle(
+                    fontSize: 17,
+                    color: color,
+                    fontFamily: 'Arial',
+                    letterSpacing: 0,
+                    wordSpacing: 0,
+                  ),
+                ),
+              ),
+              if (it.ar.isNotEmpty)
+                Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: Text(
+                    isNumberedQuran ? '$arabicNumber - ${it.ar}' : it.ar,
+                    style: TextStyle(
+                      fontFamily: kArabicFont,
+                      fontFamilyFallback: kFontFallback,
+                      fontSize: 24,
+                      color: color,
+                    ),
+                  ),
+                ),
+            ],
           ),
-      ],
-    ),
     trailing: app.isBookmarked(it.id)
         ? const Icon(Icons.bookmark, size: 20)
         : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
