@@ -25,6 +25,7 @@ class _WebBookReaderState extends State<WebBookReader>
   Duration _previousTick = Duration.zero;
   int _page = 1;
   int _count = 0;
+  bool _manifestLoaded = false;
   double _extent = 0;
   double _speed = 0;
   bool _positioned = false;
@@ -43,9 +44,9 @@ class _WebBookReaderState extends State<WebBookReader>
       final counts = jsonDecode(raw) as Map<String, dynamic>;
       final value = (counts[widget.item.id] as num?)?.toInt() ?? 0;
       if (!mounted) return;
-      setState(() => _count = value);
+      setState(() { _count = value; _manifestLoaded = true; });
     } catch (_) {
-      if (mounted) setState(() => _count = 0);
+      if (mounted) setState(() { _count = 0; _manifestLoaded = true; });
     }
   }
 
@@ -215,7 +216,9 @@ class _WebBookReaderState extends State<WebBookReader>
             ],
           ),
           body: _count == 0
-              ? const Center(child: Text('PDF page images are not installed yet.'))
+              ? Center(child: _manifestLoaded
+                  ? const Text('PDF page images are missing. Re-run the web PDF installer.')
+                  : const SizedBox.shrink())
               : LayoutBuilder(
                   builder: (context, constraints) {
                     const ratio = 1.4142;
