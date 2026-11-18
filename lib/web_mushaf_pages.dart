@@ -146,7 +146,7 @@ class _WebMushafPagesState extends State<WebMushafPages>
               children: [
                 const Text('رياض الأذكار',
                     textDirection: TextDirection.rtl,
-                    style: TextStyle(fontFamily: 'Amiri', fontSize: 19)),
+                    style: TextStyle(fontFamily: kArabicFont, fontSize: 19)),
                 Text('Page $_page / 604',
                     style: const TextStyle(fontSize: 11)),
               ],
