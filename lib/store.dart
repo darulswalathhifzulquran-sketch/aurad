@@ -6,9 +6,12 @@ import 'models.dart';
 
 late AppState app;
 
-const String kArabicFont = 'ArabicFont';
+// Apply the same slender, traditional Arabic script across app UI.
+// Amiri-Regular is already bundled locally, so it also works on phones
+// that do not have Sakkal Majalla installed. Original PDF pages stay intact.
+const String kArabicFont = 'Amiri';
 const List<String> kFontFallback = [
-  'Amiri',
+  'ArabicFont',
   'Noto Naskh Arabic',
   'Traditional Arabic',
   'Arial'
