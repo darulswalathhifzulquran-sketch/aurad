@@ -35,9 +35,11 @@ Widget itemTile(BuildContext context, Item it) {
           : null;
   final number = int.tryParse(it.id.split('-').last);
   final isNumberedQuran = isQuran && number != null;
-  final englishTitle = isNumberedQuran
-      ? it.title.replaceFirst(RegExp(r'^\d+\.\s*'), '')
-      : it.title;
+  final englishTitle = isJuz && number != null
+      ? it.title.replaceFirst(RegExp(r'^Juz\\s+\\d+\\s*-\\s*', caseSensitive: false), '')
+      : isNumberedQuran
+          ? it.title.replaceFirst(RegExp(r'^\\d+\\.\\s*'), '')
+          : it.title;
   final arabicNumber = isNumberedQuran
       ? number.toString().replaceAllMapped(
           RegExp(r'[0-9]'),
@@ -51,7 +53,7 @@ Widget itemTile(BuildContext context, Item it) {
             children: [
               Expanded(
                 child: Text(
-                  englishTitle,
+                  '$number - $englishTitle',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -68,10 +70,9 @@ Widget itemTile(BuildContext context, Item it) {
                   '${_arabicDigits(number)} - ${kJuzOpeningNames[number - 1]}',
                   textDirection: TextDirection.rtl,
                   style: TextStyle(
-                    // Use Sakkal Majalla on systems that provide it.
-                    // Amiri remains the existing fallback when unavailable.
-                    fontFamily: 'Sakkal Majalla',
-                    fontFamilyFallback: const ['Amiri', 'ArabicFont'],
+                    // Match the existing bundled Arabic style on mobile.
+                    fontFamily: kArabicFont,
+                    fontFamilyFallback: kFontFallback,
                     fontSize: 26,
                     color: color,
                   ),
