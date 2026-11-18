@@ -46,111 +46,132 @@ Widget itemTile(BuildContext context, Item it) {
           (m) => String.fromCharCode(0x0660 + int.parse(m.group(0)!)),
         )
       : '';
-  return ListTile(
-    tileColor: goldBookStyle ? Colors.black : null,
-    title: isJuz && number != null && number >= 1 && number <= 30
-        ? Row(
+  final isNumbered = isQuran && number != null;
+  final arabic = isJuz && isNumbered && number >= 1 && number <= 30
+      ? _arabicDigits(number) + ' - ' + kJuzOpeningNames[number - 1]
+      : isNumbered
+          ? it.ar.replaceFirst(RegExp(r'^سورة\s*'), '')
+          : it.ar;
+  final english = isJuz && isNumbered
+      ? number.toString() + ' - ' + englishTitle
+      : englishTitle;
+  final quranPage = isNumbered && number >= 1
+      ? (isJuz && number <= 30
+          ? kJuzPage[number - 1]
+          : (!isJuz && number <= 114 ? kSurahPage[number - 1] : null))
+      : null;
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+    child: Material(
+      color: const Color(0xFF092440),
+      borderRadius: BorderRadius.circular(19),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(19),
+        onTap: () {
+          if (mushafReady && isQuran) {
+            final n = number ?? 1;
+            final page = it.category == 'quran'
+                ? kSurahPage[(n - 1).clamp(0, 113).toInt()]
+                : kJuzPage[(n - 1).clamp(0, 29).toInt()];
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => QuranLineReader(startPage: page)),
+            );
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ReaderScreen(item: it)),
+            );
+          }
+        },
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 76),
+          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(19),
+            border: Border.all(color: const Color(0xFF0868AF), width: 1.15),
+          ),
+          child: Row(
             children: [
-              Expanded(
-                child: Text(
-                  '$number - $englishTitle',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Arial',
-                    fontSize: 17,
-                    color: color,
+              if (isNumbered) ...[
+                Container(
+                  width: 42,
+                  height: 42,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF061B30),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFEBCB84), width: 1.6),
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Directionality(
-                textDirection: TextDirection.rtl,
-                child: Text(
-                  '${_arabicDigits(number)} - ${kJuzOpeningNames[number - 1]}',
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                    // Match the existing bundled Arabic style on mobile.
-                    fontFamily: kArabicFont,
-                    fontFamilyFallback: kFontFallback,
-                    fontSize: 26,
-                    color: color,
-                  ),
-                ),
-              ),
-            ],
-          )
-        : Row(
-            children: [
-              Expanded(
-                child: Text(
-                  isNumberedQuran ? '$number. $englishTitle' : it.title,
-                  style: TextStyle(
-                    fontSize: 17,
-                    color: color,
-                    fontFamily: 'Arial',
-                    letterSpacing: 0,
-                    wordSpacing: 0,
-                  ),
-                ),
-              ),
-              if (it.ar.isNotEmpty)
-                Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Text(
-                    isNumberedQuran ? '$arabicNumber - ${it.ar}' : it.ar,
-                    style: TextStyle(
-                      fontFamily: kArabicFont,
-                      fontFamilyFallback: kFontFallback,
-                      fontSize: 24,
-                      color: color,
+                  child: Text(number.toString(),
+                    style: const TextStyle(
+                      color: Color(0xFFFFE4A2),
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
+                const SizedBox(width: 13),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(english,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFFFFF4DF),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    if (quranPage != null)
+                      Text('Page ' + quranPage.toString(),
+                        style: const TextStyle(
+                          color: Color(0xFFB9C8D9),
+                          fontSize: 12,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              if (arabic.isNotEmpty) ...[
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    arabic,
+                    textDirection: TextDirection.rtl,
+                    textAlign: TextAlign.right,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: kArabicFont,
+                      fontFamilyFallback: kFontFallback,
+                      color: Color(0xFFFFF4DF),
+                      fontSize: 26,
+                    ),
+                  ),
+                ),
+              ],
+              const SizedBox(width: 6),
+              const Icon(Icons.chevron_right, color: Color(0xFFFFE4A2)),
             ],
           ),
-    trailing: app.isBookmarked(it.id)
-        ? const Icon(Icons.bookmark, size: 20)
-        : (dim ? const Icon(Icons.hourglass_empty, size: 18) : null),
-    onTap: () {
-      if (mushafReady && isQuran) {
-        final n = int.tryParse(it.id.split('-').last) ?? 1;
-        final page = it.category == 'quran'
-            ? kSurahPage[(n - 1).clamp(0, 113).toInt()]
-            : kJuzPage[(n - 1).clamp(0, 29).toInt()];
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => QuranLineReader(startPage: page)),
-        );
-        return;
-      }
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => ReaderScreen(item: it)),
-      );
-    },
+        ),
+      ),
+    ),
   );
 }
 
 Widget _itemList(List<Item> items) {
   if (items.isEmpty) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: Text('Nothing added yet', textAlign: TextAlign.center),
-      ),
-    );
+    return const Center(child: Text('Nothing added yet'));
   }
-  return ListView.separated(
+  return ListView.builder(
+    padding: const EdgeInsets.symmetric(vertical: 10),
     itemCount: items.length,
-    separatorBuilder: (_, __) => Divider(
-      height: 1,
-      color: app.dark && items.isNotEmpty &&
-              items.first.category != 'quran' &&
-              items.first.category != 'juz'
-          ? const Color(0xFFEBCB84).withValues(alpha: 0.32)
-          : null,
-    ),
     itemBuilder: (context, i) => itemTile(context, items[i]),
   );
 }
@@ -176,22 +197,24 @@ Widget _withBanner(Widget list) {
 }
 
 Widget _titleRow(Category category) {
-  return Row(
+  final arabic = category.id == 'quran' ? 'القرآن الكريم' : category.ar;
+  final english = category.id == 'quran' ? "Holy Qur'an" : category.en;
+  return Column(
+    mainAxisSize: MainAxisSize.min,
     children: [
-      Expanded(child: Text(category.en)),
-      Directionality(
+      Text(
+        arabic,
         textDirection: TextDirection.rtl,
-        child: Text(
-          category.ar,
-          style: TextStyle(
-              fontFamily: kArabicFont,
-              fontFamilyFallback: kFontFallback,
-              fontSize: 26,
-              color: app.dark && category.id != 'quran'
-                  ? const Color(0xFFEBCB84)
-                  : null,
-          ),
+        style: const TextStyle(
+          fontFamily: kArabicFont,
+          fontSize: 22,
+          color: Color(0xFFFFF4DB),
+          height: 1.05,
         ),
+      ),
+      Text(
+        english,
+        style: const TextStyle(fontSize: 12, color: Color(0xFFFFF4DB), height: 1.05),
       ),
     ],
   );
