@@ -10,10 +10,12 @@ import 'package:web/web.dart' as web;
 class FastWebPageImage extends StatefulWidget {
   final String asset;
   final bool dark;
+  final bool priority;
   const FastWebPageImage({
     super.key,
     required this.asset,
     required this.dark,
+    this.priority = false,
   });
 
   @override
@@ -30,12 +32,19 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
         ? 'invert(1) hue-rotate(180deg)'
         : 'none';
     image.style.backgroundColor = widget.dark ? '#000' : '#fff';
+    // The original dark source has thin light page-edge lines. Hide only
+    // those outermost pixels, not the printed page decorations or text.
+    image.style.clipPath = widget.dark ? 'inset(0 1.1% 0 1.1%)' : 'none';
   }
 
   @override
   void didUpdateWidget(covariant FastWebPageImage oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.dark != widget.dark) _updateTheme();
+    if (oldWidget.priority != widget.priority && _image != null) {
+      _image!.setAttribute('fetchpriority', widget.priority ? 'high' : 'low');
+      _image!.setAttribute('loading', widget.priority ? 'eager' : 'lazy');
+    }
     if (oldWidget.asset != widget.asset && _image != null) {
       _image!.src = Uri.base.resolve('assets/${widget.asset}?reader=20261117b').toString();
     }
@@ -56,6 +65,11 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
         image.style.objectFit = 'contain';
         image.style.display = 'block';
         image.style.border = '0';
+        image.setAttribute('decoding', 'async');
+        // Only the first/current page gets high network priority; offscreen
+        // pages no longer compete with the visible page on slow phones.
+        image.setAttribute('loading', widget.priority ? 'eager' : 'lazy');
+        image.setAttribute('fetchpriority', widget.priority ? 'high' : 'low');
         _updateTheme();
         image.src = Uri.base.resolve('assets/${widget.asset}').toString();
       },
