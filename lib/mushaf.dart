@@ -369,7 +369,7 @@ class _MushafScreenState extends State<MushafScreen>
                   'رياض الأذكار',
                   textDirection: TextDirection.rtl,
                   style: TextStyle(
-                    fontFamily: 'Amiri',
+                    fontFamily: kArabicFont,
                     fontSize: 19,
                     height: 1.15,
                     fontWeight: FontWeight.normal,
