@@ -1,0 +1,16 @@
+# Cloudflare Pages copies this file from web/ into build/web/.
+# Keep app shell fresh while caching book and Qur'an images on repeat visits.
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/flutter_bootstrap.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/assets/assets/quran_pages/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/assets/assets/web_books/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/assets/assets/books/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
