@@ -65,6 +65,10 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
         image.style.objectFit = 'contain';
         image.style.display = 'block';
         image.style.border = '0';
+        // Let the surrounding Flutter InteractiveViewer receive touch
+        // gestures instead of the native <img> swallowing pinch and drag.
+        image.style.pointerEvents = 'none';
+        image.style.userSelect = 'none';
         image.setAttribute('decoding', 'async');
         // Only the first/current page gets high network priority; offscreen
         // pages no longer compete with the visible page on slow phones.
