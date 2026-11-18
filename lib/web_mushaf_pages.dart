@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'fast_web_page_image.dart';
 import 'package:flutter/scheduler.dart';
 import 'auto_scroll_speed_slider.dart';
+import 'fast_web_page_image.dart';
 import 'store.dart';
 
-/// Flutter Web Quran viewer: loads just the visible original Mushaf page
-/// images instead of waiting for the entire 604-page PDF and PDFium WASM.
-/// Assets are produced from the *unchanged* quran.pdf using the converter.
+/// Exactly one ORIGINAL Quran page per screen. Printed surah, juz,
+/// hizb and page number are all preserved in the page artwork.
 class WebMushafPages extends StatefulWidget {
   final int startPage;
   const WebMushafPages({super.key, required this.startPage});
@@ -17,120 +16,101 @@ class WebMushafPages extends StatefulWidget {
 
 class _WebMushafPagesState extends State<WebMushafPages>
     with SingleTickerProviderStateMixin {
-  late final ScrollController _scroll;
+  late final PageController _pages;
   late final Ticker _ticker;
-  Duration _lastTick = Duration.zero;
+  Duration _previous = Duration.zero;
   double _speed = 0;
-  double _extent = 0;
-  bool _initialPositionApplied = false;
+  double _accumulated = 0;
   late int _page;
 
   @override
   void initState() {
     super.initState();
-    _page = widget.startPage.clamp(1, 604).toInt();
-    _scroll = ScrollController();
-    _scroll.addListener(_onScroll);
-    _ticker = createTicker(_autoScroll);
+    _page = widget.startPage.clamp(1, kMushafPageCount).toInt();
+    _pages = PageController(initialPage: _page - 1);
+    _ticker = createTicker(_autoAdvance);
   }
 
   @override
   void dispose() {
     _ticker.dispose();
-    _scroll.removeListener(_onScroll);
-    _scroll.dispose();
+    _pages.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_extent <= 0 || !_scroll.hasClients) return;
-    final next = (_scroll.offset / _extent).round().clamp(0, 603) + 1;
-    if (next != _page && mounted) {
-      setState(() => _page = next);
-      app.prefs.setInt('mushaf_page', next);
-    }
+  void _remember(int page) {
+    if (_page != page && mounted) setState(() => _page = page);
+    app.prefs.setInt('mushaf_page', page);
   }
 
-  void _moveTo(int requested) {
-    final next = requested.clamp(1, 604).toInt();
-    if (next != _page) setState(() => _page = next);
-    app.prefs.setInt('mushaf_page', next);
-    if (_scroll.hasClients && _extent > 0) {
-      _scroll.jumpTo(
-        ((next - 1) * _extent).clamp(
-          _scroll.position.minScrollExtent,
-          _scroll.position.maxScrollExtent,
-        ).toDouble(),
-      );
-    }
+  void _goTo(int page) {
+    if (!_pages.hasClients) return;
+    final next = page.clamp(1, kMushafPageCount).toInt();
+    _pages.animateToPage(
+      next - 1,
+      duration: const Duration(milliseconds: 190),
+      curve: Curves.easeOut,
+    );
   }
 
-  void _setSpeed(double next) {
-    _speed = next.clamp(0.0, 1.0).toDouble();
+  void _setSpeed(double value) {
+    _speed = value.clamp(0.0, 1.0).toDouble();
+    _accumulated = 0;
+    _previous = Duration.zero;
     if (_speed == 0) {
       _ticker.stop();
     } else if (!_ticker.isActive) {
-      _lastTick = Duration.zero;
       _ticker.start();
     }
     setState(() {});
   }
 
-  void _autoScroll(Duration elapsed) {
-    final delta = elapsed - _lastTick;
-    _lastTick = elapsed;
-    if (!_scroll.hasClients || _speed == 0) return;
-    final seconds = (delta.inMicroseconds / Duration.microsecondsPerSecond)
-        .clamp(0.0, 0.05).toDouble();
-    final position = _scroll.position;
-    final next = (position.pixels + seconds * _speed * 35.0)
-        .clamp(position.minScrollExtent, position.maxScrollExtent)
-        .toDouble();
-    _scroll.jumpTo(next);
-    if (next >= position.maxScrollExtent) _setSpeed(0);
+  void _autoAdvance(Duration elapsed) {
+    final seconds = (elapsed - _previous).inMicroseconds /
+        Duration.microsecondsPerSecond;
+    _previous = elapsed;
+    if (_speed <= 0 || !_pages.hasClients || seconds <= 0) return;
+    _accumulated += seconds.clamp(0.0, 0.1);
+    if (_accumulated >= 20.0 - (_speed * 17.0)) {
+      _accumulated = 0;
+      if (_page < kMushafPageCount) {
+        _goTo(_page + 1);
+      } else {
+        _setSpeed(0);
+      }
+    }
   }
 
   Future<void> _askPage() async {
-    String entered = '';
-    final p = await showDialog<int>(
+    String input = '';
+    final selected = await showDialog<int>(
       context: context,
-      builder: (c) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Go to Quran page'),
         content: TextField(
-          autofocus: true,
           keyboardType: TextInputType.number,
+          autofocus: true,
           decoration: const InputDecoration(hintText: '1 – 604'),
-          onChanged: (v) => entered = v,
-          onSubmitted: (v) => Navigator.pop(c, int.tryParse(v)),
+          onChanged: (v) => input = v,
+          onSubmitted: (v) => Navigator.pop(dialogContext, int.tryParse(v)),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c),
-                     child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(c, int.tryParse(entered)),
-                       child: const Text('Go')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, int.tryParse(input)),
+            child: const Text('Go'),
+          ),
         ],
       ),
     );
-    if (p != null) _moveTo(p);
+    if (selected != null) _goTo(selected);
   }
 
-  String _pageAsset(int p) =>
-      'assets/quran_pages/page_${p.toString().padLeft(4, '0')}.jpg';
-
-  Widget _imagePage(int p, double w, double h, bool dark) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Center(
-        child: SizedBox(
-          width: w,
-          height: h,
-          // Theme changes adjust only browser image display colors.
-          // Original Quran page artwork is never reloaded or modified.
-          child: FastWebPageImage(asset: _pageAsset(p), dark: dark),
-        ),
-      ),
-    );
-  }
+  String _asset(int page) =>
+      'assets/quran_pages/page_' + page.toString().padLeft(4, '0') + '.jpg';
 
   @override
   Widget build(BuildContext context) {
@@ -144,11 +124,15 @@ class _WebMushafPagesState extends State<WebMushafPages>
             title: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('رياض الأذكار',
-                    textDirection: TextDirection.rtl,
-                    style: TextStyle(fontFamily: kArabicFont, fontSize: 19)),
-                Text('Page $_page / 604',
-                    style: const TextStyle(fontSize: 11)),
+                const Text(
+                  'القرآن الكريم',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(fontFamily: kArabicFont, fontSize: 20, height: 1.0),
+                ),
+                const Text("Holy Qur'an",
+                    style: TextStyle(fontSize: 11, height: 1.0)),
+                Text('Page ' + _page.toString() + ' / ' + kMushafPageCount.toString(),
+                    style: const TextStyle(fontSize: 10, height: 1.0)),
               ],
             ),
             actions: [
@@ -158,76 +142,68 @@ class _WebMushafPagesState extends State<WebMushafPages>
                 onPressed: _askPage,
               ),
               IconButton(
-                tooltip: 'Dark / Light',
+                tooltip: 'Dark / light',
                 icon: Icon(dark ? Icons.light_mode : Icons.dark_mode),
                 onPressed: app.toggleDark,
               ),
             ],
           ),
           body: LayoutBuilder(
-            builder: (context, constraints) {
-              const ratio = 1.4142;
-              final pageW = (constraints.maxWidth - 52)
-                  .clamp(120.0, 720.0)
-                  .toDouble()
-                  .clamp(0.0, constraints.maxHeight / ratio)
-                  .toDouble();
-              final pageH = pageW * ratio;
-              final itemExtent = pageH + 8;
-              if (!_initialPositionApplied || _extent != itemExtent) {
-                final wanted = _initialPositionApplied
-                    ? _page
-                    : widget.startPage.clamp(1, 604);
-                _extent = itemExtent;
-                _initialPositionApplied = true;
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (!mounted || !_scroll.hasClients) return;
-                  _scroll.jumpTo(((wanted - 1) * _extent).clamp(
-                    _scroll.position.minScrollExtent,
-                    _scroll.position.maxScrollExtent,
-                  ).toDouble());
-                });
-              }
+            builder: (context, bounds) {
+              const aspect = 1.4142;
+              final availableW = (bounds.maxWidth - 52).clamp(100.0, 960.0).toDouble();
+              final width = (bounds.maxHeight / aspect)
+                  .clamp(0.0, availableW).toDouble();
+              final height = width * aspect;
               return Stack(
                 children: [
-                  ListView.builder(
-                    controller: _scroll,
-                    itemExtent: itemExtent,
-                    itemCount: 604,
-                    cacheExtent: itemExtent * 2,
-                    itemBuilder: (context, i) =>
-                        _imagePage(i + 1, pageW, pageH, dark),
+                  PageView.builder(
+                    controller: _pages,
+                    itemCount: kMushafPageCount,
+                    onPageChanged: (index) => _remember(index + 1),
+                    itemBuilder: (context, index) => Center(
+                      child: SizedBox(
+                        width: width,
+                        height: height,
+                        child: FastWebPageImage(
+                          asset: _asset(index + 1),
+                          dark: dark,
+                        ),
+                      ),
+                    ),
                   ),
                   Positioned(
+                    right: 0,
                     top: 0,
                     bottom: 0,
-                    right: 0,
                     child: AutoScrollSpeedSlider(
                       value: _speed,
                       onChanged: _setSpeed,
                     ),
                   ),
                   Positioned(
+                    left: 4,
                     top: 0,
                     bottom: 0,
-                    left: 4,
                     child: Center(
                       child: IconButton.filledTonal(
                         tooltip: 'Previous page',
                         icon: const Icon(Icons.chevron_left),
-                        onPressed: _page > 1 ? () => _moveTo(_page - 1) : null,
+                        onPressed: _page > 1 ? () => _goTo(_page - 1) : null,
                       ),
                     ),
                   ),
                   Positioned(
+                    right: 42,
                     top: 0,
                     bottom: 0,
-                    right: 42,
                     child: Center(
                       child: IconButton.filledTonal(
                         tooltip: 'Next page',
                         icon: const Icon(Icons.chevron_right),
-                        onPressed: _page < 604 ? () => _moveTo(_page + 1) : null,
+                        onPressed: _page < kMushafPageCount
+                            ? () => _goTo(_page + 1)
+                            : null,
                       ),
                     ),
                   ),
