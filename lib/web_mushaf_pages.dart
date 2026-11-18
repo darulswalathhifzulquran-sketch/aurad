@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'auto_scroll_speed_slider.dart';
 import 'fast_web_page_image.dart';
+import 'zoomable_page.dart';
 import 'store.dart';
 
 /// Exactly one ORIGINAL Quran page per screen. Printed surah, juz,
@@ -165,9 +166,13 @@ class _WebMushafPagesState extends State<WebMushafPages>
                       child: SizedBox(
                         width: width,
                         height: height,
-                        child: FastWebPageImage(
-                          asset: _asset(index + 1),
-                          dark: dark,
+                        child: ZoomablePage(
+                          key: ValueKey('zoom-quran-$index'),
+                          child: FastWebPageImage(
+                            asset: _asset(index + 1),
+                            dark: dark,
+                            priority: index == _page - 1,
+                          ),
                         ),
                       ),
                     ),
