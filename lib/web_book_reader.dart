@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'fast_web_page_image.dart';
+import 'zoomable_page.dart';
 import 'package:flutter/scheduler.dart';
 import 'auto_scroll_speed_slider.dart';
 import 'models.dart';
@@ -133,7 +134,14 @@ class _WebBookReaderState extends State<WebBookReader>
         child: SizedBox(
           width: width,
           height: height,
-          child: FastWebPageImage(asset: file, dark: dark),
+          child: ZoomablePage(
+            key: ValueKey('zoom-book-${widget.item.id}-$page'),
+            child: FastWebPageImage(
+              asset: file,
+              dark: dark,
+              priority: page == _page,
+            ),
+          ),
         ),
       ),
     );
@@ -224,7 +232,7 @@ class _WebBookReaderState extends State<WebBookReader>
                         ListView.builder(
                           itemCount: _count,
                           itemExtent: itemExtent,
-                          cacheExtent: itemExtent * 2,
+                          cacheExtent: itemExtent * 0.3,
                           controller: _scroll,
                           itemBuilder: (context, i) =>
                               _pageImage(i + 1, width, height, dark),
