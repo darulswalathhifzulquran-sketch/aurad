@@ -153,7 +153,7 @@ class _WebBookReaderState extends State<WebBookReader>
               children: [
                 Text(widget.item.ar.isNotEmpty ? widget.item.ar : widget.item.title,
                     textDirection: TextDirection.rtl,
-                    style: const TextStyle(fontFamily: 'Amiri',
+                    style: const TextStyle(fontFamily: kArabicFont,
                                            fontSize: 21)),
                 if (_count > 1)
                   Text('$_page / $_count',
