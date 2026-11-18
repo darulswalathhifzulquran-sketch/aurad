@@ -45,7 +45,7 @@ TextStyle _titleStyle(double fs, Color color) => TextStyle(
       height: 1.45,
       fontWeight: FontWeight.w700,
       color: color,
-      fontFamily: 'Amiri',
+      fontFamily: kArabicFont,
       fontFamilyFallback: [kArabicFont, ...kFontFallback],
     );
 
