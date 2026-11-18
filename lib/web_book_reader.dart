@@ -1,11 +1,23 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'fast_web_page_image.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import 'auto_scroll_speed_slider.dart';
 import 'models.dart';
 import 'store.dart';
+
+// Fixed counts for the approved PDFs prevent waiting on, or accidentally
+// using the old empty web_books_manifest.json bundled in a cached build.
+const Map<String, int> kWebBookPageCounts = {
+  'baith-3': 2,
+  'mawlid-sharafal-anam': 30,
+  'mankoos-mawlid': 13,
+  'mawlid-2': 25,
+  'swalath-saadha': 1,
+  'swalath-3': 2,
+  'swalath-4': 1,
+  'dua-4': 3,
+  'majlisunnoor-1': 17,
+};
 
 /// Purpose-built Flutter Web reader (NO native PDF plugin or toolbar).
 /// Images are generated from each unchanged original PDF; original printed
@@ -25,8 +37,7 @@ class _WebBookReaderState extends State<WebBookReader>
   late final Ticker _ticker;
   Duration _previousTick = Duration.zero;
   int _page = 1;
-  int _count = 0;
-  bool _manifestLoaded = false;
+  late final int _count;
   double _extent = 0;
   double _speed = 0;
   bool _positioned = false;
@@ -36,19 +47,7 @@ class _WebBookReaderState extends State<WebBookReader>
     super.initState();
     _ticker = createTicker(_autoScroll);
     _scroll.addListener(_onScroll);
-    _loadCount();
-  }
-
-  Future<void> _loadCount() async {
-    try {
-      final raw = await rootBundle.loadString('assets/data/web_books_manifest.json');
-      final counts = jsonDecode(raw) as Map<String, dynamic>;
-      final value = (counts[widget.item.id] as num?)?.toInt() ?? 0;
-      if (!mounted) return;
-      setState(() { _count = value; _manifestLoaded = true; });
-    } catch (_) {
-      if (mounted) setState(() { _count = 0; _manifestLoaded = true; });
-    }
+    _count = kWebBookPageCounts[widget.item.id] ?? 0;
   }
 
   @override
@@ -191,9 +190,7 @@ class _WebBookReaderState extends State<WebBookReader>
             ],
           ),
           body: _count == 0
-              ? Center(child: _manifestLoaded
-                  ? const Text('PDF page images are missing. Re-run the web PDF installer.')
-                  : const SizedBox.shrink())
+              ? const Center(child: Text('This book is not installed.'))
               : LayoutBuilder(
                   builder: (context, constraints) {
                     const ratio = 1.4142;
