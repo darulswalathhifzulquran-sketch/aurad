@@ -366,7 +366,7 @@ class _MushafScreenState extends State<MushafScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  'رياض الأذكار',
+                  'القرآن الكريم',
                   textDirection: TextDirection.rtl,
                   style: TextStyle(
                     fontFamily: kArabicFont,
@@ -374,6 +374,10 @@ class _MushafScreenState extends State<MushafScreen>
                     height: 1.15,
                     fontWeight: FontWeight.normal,
                   ),
+                ),
+                const Text(
+                  "Holy Qur'an",
+                  style: TextStyle(fontSize: 11, height: 1.0),
                 ),
                 Text(
                   'Page $page / $mushafCount',
