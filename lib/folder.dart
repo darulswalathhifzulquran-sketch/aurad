@@ -24,15 +24,6 @@ String _arabicDigits(int number) => number.toString().replaceAllMapped(
 Widget itemTile(BuildContext context, Item it) {
   final isJuz = it.category == 'juz';
   final isQuran = it.category == 'quran' || isJuz;
-  final dim =
-      !it.hasContent && it.pdfAsset.isEmpty && !(mushafReady && isQuran);
-  // Reuse the established Swalath dark-mode gold across other book folders.
-  final goldBookStyle = app.dark && !isQuran;
-  final Color? color = dim
-      ? Theme.of(context).disabledColor
-      : goldBookStyle
-          ? const Color(0xFFEBCB84)
-          : null;
   final number = int.tryParse(it.id.split('-').last);
   final isNumberedQuran = isQuran && number != null;
   final englishTitle = isJuz && number != null
@@ -40,12 +31,6 @@ Widget itemTile(BuildContext context, Item it) {
       : isNumberedQuran
           ? it.title.replaceFirst(RegExp(r'^\d+\.\s*'), '')
           : it.title;
-  final arabicNumber = isNumberedQuran
-      ? number.toString().replaceAllMapped(
-          RegExp(r'[0-9]'),
-          (m) => String.fromCharCode(0x0660 + int.parse(m.group(0)!)),
-        )
-      : '';
   final isNumbered = isQuran && number != null;
   final arabic = isJuz && number != null && number >= 1 && number <= 30
       ? _arabicDigits(number) + ' - ' + kJuzOpeningNames[number - 1]
