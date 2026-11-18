@@ -47,15 +47,15 @@ Widget itemTile(BuildContext context, Item it) {
         )
       : '';
   final isNumbered = isQuran && number != null;
-  final arabic = isJuz && isNumbered && number >= 1 && number <= 30
+  final arabic = isJuz && number != null && number >= 1 && number <= 30
       ? _arabicDigits(number) + ' - ' + kJuzOpeningNames[number - 1]
       : isNumbered
           ? it.ar.replaceFirst(RegExp(r'^سورة\s*'), '')
           : it.ar;
-  final english = isJuz && isNumbered
+  final english = isJuz && number != null
       ? number.toString() + ' - ' + englishTitle
       : englishTitle;
-  final quranPage = isNumbered && number >= 1
+  final quranPage = isNumbered && number != null && number >= 1
       ? (isJuz && number <= 30
           ? kJuzPage[number - 1]
           : (!isJuz && number <= 114 ? kSurahPage[number - 1] : null))
