@@ -36,9 +36,9 @@ Widget itemTile(BuildContext context, Item it) {
   final number = int.tryParse(it.id.split('-').last);
   final isNumberedQuran = isQuran && number != null;
   final englishTitle = isJuz && number != null
-      ? it.title.replaceFirst(RegExp(r'^Juz\\s+\\d+\\s*-\\s*', caseSensitive: false), '')
+      ? it.title.replaceFirst(RegExp(r'^Juz\s+\d+\s*-\s*', caseSensitive: false), '')
       : isNumberedQuran
-          ? it.title.replaceFirst(RegExp(r'^\\d+\\.\\s*'), '')
+          ? it.title.replaceFirst(RegExp(r'^\d+\.\s*'), '')
           : it.title;
   final arabicNumber = isNumberedQuran
       ? number.toString().replaceAllMapped(
