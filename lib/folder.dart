@@ -124,18 +124,21 @@ Widget itemTile(BuildContext context, Item it) {
               ),
               if (arabic.isNotEmpty) ...[
                 const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    arabic,
-                    textDirection: TextDirection.rtl,
-                    textAlign: TextAlign.right,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: kArabicFont,
-                      fontFamilyFallback: kFontFallback,
-                      color: Color(0xFFFFF4DF),
-                      fontSize: 26,
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      arabic,
+                      textDirection: TextDirection.rtl,
+                      textAlign: TextAlign.right,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontFamily: kArabicFont,
+                        fontFamilyFallback: kFontFallback,
+                        color: Color(0xFFFFF4DF),
+                        fontSize: 26,
+                      ),
                     ),
                   ),
                 ),
