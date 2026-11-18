@@ -1183,31 +1183,34 @@ class _ReaderScreenState extends State<ReaderScreen>
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
-            title: item.pdfAsset.isEmpty
-                ? Text(item.ar.isEmpty ? item.title : item.ar,
-                    style: const TextStyle(
-                        fontFamily: kArabicFont,
-                        fontFamilyFallback: kFontFallback,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700))
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(item.ar.isEmpty ? item.title : item.ar,
-                          style: TextStyle(
-                              color: app.dark ? const Color(0xFFEBCB84) : null,
-                              fontFamily: kArabicFont,
-                              fontFamilyFallback: kFontFallback,
-                              fontSize: 26,
-                              fontWeight: FontWeight.w700)),
-                      if (_pdfPageCount > 1)
-                        Text(
-                          '${index + 1}/$_pdfPageCount',
-                          style: const TextStyle(fontSize: 12, fontFamily: 'Arial', letterSpacing: 0),
-                        ),
-                    ],
+            title: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  item.ar.isNotEmpty ? item.ar : item.title,
+                  textDirection: TextDirection.rtl,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontFamily: kArabicFont,
+                    fontFamilyFallback: kFontFallback,
+                    fontSize: 21,
+                    height: 1.0,
                   ),
+                ),
+                Text(
+                  item.en.isNotEmpty ? item.en : item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11, height: 1.0),
+                ),
+                if (item.pdfAsset.isNotEmpty && _pdfPageCount > 1)
+                  Text(
+                    '${index + 1}/$_pdfPageCount',
+                    style: const TextStyle(fontSize: 10, height: 1.0),
+                  ),
+              ],
+            ),
             actions: [
               IconButton(
                 tooltip: 'Find page',
