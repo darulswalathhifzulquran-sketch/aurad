@@ -54,6 +54,6 @@ Write-Host "READY: $count files. Original source PDFs remain unchanged in the pr
 Write-Host "Cloudflare may open a browser to sign in. Approve login, then choose"
 Write-Host "a Cloudflare Pages project name such as riyadul-adkar and branch main."
 Write-Host "The deployment command will print the REAL public pages.dev URL."
-npx.cmd --yes wrangler@4 pages deploy "build/web"
+npx.cmd --yes wrangler@4 pages deploy "build/web" --branch main
 if ($LASTEXITCODE -ne 0) { throw "Cloudflare Pages deploy failed." }
 Write-Host "Cloudflare Pages deployment finished. Netlify is left untouched."
