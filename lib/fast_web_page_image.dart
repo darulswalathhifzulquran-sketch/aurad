@@ -34,7 +34,9 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
     image.style.backgroundColor = widget.dark ? '#000' : '#fff';
     // The original dark source has thin light page-edge lines. Hide only
     // those outermost pixels, not the printed page decorations or text.
-    image.style.clipPath = widget.dark ? 'inset(0 1.1% 0 1.1%)' : 'none';
+    image.style.clipPath = widget.asset.startsWith('assets/quran_pages/')
+        ? 'none'
+        : (widget.dark ? 'inset(0 1.1% 0 1.1%)' : 'none');
   }
 
   @override
@@ -62,13 +64,11 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
         image.draggable = false;
         image.style.width = '100%';
         image.style.height = '100%';
-        // Quran JPGs include large blank paper margins. Scale the image
-        // inside the clipped screen-size reader; keep all source files intact.
+        // Always show the COMPLETE original Quran page (surah/juz header,
+        // printed page number and all four edges). CSS scaling caused
+        // clipped Arabic at the right; object-fit: contain avoids cropping.
         image.style.objectFit = 'contain';
-        if (widget.asset.startsWith('assets/quran_pages/')) {
-          image.style.transform = 'scale(1.30)';
-          image.style.transformOrigin = 'center center';
-        }
+        image.style.transform = 'none';
         image.style.display = 'block';
         image.style.border = '0';
         // Let the surrounding Flutter InteractiveViewer receive touch
