@@ -151,27 +151,46 @@ class _WebMushafPagesState extends State<WebMushafPages>
           ),
           body: LayoutBuilder(
             builder: (context, bounds) {
-              const aspect = 1.4142;
-              final availableW = (bounds.maxWidth - 52).clamp(100.0, 960.0).toDouble();
-              final width = (bounds.maxHeight / aspect)
-                  .clamp(0.0, availableW).toDouble();
-              final height = width * aspect;
+              // A complete Quran leaf fills the reading viewport, inside
+              // a slim outer frame. Keep the original image aspect ratio,
+              // Arabic text, printed ornamentation and page numbers intact.
+              final width = (bounds.maxWidth - 12).clamp(1.0, double.infinity).toDouble();
+              final height = (bounds.maxHeight - 12).clamp(1.0, double.infinity).toDouble();
               return Stack(
                 children: [
-                  PageView.builder(
-                    controller: _pages,
-                    itemCount: kMushafPageCount,
-                    onPageChanged: (index) => _remember(index + 1),
-                    itemBuilder: (context, index) => Center(
-                      child: SizedBox(
-                        width: width,
-                        height: height,
-                        child: ZoomablePage(
-                          key: ValueKey('zoom-quran-$index'),
-                          child: FastWebPageImage(
-                            asset: _asset(index + 1),
-                            dark: dark,
-                            priority: index == _page - 1,
+                  Positioned.fill(
+                    child: Padding(
+                      padding: const EdgeInsets.all(6),
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: dark ? Colors.black : Colors.white,
+                          border: Border.all(
+                            color: dark
+                                ? const Color(0xFFCDAA65)
+                                : const Color(0xFFB18A45),
+                            width: 2,
+                          ),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        child: ClipRect(
+                          child: PageView.builder(
+                            controller: _pages,
+                            itemCount: kMushafPageCount,
+                            onPageChanged: (index) => _remember(index + 1),
+                            itemBuilder: (context, index) => Center(
+                              child: SizedBox(
+                                width: width,
+                                height: height,
+                                child: ZoomablePage(
+                                  key: ValueKey('zoom-quran-$index'),
+                                  child: FastWebPageImage(
+                                    asset: _asset(index + 1),
+                                    dark: dark,
+                                    priority: index == _page - 1,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
