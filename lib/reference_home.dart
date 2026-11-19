@@ -126,12 +126,23 @@ class ReferenceHome extends StatelessWidget {
                         errorBuilder: (_, __, ___) => _missingArtwork(scale),
                       ),
                     ),
-                    // Place the approved Jamia Imam Navavi logo directly
-                    // over the old top-left icon in the existing artwork.
+                    // The home illustration already includes a bright
+                    // turquoise menu icon. Completely cover that old artwork
+                    // BEFORE drawing the replacement circular Jamia logo.
+                    // Otherwise a cyan/blue square remains behind the logo.
                     Positioned(
-                      left: 55 * scale,
-                      top: 32 * scale,
-                      width: 120 * scale,
+                      left: 40 * scale,
+                      top: 18 * scale,
+                      width: 160 * scale,
+                      height: 155 * scale,
+                      child: const ColoredBox(
+                        color: Color(0xFF041A36),
+                      ),
+                    ),
+                    Positioned(
+                      left: 56 * scale,
+                      top: 30 * scale,
+                      width: 126 * scale,
                       height: 126 * scale,
                       child: Semantics(
                         button: true,
@@ -143,9 +154,13 @@ class ReferenceHome extends StatelessWidget {
                           child: InkWell(
                             onTap: onMenu,
                             customBorder: const CircleBorder(),
+                            // Supplied logo file includes an empty lower band.
+                            // Top-aligned BoxFit.cover shows the full circular
+                            // emblem, not the empty band below it.
                             child: Image.asset(
                               'assets/images/jamia_navavi_logo.png',
                               fit: BoxFit.cover,
+                              alignment: Alignment.topCenter,
                               gaplessPlayback: true,
                               errorBuilder: (_, __, ___) =>
                                   const Icon(Icons.menu_book, color: Colors.white),
