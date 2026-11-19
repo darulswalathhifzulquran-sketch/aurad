@@ -81,6 +81,13 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
         image.setAttribute('loading', widget.priority ? 'eager' : 'lazy');
         image.setAttribute('fetchpriority', widget.priority ? 'high' : 'low');
         _updateTheme();
+        if (widget.asset.startsWith('assets/quran_pages/')) {
+          // The GitHub Pages bootstrap crops only the empty white margins
+          // around the intact green Mushaf panel. Browser-side cropping
+          // keeps the 604 original files unchanged and loads pages lazily.
+          image.setAttribute('onload',
+              'window.riyadPrepareQuranPage && window.riyadPrepareQuranPage(this)');
+        }
         image.src = Uri.base.resolve('assets/${widget.asset}').toString();
       },
     );
