@@ -154,8 +154,8 @@ class _WebMushafPagesState extends State<WebMushafPages>
               // A complete Quran leaf fills the reading viewport, inside
               // a slim outer frame. Keep the original image aspect ratio,
               // Arabic text, printed ornamentation and page numbers intact.
-              final width = (bounds.maxWidth - 12).clamp(1.0, double.infinity).toDouble();
-              final height = (bounds.maxHeight - 12).clamp(1.0, double.infinity).toDouble();
+              final width = (bounds.maxWidth - 20).clamp(1.0, double.infinity).toDouble();
+              final height = (bounds.maxHeight - 20).clamp(1.0, double.infinity).toDouble();
               return Stack(
                 children: [
                   Positioned.fill(
