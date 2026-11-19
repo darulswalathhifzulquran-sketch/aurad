@@ -73,7 +73,11 @@ class _HomeScreenState extends State<HomeScreen> {
       if (only.isNotEmpty) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => FolderScreen(category: cat)),
+          PageRouteBuilder<void>(
+            transitionDuration: const Duration(milliseconds: 90),
+            reverseTransitionDuration: const Duration(milliseconds: 90),
+            pageBuilder: (_, __, ___) => FolderScreen(category: cat),
+          ),
         );
         return;
       }
@@ -89,7 +93,11 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => FolderScreen(category: cat)),
+      PageRouteBuilder<void>(
+            transitionDuration: const Duration(milliseconds: 90),
+            reverseTransitionDuration: const Duration(milliseconds: 90),
+            pageBuilder: (_, __, ___) => FolderScreen(category: cat),
+          ),
     );
   }
 
