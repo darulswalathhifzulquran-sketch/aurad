@@ -67,6 +67,8 @@ class AppState extends ChangeNotifier {
     curateItems(items);
     fixArabicNames(items);
     final state = AppState._(prefs, cats, items, quranLoaded: quranLoaded);
+    // Initialize the global state before MyApp/HomeScreen reads it.
+    app = state;
     Future<void>.delayed(const Duration(milliseconds: 250), () async {
       await loadExtras(state.items);
       curateItems(state.items);
