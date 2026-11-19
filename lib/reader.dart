@@ -9,6 +9,7 @@ import 'academy_footer.dart';
 import 'dark_document_renderer.dart';
 import 'models.dart';
 import 'auto_scroll_speed_slider.dart';
+import 'zoomable_page.dart';
 import 'store.dart';
 
 const double kA4 = 1.4142; // A4 height / width
@@ -1097,13 +1098,20 @@ class _ReaderScreenState extends State<ReaderScreen>
         final pageW = fitW;
         if (pages.length == 1) {
           return Center(
-            child: PageSheet(
-              page: pages.single,
+            child: SizedBox(
               width: pageW,
-              dark: app.dark,
-              quran: false,
-              showAcademyFooter: widget.item.category != 'quran' && widget.item.category != 'juz',
-              baseFont: bases.single,
+              height: pageW * kA4,
+              child: ZoomablePage(
+                child: PageSheet(
+                  page: pages.single,
+                  width: pageW,
+                  dark: app.dark,
+                  quran: false,
+                  showAcademyFooter: widget.item.category != 'quran' &&
+                      widget.item.category != 'juz',
+                  baseFont: bases.single,
+                ),
+              ),
             ),
           );
         }
@@ -1116,13 +1124,21 @@ class _ReaderScreenState extends State<ReaderScreen>
               itemBuilder: (context, i) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: Center(
-                  child: PageSheet(
-                    page: pages[i],
+                  child: SizedBox(
                     width: pageW,
-                    dark: app.dark,
-                    quran: false,
-              showAcademyFooter: widget.item.category != 'quran' && widget.item.category != 'juz',
-                    baseFont: bases[i],
+                    height: pageW * kA4,
+                    child: ZoomablePage(
+                      key: ValueKey('text-book-zoom-$i'),
+                      child: PageSheet(
+                        page: pages[i],
+                        width: pageW,
+                        dark: app.dark,
+                        quran: false,
+                        showAcademyFooter: widget.item.category != 'quran' &&
+                            widget.item.category != 'juz',
+                        baseFont: bases[i],
+                      ),
+                    ),
                   ),
                 ),
               ),
