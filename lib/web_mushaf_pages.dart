@@ -196,6 +196,26 @@ class _WebMushafPagesState extends State<WebMushafPages>
                       ),
                     ),
                   ),
+                  // Paint the border above the image: it traces the
+                  // entire screen-sized Quran sheet, not the printed text box.
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: dark
+                                  ? const Color(0xFFD7B46A)
+                                  : const Color(0xFFB18A45),
+                              width: 2.2,
+                            ),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   Positioned(
                     right: 0,
                     top: 0,
