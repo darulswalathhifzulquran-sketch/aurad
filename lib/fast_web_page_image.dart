@@ -62,7 +62,13 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
         image.draggable = false;
         image.style.width = '100%';
         image.style.height = '100%';
+        // Quran JPGs include large blank paper margins. Scale the image
+        // inside the clipped screen-size reader; keep all source files intact.
         image.style.objectFit = 'contain';
+        if (widget.asset.startsWith('assets/quran_pages/')) {
+          image.style.transform = 'scale(1.30)';
+          image.style.transformOrigin = 'center center';
+        }
         image.style.display = 'block';
         image.style.border = '0';
         // Let the surrounding Flutter InteractiveViewer receive touch
