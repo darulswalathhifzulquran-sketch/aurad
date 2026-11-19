@@ -138,18 +138,17 @@ class ReferenceHome extends StatelessWidget {
                         label: 'Jamia Imam Navavi — Open navigation',
                         child: Material(
                           color: const Color(0xFF041A36),
-                          borderRadius: BorderRadius.circular(12 * scale),
+                          shape: const CircleBorder(),
+                          clipBehavior: Clip.antiAlias,
                           child: InkWell(
                             onTap: onMenu,
-                            borderRadius: BorderRadius.circular(12 * scale),
-                            child: Padding(
-                              padding: EdgeInsets.all(3 * scale),
-                              child: Image.asset(
-                                'assets/images/jamia_navavi_logo.png',
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) =>
-                                    const Icon(Icons.menu_book, color: Colors.white),
-                              ),
+                            customBorder: const CircleBorder(),
+                            child: Image.asset(
+                              'assets/images/jamia_navavi_logo.png',
+                              fit: BoxFit.cover,
+                              gaplessPlayback: true,
+                              errorBuilder: (_, __, ___) =>
+                                  const Icon(Icons.menu_book, color: Colors.white),
                             ),
                           ),
                         ),
