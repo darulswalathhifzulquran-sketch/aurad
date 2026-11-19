@@ -41,8 +41,13 @@ class AppState extends ChangeNotifier {
         target = prefs.getInt('target') ?? 33;
 
   static Future<AppState> load() async {
-    final prefs = await SharedPreferences.getInstance();
-    final raw = await rootBundle.loadString('assets/data/library.json');
+    // Start browser storage, the catalog and Mushaf metadata together.
+    // They are independent: waiting on them sequentially slows first paint.
+    final prefsRequest = SharedPreferences.getInstance();
+    final catalogRequest = rootBundle.loadString('assets/data/library.json');
+    final mushafRequest = loadMushaf();
+    final prefs = await prefsRequest;
+    final raw = await catalogRequest;
     final map = jsonDecode(raw) as Map<String, dynamic>;
     final cats = (map['categories'] as List)
         .map((e) => Category.fromJson(e as Map<String, dynamic>))
@@ -59,7 +64,7 @@ class AppState extends ChangeNotifier {
         .toSet();
     cats.removeWhere((c) => hidden.contains(c.id));
     items.removeWhere((i) => hidden.contains(i.category));
-    await loadMushaf();
+    await mushafRequest;
     final quranLoaded = !mushafReady;
     if (quranLoaded) await loadQuran(items);
     // Start the Home screen without blocking it on the extra book catalog.
