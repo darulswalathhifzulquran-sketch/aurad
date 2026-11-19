@@ -207,14 +207,13 @@ class _WebBookReaderState extends State<WebBookReader>
               ? const Center(child: Text('This book is not installed.'))
               : LayoutBuilder(
                   builder: (context, constraints) {
-                    const ratio = 1.4142;
-                    final width = (constraints.maxWidth - 52)
-                        .clamp(120.0, 720.0)
-                        .toDouble()
-                        .clamp(0.0, constraints.maxHeight / ratio)
-                        .toDouble();
-                    final height = width * ratio;
-                    final itemExtent = height + 8;
+                    // One book leaf per phone viewport; preserve source
+                    // page artwork and allow pinch/double-tap zoom.
+                    final width = (constraints.maxWidth - 8)
+                        .clamp(1.0, double.infinity).toDouble();
+                    final height = (constraints.maxHeight - 8)
+                        .clamp(1.0, double.infinity).toDouble();
+                    final itemExtent = constraints.maxHeight;
                     if (!_positioned || itemExtent != _extent) {
                       final wantedPage = _page;
                       _extent = itemExtent;
