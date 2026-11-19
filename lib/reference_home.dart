@@ -126,14 +126,34 @@ class ReferenceHome extends StatelessWidget {
                         errorBuilder: (_, __, ___) => _missingArtwork(scale),
                       ),
                     ),
-                    _spot(
-                      x: 55,
-                      y: 32,
-                      w: 120,
-                      h: 126,
-                      scale: scale,
-                      label: 'Open navigation',
-                      action: onMenu,
+                    // Place the approved Jamia Imam Navavi logo directly
+                    // over the old top-left icon in the existing artwork.
+                    Positioned(
+                      left: 55 * scale,
+                      top: 32 * scale,
+                      width: 120 * scale,
+                      height: 126 * scale,
+                      child: Semantics(
+                        button: true,
+                        label: 'Jamia Imam Navavi — Open navigation',
+                        child: Material(
+                          color: const Color(0xFF041A36),
+                          borderRadius: BorderRadius.circular(12 * scale),
+                          child: InkWell(
+                            onTap: onMenu,
+                            borderRadius: BorderRadius.circular(12 * scale),
+                            child: Padding(
+                              padding: EdgeInsets.all(3 * scale),
+                              child: Image.asset(
+                                'assets/images/jamia_navavi_logo.png',
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) =>
+                                    const Icon(Icons.menu_book, color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     _spot(
                       x: 786,
