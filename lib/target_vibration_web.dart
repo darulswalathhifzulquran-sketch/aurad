@@ -12,3 +12,17 @@ void vibrateForTarget() {
     // Vibration support depends on the browser, device and user settings.
   }
 }
+
+@JS('riyadTargetSound')
+external void _playTargetSound();
+
+/// Trigger from the actual counter tap. WebAudio will play on desktops,
+/// smart boards and phones with working speakers; vibration is best effort.
+void notifyTargetReached() {
+  try {
+    _playTargetSound();
+  } catch (_) {
+    // Browser sound is optional (blocked, unsupported or muted).
+  }
+  vibrateForTarget();
+}
