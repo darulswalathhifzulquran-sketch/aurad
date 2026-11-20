@@ -54,6 +54,40 @@
       document.getElementById('restart').style.display = 'block';
     }, 30000);
   </script>
+  <script>
+    // Counter target reached: audible chime on phones, computers and smart
+    // boards with speakers. Playback starts only after a real counter tap.
+    window.riyadTargetSound = function () {
+      try {
+        var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+        var ctx = window._riyadCounterAudioContext;
+        if (!ctx || ctx.state === 'closed') {
+          ctx = new AudioContextClass();
+          window._riyadCounterAudioContext = ctx;
+        }
+        if (ctx.state === 'suspended') ctx.resume();
+        var now = ctx.currentTime + 0.015;
+        var notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach(function (frequency, index) {
+          var start = now + index * 0.18;
+          var oscillator = ctx.createOscillator();
+          var volume = ctx.createGain();
+          oscillator.type = 'triangle';
+          oscillator.frequency.setValueAtTime(frequency, start);
+          volume.gain.setValueAtTime(0.001, start);
+          volume.gain.linearRampToValueAtTime(0.27, start + 0.025);
+          volume.gain.exponentialRampToValueAtTime(0.001, start + 0.27);
+          oscillator.connect(volume);
+          volume.connect(ctx.destination);
+          oscillator.start(start);
+          oscillator.stop(start + 0.28);
+        });
+      } catch (error) {
+        console.warn('Target sound unavailable on this device', error);
+      }
+    };
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
