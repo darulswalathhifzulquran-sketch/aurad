@@ -150,9 +150,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       Category(
         id: 'maashara',
-        name: 'മഅ്ശറ',
-        en: "Ma'ashara",
-        ar: '',
+        name: 'മഅ്ശർ',
+        en: "Ma'ashar",
+        ar: 'معاشر',
       ),
       Category(
         id: 'khuthubathun_nikaah',
