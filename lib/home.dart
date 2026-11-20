@@ -138,13 +138,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _openOther() {
+    // Dedicated additional sections only. Don't repeat all main home folders.
+    // The reading material for these sections can be added to the library
+    // separately without affecting the existing Qur'an or Mawlid items.
+    final sections = <Category>[
+      Category(
+        id: 'mayyith_niskaaram',
+        name: 'മയ്യിത്ത് നിസ്കാരം',
+        en: 'Mayyith Niskaaram',
+        ar: 'صلاة الجنازة',
+      ),
+      Category(
+        id: 'maashara',
+        name: 'മഅ്ശറ',
+        en: "Ma'ashara",
+        ar: '',
+      ),
+      Category(
+        id: 'khuthubathun_nikaah',
+        name: 'ഖുതുബത്തുന്നികാഹ്',
+        en: 'Khuthubathun Nikaah',
+        ar: 'خطبة النكاح',
+      ),
+    ];
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
       isScrollControlled: true,
       builder: (sheetContext) => SafeArea(
         child: SizedBox(
-          height: MediaQuery.sizeOf(sheetContext).height * 0.62,
+          height: MediaQuery.sizeOf(sheetContext).height * 0.45,
           child: Column(
             children: [
               const Padding(
@@ -156,22 +179,19 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Expanded(
                 child: ListView(
-                  children: app.categories
-                      .map(
-                        (category) => ListTile(
-                          leading: folderIcon(category.id, 38),
-                          title: Text(category.en),
-                          subtitle: Text(
-                            category.ar,
-                            textDirection: TextDirection.rtl,
-                          ),
-                          onTap: () {
-                            Navigator.pop(sheetContext);
-                            openCategory(category);
-                          },
-                        ),
-                      )
-                      .toList(),
+                  children: sections.map((category) => ListTile(
+                    leading: const Icon(Icons.menu_book_outlined, size: 32,
+                      color: Color(0xFFEBCB84)),
+                    title: Text(category.en),
+                    subtitle: category.ar.isEmpty
+                        ? Text(category.name)
+                        : Text(category.ar, textDirection: TextDirection.rtl),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      openCategory(category);
+                    },
+                  )).toList(),
                 ),
               ),
             ],
