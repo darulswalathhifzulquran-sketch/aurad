@@ -153,40 +153,24 @@ class _WebMushafPagesState extends State<WebMushafPages>
               IconButton(tooltip: 'Find page',
                 icon: const Icon(Icons.find_in_page_outlined),
                 onPressed: _askPage),
+              // Place both page arrows together in the SAME top toolbar
+              // used by other readers; do not create a second row/slider.
+              IconButton(
+                tooltip: 'Previous Qur\'an page',
+                icon: const Icon(Icons.chevron_left),
+                onPressed: _page > 1 ? () => _goto(_page - 1) : null,
+              ),
+              IconButton(
+                tooltip: 'Next Qur\'an page',
+                icon: const Icon(Icons.chevron_right),
+                onPressed: _page < kMushafPageCount
+                    ? () => _goto(_page + 1) : null,
+              ),
               IconButton(tooltip: 'Dark / light',
                 icon: Icon(dark ? Icons.light_mode : Icons.dark_mode),
                 onPressed: app.toggleDark),
             ],
-            // Keep only the two page-turn arrows at either side of the
-            // blue header. No page slider. Auto-scroll speed stays
-            // in the right side of the reading viewport.
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(40),
-              child: SizedBox(
-                height: 40,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      tooltip: 'Previous Qur\'an page',
-                      constraints: const BoxConstraints(minWidth: 36),
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.chevron_left, size: 19),
-                      onPressed: _page > 1 ? () => _goto(_page - 1) : null,
-                    ),
-                    const SizedBox(width: 12),
-                    IconButton(
-                      tooltip: 'Next Qur\'an page',
-                      constraints: const BoxConstraints(minWidth: 36),
-                      padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.chevron_right, size: 19),
-                      onPressed: _page < kMushafPageCount
-                          ? () => _goto(_page + 1) : null,
-                    ),
-                  ],
-                ),
-              ),
-            ),
+
           ),
           body: LayoutBuilder(
             builder: (context, box) {
