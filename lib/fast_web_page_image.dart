@@ -31,7 +31,10 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
     image.style.filter = widget.dark
         ? 'invert(1) hue-rotate(180deg)'
         : 'none';
-    image.style.backgroundColor = widget.dark ? '#000' : '#fff';
+    // CSS filter invert(1) also inverts the <img> element's letterbox
+    // background. Always start white: dark inversion turns unused image
+    // space black instead of leaving bright white bands above/below pages.
+    image.style.backgroundColor = '#fff';
     // The original dark source has thin light page-edge lines. Hide only
     // those outermost pixels, not the printed page decorations or text.
     image.style.clipPath = widget.asset.startsWith('assets/quran_pages/')
