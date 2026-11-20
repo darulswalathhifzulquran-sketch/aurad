@@ -180,7 +180,8 @@ class _WebMushafPagesState extends State<WebMushafPages>
                         max: kMushafPageCount.toDouble(),
                         divisions: kMushafPageCount - 1,
                         value: (_sliderPreview ?? _page.toDouble())
-                            .clamp(1.0, kMushafPageCount.toDouble()),
+                            .clamp(1.0, kMushafPageCount.toDouble())
+                            .toDouble(),
                         label: '${(_sliderPreview ?? _page.toDouble()).round()}',
                         onChanged: (value) {
                           setState(() => _sliderPreview = value);
