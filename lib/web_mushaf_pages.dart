@@ -165,6 +165,7 @@ class _WebMushafPagesState extends State<WebMushafPages>
               child: SizedBox(
                 height: 40,
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
                       tooltip: 'Previous Qur\'an page',
@@ -173,7 +174,7 @@ class _WebMushafPagesState extends State<WebMushafPages>
                       icon: const Icon(Icons.chevron_left, size: 19),
                       onPressed: _page > 1 ? () => _goto(_page - 1) : null,
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 12),
                     IconButton(
                       tooltip: 'Next Qur\'an page',
                       constraints: const BoxConstraints(minWidth: 36),
