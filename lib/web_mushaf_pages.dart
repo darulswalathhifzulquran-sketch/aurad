@@ -3,7 +3,6 @@ import 'package:flutter/scheduler.dart';
 import 'fast_web_page_image.dart';
 import 'zoomable_page.dart';
 import 'auto_scroll_speed_slider.dart';
-import 'mushaf.dart' show surahAtPage, juzAtPage;
 import 'store.dart';
 
 /// Lazy, vertical 604-page reader. Each leaf occupies one screen;
@@ -112,89 +111,18 @@ class _WebMushafPagesState extends State<WebMushafPages>
   String _asset(int page) =>
       'assets/quran_pages/page_${page.toString().padLeft(4, '0')}.jpg';
 
-  // The original Mushaf JPEG is the reading source. The crop removes
-  // generous white margins, including the tiny printed running headers.
-  // Keep these replacements compact INSIDE the leaf, not in a new toolbar.
-  String _surahName(int page) {
-    final surah = surahAtPage(page);
-    for (final item in app.items) {
-      if (item.category == 'quran' &&
-          int.tryParse(item.id.split('-').last) == surah) {
-        return item.ar;
-      }
-    }
-    return 'سورة $surah';
-  }
-
+  // Display ONLY the original Mushaf page artwork. Its printed Surah/Juz
+  // headings, Hizb marks and bottom page number are authoritative; no
+  // separate Flutter labels or footers should duplicate them.
   Widget _sheet(int page, bool dark) {
-    final textColor = dark ? const Color(0xFFF1E4C3) : const Color(0xFF264C39);
-    final paperColor = dark ? Colors.black : Colors.white;
     return Padding(
       padding: const EdgeInsets.all(3),
-      child: ColoredBox(
-        color: paperColor,
-        child: Column(
-          children: [
-            SizedBox(
-              height: 28,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _surahName(page),
-                        textDirection: TextDirection.rtl,
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: kArabicFont,
-                          fontSize: 16,
-                          height: 1.0,
-                          color: textColor,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'الجزء ${juzAtPage(page)}',
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontFamily: kArabicFont,
-                        fontSize: 16,
-                        height: 1.0,
-                        color: textColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: ZoomablePage(
-                key: ValueKey('quran-zoom-$page'),
-                child: FastWebPageImage(
-                  asset: _asset(page),
-                  dark: dark,
-                  priority: page == _page,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 24,
-              child: Center(
-                child: Text(
-                  '$page',
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ],
+      child: ZoomablePage(
+        key: ValueKey('quran-zoom-$page'),
+        child: FastWebPageImage(
+          asset: _asset(page),
+          dark: dark,
+          priority: page == _page,
         ),
       ),
     );
