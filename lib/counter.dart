@@ -25,7 +25,9 @@ class _CounterScreenState extends State<CounterScreen> {
     // notifying and rebuilding listeners. Mobile Chrome requires this.
     // This fires only on the count crossing the configured target.
     if (completed && _targetVibration) {
-      vibration.vibrateForTarget();
+      // Browser audio must start synchronously with this user tap.
+      // Supported devices will also vibrate.
+      vibration.notifyTargetReached();
     }
     app.incCounter();
   }
@@ -242,19 +244,13 @@ class _CounterScreenState extends State<CounterScreen> {
                             child: const SizedBox(
                               width: 145,
                               height: 145,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.fingerprint,
-                                      size: 32, color: Colors.white),
-                                  SizedBox(height: 8),
-                                  Text('TAP +1',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      )),
-                                ],
+                              child: Center(
+                                child: Icon(
+                                  Icons.add_rounded,
+                                  size: 92,
+                                  color: Colors.white,
+                                  semanticLabel: 'Add one dhikr',
+                                ),
                               ),
                             ),
                           ),
@@ -294,7 +290,7 @@ class _CounterScreenState extends State<CounterScreen> {
                               color: Color(0xFF6DDBF6), size: 17),
                           const SizedBox(width: 8),
                           const Expanded(
-                            child: Text('Target Vibration',
+                            child: Text('Target Alert (Sound + Vibration)',
                               style: TextStyle(
                                 color: Color(0xFF6DDBF6),
                                 fontSize: 14,
