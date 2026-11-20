@@ -55,6 +55,49 @@
     }, 30000);
   </script>
   <script>
+    // Crop only the blank paper around the ORIGINAL green Mushaf panel.
+    // Source JPEGs are never changed, and printed Arabic is not reflowed.
+    // The native image includes white margins of very different sizes.
+    window.riyadPrepareQuranPage = function (img) {
+      if (img.hasAttribute('data-riyad-cropped') || !img.naturalWidth) return;
+      try {
+        const w = img.naturalWidth, h = img.naturalHeight;
+        const source = document.createElement('canvas');
+        source.width = w; source.height = h;
+        const cx = source.getContext('2d', {willReadFrequently:true});
+        cx.drawImage(img, 0, 0);
+        const pixels = cx.getImageData(0,0,w,h).data;
+        let minX=w, minY=h, maxX=-1, maxY=-1, hits=0;
+        for (let y=0; y<h; y+=3) for(let x=0; x<w; x+=3) {
+          const k=(y*w+x)*4, r=pixels[k],g=pixels[k+1],b=pixels[k+2];
+          // The Mushaf's light mint border, unlike white paper and ink.
+          if(g>r+13 && g>b+13 && g>140 && r>90 && b>90) {
+            minX=Math.min(minX,x);maxX=Math.max(maxX,x);
+            minY=Math.min(minY,y);maxY=Math.max(maxY,y);hits++;
+          }
+        }
+        if(hits<80 || maxX-minX<w*0.20 || maxY-minY<h*0.16) return;
+        const panelW=maxX-minX, panelH=maxY-minY;
+        // The original PDF prints Surah/Juz headings ABOVE the mint frame,
+        // and the page number BELOW it. Preserve both original paper strips
+        // instead of painting a second, inaccurate Flutter header/footer.
+        const px=Math.max(5,Math.round(panelW*0.025));
+        const topPad=Math.max(10,Math.round(panelH*0.085));
+        const bottomPad=Math.max(8,Math.round(panelH*0.070));
+        const x0=Math.max(0,minX-px), y0=Math.max(0,minY-topPad);
+        const cw=Math.min(w-x0,panelW+2*px+3);
+        const ch=Math.min(h-y0,panelH+topPad+bottomPad+3);
+        const cropped=document.createElement('canvas');
+        cropped.width=cw;cropped.height=ch;
+        cropped.getContext('2d').drawImage(source,x0,y0,cw,ch,0,0,cw,ch);
+        img.setAttribute('data-riyad-cropped','1');
+        img.src=cropped.toDataURL('image/jpeg',0.94);
+      } catch(e) {
+        console.warn('Mushaf page crop unavailable; showing original',e);
+      }
+    };
+  </script>
+  <script>
     // Counter target reached: audible chime on phones, computers and smart
     // boards with speakers. Playback starts only after a real counter tap.
     window.riyadTargetSound = function () {
