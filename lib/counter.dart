@@ -13,17 +13,23 @@ class CounterScreen extends StatefulWidget {
 }
 
 class _CounterScreenState extends State<CounterScreen> {
-  bool _targetVibration = true;
+  late bool _targetVibration;
+
+  @override
+  void initState() {
+    super.initState();
+    _targetVibration = app.prefs.getBool('target_alert_multiples') ?? true;
+  }
 
   void _tap() {
     final before = app.counter;
+    // Alert at *every* positive multiple: 11, 22, 33... or
+    // 33, 66, 99... Never alert for the infinity (0) target.
     final completed = app.target > 0 &&
-        before < app.target &&
         before < 99999 &&
-        before + 1 >= app.target;
-    // Invoke vibration directly within the tap's user activation, BEFORE
-    // notifying and rebuilding listeners. Mobile Chrome requires this.
-    // This fires only on the count crossing the configured target.
+        (before + 1) % app.target == 0;
+    // Play sound / request vibration synchronously within the real tap
+    // to satisfy mobile-browser user-gesture restrictions.
     if (completed && _targetVibration) {
       // Browser audio must start synchronously with this user tap.
       // Supported devices will also vibrate.
@@ -245,11 +251,18 @@ class _CounterScreenState extends State<CounterScreen> {
                               width: 145,
                               height: 145,
                               child: Center(
-                                child: Icon(
-                                  Icons.add_rounded,
-                                  size: 92,
-                                  color: Colors.white,
-                                  semanticLabel: 'Add one dhikr',
+                                // Use a literal glyph, not MaterialIcons:
+                                // icon tree-shaking left the old + invisible.
+                                child: Text(
+                                  '+',
+                                  semanticsLabel: 'Add one dhikr',
+                                  style: TextStyle(
+                                    fontFamily: 'Arial',
+                                    fontSize: 105,
+                                    height: 0.98,
+                                    fontWeight: FontWeight.w300,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
@@ -290,7 +303,7 @@ class _CounterScreenState extends State<CounterScreen> {
                               color: Color(0xFF6DDBF6), size: 17),
                           const SizedBox(width: 8),
                           const Expanded(
-                            child: Text('Target Alert (Sound + Vibration)',
+                            child: Text('Alert at every target multiple',
                               style: TextStyle(
                                 color: Color(0xFF6DDBF6),
                                 fontSize: 14,
@@ -300,9 +313,11 @@ class _CounterScreenState extends State<CounterScreen> {
                             value: _targetVibration,
                             activeColor: const Color(0xFF86E9FF),
                             checkColor: const Color(0xFF052221),
-                            onChanged: (value) => setState(() {
-                              _targetVibration = value ?? true;
-                            }),
+                            onChanged: (value) {
+                              final enabled = value ?? true;
+                              setState(() => _targetVibration = enabled);
+                              app.prefs.setBool('target_alert_multiples', enabled);
+                            },
                           ),
                         ],
                       )
