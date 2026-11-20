@@ -24,6 +24,7 @@ class _WebMushafPagesState extends State<WebMushafPages>
   double _pageExtent = 0;
   double _autoSpeed = 0;
   bool _initialPositioned = false;
+  double? _sliderPreview;
 
   @override
   void initState() {
@@ -157,7 +158,51 @@ class _WebMushafPagesState extends State<WebMushafPages>
                 icon: Icon(dark ? Icons.light_mode : Icons.dark_mode),
                 onPressed: app.toggleDark),
             ],
-
+            // Page-change slider belongs to the blue AppBar, not on top
+            // of the printed Mushaf page. The auto-scroll speed slider
+            // remains at the right edge of the reading viewport.
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(40),
+              child: SizedBox(
+                height: 40,
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: 'Previous Qur\'an page',
+                      constraints: const BoxConstraints(minWidth: 36),
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.chevron_left, size: 19),
+                      onPressed: _page > 1 ? () => _goto(_page - 1) : null,
+                    ),
+                    Expanded(
+                      child: Slider(
+                        min: 1,
+                        max: kMushafPageCount.toDouble(),
+                        divisions: kMushafPageCount - 1,
+                        value: (_sliderPreview ?? _page.toDouble())
+                            .clamp(1.0, kMushafPageCount.toDouble()),
+                        label: '${(_sliderPreview ?? _page.toDouble()).round()}',
+                        onChanged: (value) {
+                          setState(() => _sliderPreview = value);
+                        },
+                        onChangeEnd: (value) {
+                          setState(() => _sliderPreview = null);
+                          _goto(value.round());
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Next Qur\'an page',
+                      constraints: const BoxConstraints(minWidth: 36),
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.chevron_right, size: 19),
+                      onPressed: _page < kMushafPageCount
+                          ? () => _goto(_page + 1) : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           body: LayoutBuilder(
             builder: (context, box) {
