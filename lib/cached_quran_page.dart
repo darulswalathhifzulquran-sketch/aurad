@@ -156,7 +156,7 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
   Future<void> _fetch() async {
     try {
       final art = await widget.cache.prepare(widget.page);
-      if (!mounted) return;
+      if (!mounted || _art != null) return;
       final clone = QuranArtwork(art.image.clone(), art.source);
       setState(() {
         _art = clone;
@@ -175,6 +175,16 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
 
   @override
   Widget build(BuildContext context) {
+    // A previously mounted off-screen cell may still be waiting on its
+    // future when an arrow jump arrives. Render the cached bitmap now,
+    // rather than showing a loading frame while that future settles.
+    if (_art == null) {
+      final ready = widget.cache.lookup(widget.page);
+      if (ready != null) {
+        _art = QuranArtwork(ready.image.clone(), ready.source);
+        _error = false;
+      }
+    }
     final art = _art;
     final paper = widget.dark ? Colors.black : Colors.white;
     return ColoredBox(
