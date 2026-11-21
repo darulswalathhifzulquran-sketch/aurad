@@ -13,27 +13,31 @@ class CounterScreen extends StatefulWidget {
 }
 
 class _CounterScreenState extends State<CounterScreen> {
-  late bool _targetVibration;
+  late bool _firstTargetAlert;
+  late bool _repeatTargetAlert;
 
   @override
   void initState() {
     super.initState();
-    _targetVibration = app.prefs.getBool('target_alert_multiples') ?? true;
+    _repeatTargetAlert = app.prefs.getBool('target_alert_multiples') ?? true;
+    _firstTargetAlert = app.prefs.getBool('target_alert_first') ??
+        _repeatTargetAlert;
   }
 
   void _tap() {
     final before = app.counter;
-    // Alert at *every* positive multiple: 11, 22, 33... or
-    // 33, 66, 99... Never alert for the infinity (0) target.
-    final completed = app.target > 0 &&
-        before < 99999 &&
-        (before + 1) % app.target == 0;
-    // Play sound / request vibration synchronously within the real tap
-    // to satisfy mobile-browser user-gesture restrictions.
-    if (completed && _targetVibration) {
-      // Browser audio must start synchronously with this user tap.
-      // Supported devices will also vibrate.
-      vibration.notifyTargetReached();
+    final target = app.target;
+    final next = before + 1;
+    if (target > 0 && before < 99999) {
+      // Independent controls: the upper option is for the first target
+      // only, the lower for subsequent multiples (2T, 3T, 4T...).
+      final first = next == target && _firstTargetAlert;
+      final repeat = next > target && next % target == 0 &&
+          _repeatTargetAlert;
+      if (first || repeat) {
+        // Trigger once within the actual user gesture.
+        vibration.notifyTargetReached();
+      }
     }
     app.incCounter();
   }
@@ -122,6 +126,38 @@ class _CounterScreenState extends State<CounterScreen> {
               )),
         ),
       ),
+    );
+  }
+
+  Widget _alertOption({
+    required String label,
+    required bool enabled,
+    required String preference,
+    required ValueChanged<bool> onChanged,
+  }) {
+    void change(bool value) {
+      setState(() => onChanged(value));
+      app.prefs.setBool(preference, value);
+    }
+    return Row(
+      children: [
+        const Icon(Icons.vibration,
+            color: Color(0xFF6DDBF6), size: 17),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(label,
+            style: const TextStyle(
+              color: Color(0xFF6DDBF6),
+              fontSize: 14,
+            )),
+        ),
+        Checkbox(
+          value: enabled,
+          activeColor: const Color(0xFF86E9FF),
+          checkColor: const Color(0xFF052221),
+          onChanged: (value) => change(value ?? false),
+        ),
+      ],
     );
   }
 
@@ -251,16 +287,14 @@ class _CounterScreenState extends State<CounterScreen> {
                               width: 145,
                               height: 145,
                               child: Center(
-                                // Use a literal glyph, not MaterialIcons:
-                                // icon tree-shaking left the old + invisible.
                                 child: Text(
-                                  '+',
+                                  'TAP',
                                   semanticsLabel: 'Add one dhikr',
                                   style: TextStyle(
-                                    fontFamily: 'Arial',
-                                    fontSize: 105,
-                                    height: 0.98,
-                                    fontWeight: FontWeight.w300,
+                                    fontSize: 32,
+                                    height: 1.1,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1.1,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -297,30 +331,18 @@ class _CounterScreenState extends State<CounterScreen> {
                         ],
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          const Icon(Icons.vibration,
-                              color: Color(0xFF6DDBF6), size: 17),
-                          const SizedBox(width: 8),
-                          const Expanded(
-                            child: Text('Alert at every target multiple',
-                              style: TextStyle(
-                                color: Color(0xFF6DDBF6),
-                                fontSize: 14,
-                              )),
-                          ),
-                          Checkbox(
-                            value: _targetVibration,
-                            activeColor: const Color(0xFF86E9FF),
-                            checkColor: const Color(0xFF052221),
-                            onChanged: (value) {
-                              final enabled = value ?? true;
-                              setState(() => _targetVibration = enabled);
-                              app.prefs.setBool('target_alert_multiples', enabled);
-                            },
-                          ),
-                        ],
-                      )
+                      _alertOption(
+                        label: 'Alert at first target only',
+                        enabled: _firstTargetAlert,
+                        preference: 'target_alert_first',
+                        onChanged: (value) => _firstTargetAlert = value,
+                      ),
+                      _alertOption(
+                        label: 'Alert at subsequent target multiples',
+                        enabled: _repeatTargetAlert,
+                        preference: 'target_alert_multiples',
+                        onChanged: (value) => _repeatTargetAlert = value,
+                      ),
                     ],
                   ),
                 ),
