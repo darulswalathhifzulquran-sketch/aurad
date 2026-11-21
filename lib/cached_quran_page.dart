@@ -102,8 +102,10 @@ class QuranArtworkCache {
         // Include ALL printed ink and colored decoration, not just the
         // green frame. This retains the original Surah/Juz/Hizb/page number.
         // Only nearly white paper can be omitted; leave a safety margin.
-        for (int y = 0; y < h; y += 2) {
-          for (int x = 0; x < w; x += 2) {
+        // Sampling every fourth pixel reduces decode-time image scanning by
+        // roughly 4x without changing the painted image resolution.
+        for (int y = 0; y < h; y += 4) {
+          for (int x = 0; x < w; x += 4) {
             final i = (y * w + x) * 4;
             final r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
             if (r >= 230 && g >= 230 && b >= 230) continue;
@@ -276,9 +278,11 @@ class _ArtworkPainter extends CustomPainter {
   // Mild contrast/saturation correction only; original artwork is untouched.
   // Dark mode reverses luminance while retaining the green ornament hue.
   static const _light = ColorFilter.matrix(<double>[
-    1.15, -0.055, -0.005, 0, -11,
-    -0.02, 1.115, -0.005, 0, -11,
-    -0.02, -0.055, 1.165, 0, -11,
+    // Pure white page, stronger readable black calligraphy and a clearer
+    // mint ornament. No resaving/recompressing of the source Quran JPEG.
+    1.24, -0.10, -0.08, 0, -12,
+    -0.015, 1.13, -0.015, 0, -6,
+    -0.075, -0.06, 1.13, 0, -8,
     0, 0, 0, 1, 0,
   ]);
   static const _dark = ColorFilter.matrix(<double>[
