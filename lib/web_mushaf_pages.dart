@@ -63,14 +63,32 @@ class _WebMushafPagesState extends State<WebMushafPages>
   Future<void> _warmNear(int page) async {
     final epoch = ++_warmEpoch;
     _artwork.centerOn(page);
-    for (final candidate in [page, page + 1, page - 1, page + 2, page - 2]) {
-      if (!mounted || epoch != _warmEpoch) return;
-      if (candidate < 1 || candidate > kMushafPageCount) continue;
-      try {
-        await _artwork.prepare(candidate);
-      } catch (_) {
-        // A failed speculative fetch must not interrupt reading.
+    // Load the visible leaf first; decode both neighboring leaves in
+    // parallel so either page-turn arrow can respond from the cache.
+    try {
+      await _artwork.prepare(page);
+    } catch (_) {
+      return;
+    }
+    if (!mounted || epoch != _warmEpoch) return;
+    final immediate = <Future<QuranArtwork>>[];
+    for (final neighbor in [page - 1, page + 1]) {
+      if (neighbor >= 1 && neighbor <= kMushafPageCount) {
+        immediate.add(_artwork.prepare(neighbor));
       }
+    }
+    await Future.wait(immediate.map((p) => p.catchError((_) =>
+      throw StateError('Speculative page unavailable')))).catchError((_) =>
+      <QuranArtwork>[]);
+    if (!mounted || epoch != _warmEpoch) return;
+    for (final neighbor in [page - 2, page + 2]) {
+      if (neighbor < 1 || neighbor > kMushafPageCount) continue;
+      try {
+        await _artwork.prepare(neighbor);
+      } catch (_) {
+        // Speculative fetch failure should never interrupt the visible page.
+      }
+      if (!mounted || epoch != _warmEpoch) return;
     }
   }
 
@@ -166,6 +184,7 @@ class _WebMushafPagesState extends State<WebMushafPages>
           page: page,
           dark: dark,
           cache: _artwork,
+          active: page == _page,
         ),
       ),
     );
