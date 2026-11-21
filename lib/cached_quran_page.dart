@@ -194,12 +194,19 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
       if (!mounted || _art != null) return;
       final clone = QuranArtwork(art.image.clone(), art.source);
       if (widget.active) widget.cache.rememberVisible(clone);
+      final oldFallback = _fallback;
       setState(() {
         _art = clone;
-        _fallback?.image.dispose();
         _fallback = null;
         _error = false;
       });
+      // Do not dispose an image while Flutter may still paint the outgoing
+      // frame. Release after the new leaf was submitted to the rasterizer.
+      if (oldFallback != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          oldFallback.image.dispose();
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _error = true);
     }
@@ -221,8 +228,13 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
       final ready = widget.cache.lookup(widget.page);
       if (ready != null) {
         _art = QuranArtwork(ready.image.clone(), ready.source);
-        _fallback?.image.dispose();
+        final oldFallback = _fallback;
         _fallback = null;
+        if (oldFallback != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            oldFallback.image.dispose();
+          });
+        }
         if (widget.active) widget.cache.rememberVisible(_art!);
         _error = false;
       }
