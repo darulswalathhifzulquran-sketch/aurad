@@ -99,15 +99,25 @@ class QuranArtworkCache {
           data.offsetInBytes, data.lengthInBytes);
         final w = image.width, h = image.height;
         int left = w, right = -1, top = h, bottom = -1;
-        // Include ALL printed ink and colored decoration, not just the
-        // green frame. This retains the original Surah/Juz/Hizb/page number.
-        // Only nearly white paper can be omitted; leave a safety margin.
-        // Sampling every fourth pixel reduces decode-time image scanning by
-        // roughly 4x without changing the painted image resolution.
+        int greenLeft = w, greenRight = -1, greenTop = h, greenBottom = -1;
+        var greenCount = 0;
+        // Prefer the green Mushaf frame to detect the actual printed page:
+        // near-white paper/JPEG noise otherwise makes the image appear tiny.
+        // Preserve the printed Surah/Juz running heads and page number by
+        // adding safety space ABOVE and BELOW the mint border.
         for (int y = 0; y < h; y += 4) {
           for (int x = 0; x < w; x += 4) {
             final i = (y * w + x) * 4;
             final r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
+            final mint = g > r + 13 && g > b + 13 &&
+                g > 140 && r > 90 && b > 90;
+            if (mint) {
+              greenCount++;
+              if (x < greenLeft) greenLeft = x;
+              if (x > greenRight) greenRight = x;
+              if (y < greenTop) greenTop = y;
+              if (y > greenBottom) greenBottom = y;
+            }
             if (r >= 230 && g >= 230 && b >= 230) continue;
             if (x < left) left = x;
             if (x > right) right = x;
@@ -115,7 +125,22 @@ class QuranArtworkCache {
             if (y > bottom) bottom = y;
           }
         }
-        if (right - left >= w * 0.15 && bottom - top >= h * 0.15) {
+        final greenW = greenRight - greenLeft;
+        final greenH = greenBottom - greenTop;
+        if (greenCount >= 80 && greenW >= w * 0.20 &&
+            greenH >= h * 0.16) {
+          final horizontal = (greenW * 0.045).round().clamp(10, 90);
+          final above = (greenH * 0.095).round().clamp(20, 150);
+          final below = (greenH * 0.085).round().clamp(20, 150);
+          source = Rect.fromLTRB(
+            (greenLeft - horizontal).clamp(0, w).toDouble(),
+            (greenTop - above).clamp(0, h).toDouble(),
+            (greenRight + horizontal + 4).clamp(0, w).toDouble(),
+            (greenBottom + below + 4).clamp(0, h).toDouble(),
+          );
+        } else if (right - left >= w * 0.15 &&
+                   bottom - top >= h * 0.15) {
+          // Non-green page fallback: keep every ink mark and a safety margin.
           final pad = (w * 0.022).round().clamp(10, 60);
           source = Rect.fromLTRB(
             (left - pad).clamp(0, w).toDouble(),
@@ -307,8 +332,22 @@ class _ArtworkPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (size.isEmpty || art.source.isEmpty) return;
-    final fit = applyBoxFit(BoxFit.contain, art.source.size, size);
-    final dst = Alignment.center.inscribe(fit.destination, Offset.zero & size);
+    // A phone's tall viewport differs from a printed Mushaf aspect ratio.
+    // Fill the ENTIRE reading area in portrait phones without clipping ANY
+    // Arabic text, headings or page number. A gentle vertical adaptation is
+    // preferable to cropping the sacred text. Desktop keeps true proportions.
+    final portraitPhone = size.width <= 600 && size.height >= size.width * 1.20;
+    final Rect dst;
+    if (portraitPhone) {
+      dst = Rect.fromLTWH(
+        3, 3,
+        (size.width - 6).clamp(1.0, double.infinity).toDouble(),
+        (size.height - 6).clamp(1.0, double.infinity).toDouble(),
+      );
+    } else {
+      final fit = applyBoxFit(BoxFit.contain, art.source.size, size);
+      dst = Alignment.center.inscribe(fit.destination, Offset.zero & size);
+    }
     canvas.drawImageRect(art.image, art.source, dst,
       Paint()
         ..filterQuality = FilterQuality.high
