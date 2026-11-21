@@ -16,6 +16,24 @@ class QuranArtworkCache {
   final _pending = <int, Future<QuranArtwork>>{};
   int _center = 1;
   bool _closed = false;
+  QuranArtwork? _lastVisible;
+
+  // The last actually displayed bitmap is held independently of the bounded
+  // decode cache. While the next leaf is loading we can paint this instead
+  // of revealing an empty white/black frame.
+  QuranArtwork? visibleFallback() {
+    if (_closed || _lastVisible == null) return null;
+    final image = _lastVisible!;
+    return QuranArtwork(image.image.clone(), image.source);
+  }
+
+  void rememberVisible(QuranArtwork artwork) {
+    if (_closed) return;
+    final saved = QuranArtwork(artwork.image.clone(), artwork.source);
+    final previous = _lastVisible;
+    _lastVisible = saved;
+    previous?.image.dispose();
+  }
 
   QuranArtwork? lookup(int page) => _ready[page];
 
@@ -117,6 +135,8 @@ class QuranArtworkCache {
       art.image.dispose();
     }
     _ready.clear();
+    _lastVisible?.image.dispose();
+    _lastVisible = null;
   }
 }
 
@@ -136,6 +156,7 @@ class CachedQuranPage extends StatefulWidget {
 
 class _CachedQuranPageState extends State<CachedQuranPage> {
   QuranArtwork? _art;
+  QuranArtwork? _fallback;
   bool _error = false;
 
   @override
@@ -148,8 +169,10 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
     final ready = widget.cache.lookup(widget.page);
     if (ready != null) {
       _art = QuranArtwork(ready.image.clone(), ready.source);
+      widget.cache.rememberVisible(_art!);
       return;
     }
+    _fallback = widget.cache.visibleFallback();
     _fetch();
   }
 
@@ -158,8 +181,11 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
       final art = await widget.cache.prepare(widget.page);
       if (!mounted || _art != null) return;
       final clone = QuranArtwork(art.image.clone(), art.source);
+      widget.cache.rememberVisible(clone);
       setState(() {
         _art = clone;
+        _fallback?.image.dispose();
+        _fallback = null;
         _error = false;
       });
     } catch (_) {
@@ -170,6 +196,7 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
   @override
   void dispose() {
     _art?.image.dispose();
+    _fallback?.image.dispose();
     super.dispose();
   }
 
@@ -182,20 +209,25 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
       final ready = widget.cache.lookup(widget.page);
       if (ready != null) {
         _art = QuranArtwork(ready.image.clone(), ready.source);
+        _fallback?.image.dispose();
+        _fallback = null;
+        widget.cache.rememberVisible(_art!);
         _error = false;
       }
     }
-    final art = _art;
+    final art = _art ?? _fallback;
     final paper = widget.dark ? Colors.black : Colors.white;
     return ColoredBox(
       color: paper,
-      child: art != null
-          ? RepaintBoundary(
-              child: SizedBox.expand(
-                child: CustomPaint(painter: _ArtworkPainter(art, widget.dark)),
-              ),
-            )
-          : Center(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (art != null)
+            RepaintBoundary(
+              child: CustomPaint(painter: _ArtworkPainter(art, widget.dark)),
+            ),
+          if (_art == null)
+            Center(
               child: _error
                   ? TextButton(
                       onPressed: () {
@@ -204,11 +236,24 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
                       },
                       child: const Text('Retry page'),
                     )
-                  : const SizedBox(
-                      width: 22, height: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                  : DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: widget.dark
+                            ? const Color(0xCC111E21)
+                            : const Color(0xE6FFFFFF),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(9),
+                        child: SizedBox(
+                          width: 20, height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
                     ),
             ),
+        ],
+      ),
     );
   }
 }
