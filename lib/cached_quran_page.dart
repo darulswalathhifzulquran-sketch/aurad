@@ -145,9 +145,11 @@ class QuranArtworkCache {
 class CachedQuranPage extends StatefulWidget {
   final int page;
   final bool dark;
+  final bool active;
   final QuranArtworkCache cache;
   const CachedQuranPage({
-    super.key, required this.page, required this.dark, required this.cache,
+    super.key, required this.page, required this.dark,
+    required this.cache, this.active = false,
   });
 
   @override
@@ -165,11 +167,19 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
     _load();
   }
 
+  @override
+  void didUpdateWidget(covariant CachedQuranPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active && !oldWidget.active && _art != null) {
+      widget.cache.rememberVisible(_art!);
+    }
+  }
+
   void _load() {
     final ready = widget.cache.lookup(widget.page);
     if (ready != null) {
       _art = QuranArtwork(ready.image.clone(), ready.source);
-      widget.cache.rememberVisible(_art!);
+      if (widget.active) widget.cache.rememberVisible(_art!);
       return;
     }
     _fallback = widget.cache.visibleFallback();
@@ -181,7 +191,7 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
       final art = await widget.cache.prepare(widget.page);
       if (!mounted || _art != null) return;
       final clone = QuranArtwork(art.image.clone(), art.source);
-      widget.cache.rememberVisible(clone);
+      if (widget.active) widget.cache.rememberVisible(clone);
       setState(() {
         _art = clone;
         _fallback?.image.dispose();
@@ -211,7 +221,7 @@ class _CachedQuranPageState extends State<CachedQuranPage> {
         _art = QuranArtwork(ready.image.clone(), ready.source);
         _fallback?.image.dispose();
         _fallback = null;
-        widget.cache.rememberVisible(_art!);
+        if (widget.active) widget.cache.rememberVisible(_art!);
         _error = false;
       }
     }
