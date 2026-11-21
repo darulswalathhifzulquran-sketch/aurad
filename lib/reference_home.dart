@@ -71,14 +71,15 @@ class ReferenceHome extends StatelessWidget {
     required double w,
     required double h,
     required double scale,
+    required double Function(double) mapY,
     required String label,
     required VoidCallback action,
   }) {
     return Positioned(
       left: x * scale,
-      top: y * scale,
+      top: mapY(y),
       width: w * scale,
-      height: h * scale,
+      height: mapY(y + h) - mapY(y),
       child: Semantics(
         button: true,
         label: label,
@@ -102,15 +103,44 @@ class ReferenceHome extends StatelessWidget {
       child: Center(
         child: LayoutBuilder(
           builder: (context, constraints) {
+            final mobilePortrait = constraints.maxHeight.isFinite &&
+                constraints.maxWidth > 0 && constraints.maxHeight > 0 &&
+                constraints.maxWidth <= 620 &&
+                constraints.maxHeight >= constraints.maxWidth;
             var width =
                 constraints.maxWidth > 620 ? 620.0 : constraints.maxWidth;
-            if (constraints.maxHeight.isFinite) {
+            if (!mobilePortrait && constraints.maxHeight.isFinite) {
               final widthForHeight =
                   constraints.maxHeight * originalWidth / originalHeight;
               if (width > widthForHeight) width = widthForHeight;
             }
-            final height = width * originalHeight / originalWidth;
             final scale = width / originalWidth;
+            final naturalHeight = originalHeight * scale;
+            final height = mobilePortrait ? constraints.maxHeight : naturalHeight;
+
+            // Keep the baked-in header and all 12 tiles proportional on tall
+            // phones. Expand only the decorative areas above and below the
+            // tile grid, so no blank outer bars or stretched icons appear.
+            const cuts = <double>[0, 180, 508, 1330, originalHeight];
+            final extra = height - naturalHeight;
+            final segmented = mobilePortrait && extra > 0;
+            final mapped = <double>[
+              0,
+              180 * scale,
+              508 * scale + (segmented ? extra * 0.52 : 0.0),
+              1330 * scale + (segmented ? extra * 0.52 : 0.0),
+              height,
+            ];
+            double mapY(double y) {
+              if (!segmented) return y * height / originalHeight;
+              for (var k = 0; k < cuts.length - 1; k++) {
+                if (y <= cuts[k + 1]) {
+                  final t = (y - cuts[k]) / (cuts[k + 1] - cuts[k]);
+                  return mapped[k] + t * (mapped[k + 1] - mapped[k]);
+                }
+              }
+              return height;
+            }
 
             return Center(
               child: SizedBox(
@@ -119,31 +149,66 @@ class ReferenceHome extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.hardEdge,
                   children: [
-                    Positioned.fill(
-                      child: Image.asset(
-                        imagePath,
-                        fit: BoxFit.fill,
-                        errorBuilder: (_, __, ___) => _missingArtwork(scale),
-                      ),
-                    ),
+                    if (!segmented)
+                      Positioned.fill(
+                        child: Image.asset(
+                          imagePath,
+                          fit: BoxFit.fill,
+                          gaplessPlayback: true,
+                          errorBuilder: (_, __, ___) => _missingArtwork(scale),
+                        ),
+                      )
+                    else
+                      for (var k = 0; k < cuts.length - 1; k++)
+                        Positioned(
+                          left: 0,
+                          right: 0,
+                          top: mapped[k],
+                          height: mapped[k + 1] - mapped[k],
+                          child: ClipRect(
+                            child: Stack(
+                              clipBehavior: Clip.hardEdge,
+                              children: [
+                                Positioned(
+                                  left: 0,
+                                  top: -cuts[k] *
+                                      (mapped[k + 1] - mapped[k]) /
+                                      (cuts[k + 1] - cuts[k]),
+                                  width: width,
+                                  height: originalHeight *
+                                      (mapped[k + 1] - mapped[k]) /
+                                      (cuts[k + 1] - cuts[k]),
+                                  child: Image.asset(
+                                    imagePath,
+                                    fit: BoxFit.fill,
+                                    filterQuality: FilterQuality.high,
+                                    gaplessPlayback: true,
+                                    errorBuilder: (_, __, ___) =>
+                                        _missingArtwork(scale),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                     // The home illustration already includes a bright
                     // turquoise menu icon. Completely cover that old artwork
                     // BEFORE drawing the replacement circular Jamia logo.
                     // Otherwise a cyan/blue square remains behind the logo.
                     Positioned(
                       left: 40 * scale,
-                      top: 18 * scale,
+                      top: mapY(18),
                       width: 160 * scale,
-                      height: 155 * scale,
+                      height: mapY(173) - mapY(18),
                       child: const ColoredBox(
                         color: Color(0xFF041A36),
                       ),
                     ),
                     Positioned(
                       left: 56 * scale,
-                      top: 30 * scale,
+                      top: mapY(30),
                       width: 126 * scale,
-                      height: 126 * scale,
+                      height: mapY(156) - mapY(30),
                       child: Semantics(
                         button: true,
                         label: 'Jamia Imam Navavi — Open navigation',
@@ -175,6 +240,7 @@ class ReferenceHome extends StatelessWidget {
                       w: 112,
                       h: 124,
                       scale: scale,
+                      mapY: mapY,
                       label: 'Share',
                       action: onShare,
                     ),
@@ -184,6 +250,7 @@ class ReferenceHome extends StatelessWidget {
                       w: 92,
                       h: 126,
                       scale: scale,
+                      mapY: mapY,
                       label: 'More options',
                       action: onMenu,
                     ),
@@ -194,6 +261,7 @@ class ReferenceHome extends StatelessWidget {
                         w: 223,
                         h: 263,
                         scale: scale,
+                      mapY: mapY,
                         label: 'Open ${entries[i].label}',
                         action: () => _open(entries[i].id),
                       ),
