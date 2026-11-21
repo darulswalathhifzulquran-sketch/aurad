@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'fast_web_page_image.dart';
+import 'cached_quran_page.dart';
 import 'zoomable_page.dart';
 import 'auto_scroll_speed_slider.dart';
 import 'store.dart';
@@ -24,6 +24,10 @@ class _WebMushafPagesState extends State<WebMushafPages>
   double _pageExtent = 0;
   double _autoSpeed = 0;
   bool _initialPositioned = false;
+  final QuranArtworkCache _artwork = QuranArtworkCache();
+  int _warmEpoch = 0;
+  int _jumpEpoch = 0;
+  int? _requestedPage;
 
   @override
   void initState() {
@@ -31,6 +35,7 @@ class _WebMushafPagesState extends State<WebMushafPages>
     _page = widget.startPage.clamp(1, kMushafPageCount).toInt();
     _scroll.addListener(_trackPage);
     _autoTicker = createTicker(_autoScroll);
+    _warmNear(_page);
   }
 
   @override
@@ -38,6 +43,9 @@ class _WebMushafPagesState extends State<WebMushafPages>
     _autoTicker.dispose();
     _scroll.removeListener(_trackPage);
     _scroll.dispose();
+    _warmEpoch++;
+    _jumpEpoch++;
+    _artwork.dispose();
     super.dispose();
   }
 
@@ -48,17 +56,54 @@ class _WebMushafPagesState extends State<WebMushafPages>
     if (current != _page && mounted) {
       setState(() => _page = current);
       app.prefs.setInt('mushaf_page', current);
+      _warmNear(current);
     }
   }
 
-  void _goto(int requested) {
+  Future<void> _warmNear(int page) async {
+    final epoch = ++_warmEpoch;
+    _artwork.centerOn(page);
+    for (final candidate in [page, page + 1, page - 1, page + 2, page - 2]) {
+      if (!mounted || epoch != _warmEpoch) return;
+      if (candidate < 1 || candidate > kMushafPageCount) continue;
+      try {
+        await _artwork.prepare(candidate);
+      } catch (_) {
+        // A failed speculative fetch must not interrupt reading.
+      }
+    }
+  }
+
+  Future<void> _goto(int requested) async {
     final target = requested.clamp(1, kMushafPageCount).toInt();
-    if (mounted && target != _page) setState(() => _page = target);
+    final epoch = ++_jumpEpoch;
+    _requestedPage = target;
+    if (_autoSpeed > 0) _setAutoSpeed(0);
+    // Keep the current page visible until the requested original page is
+    // decoded. Adjacent prefetched pages take the synchronous cache path.
+    try {
+      if (_artwork.lookup(target) == null) {
+        await _artwork.prepare(target);
+      }
+    } catch (_) {
+      if (mounted && epoch == _jumpEpoch) {
+        _requestedPage = null;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Page could not load. Please try again.')),
+        );
+      }
+      return;
+    }
+    if (!mounted || epoch != _jumpEpoch) return;
+    _requestedPage = null;
+    _artwork.centerOn(target);
+    if (target != _page) setState(() => _page = target);
     app.prefs.setInt('mushaf_page', target);
     if (_scroll.hasClients && _pageExtent > 0) {
       _scroll.jumpTo(((target - 1) * _pageExtent)
           .clamp(0.0, _scroll.position.maxScrollExtent).toDouble());
     }
+    _warmNear(target);
   }
 
   void _setAutoSpeed(double value) {
@@ -108,9 +153,6 @@ class _WebMushafPagesState extends State<WebMushafPages>
     if (selection != null) _goto(selection);
   }
 
-  String _asset(int page) =>
-      'assets/quran_pages/page_${page.toString().padLeft(4, '0')}.jpg';
-
   // Display ONLY the original Mushaf page artwork. Its printed Surah/Juz
   // headings, Hizb marks and bottom page number are authoritative; no
   // separate Flutter labels or footers should duplicate them.
@@ -119,10 +161,11 @@ class _WebMushafPagesState extends State<WebMushafPages>
       padding: const EdgeInsets.all(3),
       child: ZoomablePage(
         key: ValueKey('quran-zoom-$page'),
-        child: FastWebPageImage(
-          asset: _asset(page),
+        child: CachedQuranPage(
+          key: ValueKey('quran-art-$page'),
+          page: page,
           dark: dark,
-          priority: page == _page,
+          cache: _artwork,
         ),
       ),
     );
@@ -158,13 +201,14 @@ class _WebMushafPagesState extends State<WebMushafPages>
               IconButton(
                 tooltip: 'Previous Qur\'an page',
                 icon: const Icon(Icons.chevron_left),
-                onPressed: _page > 1 ? () => _goto(_page - 1) : null,
+                onPressed: _page > 1
+                    ? () => _goto((_requestedPage ?? _page) - 1) : null,
               ),
               IconButton(
                 tooltip: 'Next Qur\'an page',
                 icon: const Icon(Icons.chevron_right),
                 onPressed: _page < kMushafPageCount
-                    ? () => _goto(_page + 1) : null,
+                    ? () => _goto((_requestedPage ?? _page) + 1) : null,
               ),
               IconButton(tooltip: 'Dark / light',
                 icon: Icon(dark ? Icons.light_mode : Icons.dark_mode),
@@ -191,7 +235,8 @@ class _WebMushafPagesState extends State<WebMushafPages>
                     child: ListView.builder(
                       controller: _scroll,
                       itemExtent: height,
-                      cacheExtent: height * 0.4,
+                      padding: EdgeInsets.zero,
+                      cacheExtent: height * 1.1,
                       itemCount: kMushafPageCount,
                       itemBuilder: (context, index) =>
                           _sheet(index + 1, dark),
