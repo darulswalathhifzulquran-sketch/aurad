@@ -77,9 +77,12 @@ class _WebMushafPagesState extends State<WebMushafPages>
         immediate.add(_artwork.prepare(neighbor));
       }
     }
-    await Future.wait(immediate.map((p) => p.catchError((_) =>
-      throw StateError('Speculative page unavailable')))).catchError((_) =>
-      <QuranArtwork>[]);
+    try {
+      await Future.wait(immediate);
+    } catch (_) {
+      // A neighboring image may be unavailable while the current page
+      // remains fully usable.
+    }
     if (!mounted || epoch != _warmEpoch) return;
     for (final neighbor in [page - 2, page + 2]) {
       if (neighbor < 1 || neighbor > kMushafPageCount) continue;
