@@ -9,6 +9,7 @@ import 'store.dart';
 // Fixed counts for the approved PDFs prevent waiting on, or accidentally
 // using the old empty web_books_manifest.json bundled in a cached build.
 const Map<String, int> kWebBookPageCounts = {
+  'baith-1': 3,
   'baith-3': 2,
   'mawlid-sharafal-anam': 30,
   'mankoos-mawlid': 13,
@@ -132,7 +133,9 @@ class _WebBookReaderState extends State<WebBookReader>
     // newly supplied original PDF, including its own border and numbering.
     final file = widget.item.id == 'dua-4'
         ? 'assets/web_books/dua-4_nov22_page_$number.png'
-        : 'assets/web_books/${widget.item.id}_page_$number.jpg';
+        : widget.item.id == 'baith-1'
+            ? 'assets/web_books/baith-1_nov22_page_$number.png'
+            : 'assets/web_books/${widget.item.id}_page_$number.jpg';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Center(
