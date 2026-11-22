@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class ReferenceHome extends StatelessWidget {
@@ -17,6 +18,7 @@ class ReferenceHome extends StatelessWidget {
   });
 
   static const imagePath = 'assets/images/aurad_reference_home.png';
+  static final _jamiaHeaderMark = base64Decode('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');
   static const originalWidth = 1024.0;
   static const originalHeight = 1536.0;
 
@@ -268,15 +270,26 @@ class ReferenceHome extends StatelessWidget {
                         ),
                       ),
                     ),
-                    _spot(
-                      x: 786,
-                      y: 28,
-                      w: 112,
-                      h: 124,
-                      scale: scale,
-                      mapY: mapY,
-                      label: 'Share',
-                      action: onShare,
+                    // Cover the share glyph baked into the home artwork.
+                    // The institution mark is embedded, so no additional
+                    // asset download is needed for this header replacement.
+                    Positioned(
+                      left: 780 * scale,
+                      top: mapY(18),
+                      width: 132 * scale,
+                      height: mapY(168) - mapY(18),
+                      child: ColoredBox(
+                        color: const Color(0xFF041A36),
+                        child: Center(
+                          child: Image.memory(
+                            _jamiaHeaderMark,
+                            width: 104 * scale,
+                            height: 104 * scale,
+                            fit: BoxFit.contain,
+                            semanticLabel: 'Jamia Imam Navavi (RA)',
+                          ),
+                        ),
+                      ),
                     ),
                     _spot(
                       x: 921,
