@@ -186,25 +186,25 @@ class ReferenceHome extends StatelessWidget {
                             ),
                           ),
                         ),
+                    // User-supplied Riyadul Adkar white mark with its
+                    // exact Arabic lettering; transparent PNG, no violet tile.
                     Positioned(
-                      left: 56 * scale,
-                      top: mapY(30),
-                      width: 126 * scale,
-                      height: mapY(156) - mapY(30),
+                      left: 38 * scale,
+                      top: mapY(10),
+                      width: 170 * scale,
+                      height: mapY(178) - mapY(10),
                       child: Semantics(
                         button: true,
                         label: 'Riyadul Adkar — Open navigation',
                         child: Material(
                           type: MaterialType.transparency,
-                          shape: const CircleBorder(),
-                          clipBehavior: Clip.antiAlias,
                           child: InkWell(
                             onTap: onMenu,
-                            customBorder: const CircleBorder(),
+                            borderRadius: BorderRadius.circular(14 * scale),
                             child: Image.asset(
-                              'assets/images/jamia_navavi_logo.png',
-                              fit: BoxFit.cover,
-                              alignment: Alignment.topCenter,
+                              'assets/images/riyadul_adkar_white_logo.png',
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.high,
                               gaplessPlayback: true,
                               errorBuilder: (_, __, ___) =>
                                   const Icon(Icons.menu_book, color: Colors.white),
@@ -213,71 +213,19 @@ class ReferenceHome extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Keep the complete institutional lockup: original
-                    // emblem plus BOTH Arabic and English name lines.
-                    // No background rectangle, and no tap/share action.
+                    // Jamia header symbol only; Arabic and English names are
+                    // retained on the About page in the original logo font.
                     Positioned(
-                      left: 760 * scale,
-                      top: mapY(12),
-                      width: 158 * scale,
-                      height: mapY(174) - mapY(12),
-                      child: Semantics(
-                        label: 'جامعة الإمام النووي رضي الله عنه — JAMIA IMAM NAVAVI (RA)',
-                        child: Tooltip(
-                          message: 'جامعة الإمام النووي رضي الله عنه\nJAMIA IMAM NAVAVI (RA)',
-                          child: FittedBox(
-                            fit: BoxFit.contain,
-                            child: SizedBox(
-                              width: 158,
-                              height: 162,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  _TransparentJamiaMark(
-                                    bytes: _jamiaHeaderMark,
-                                    width: 127,
-                                    height: 105,
-                                  ),
-                                  const SizedBox(height: 3),
-                                  const SizedBox(
-                                    width: 156,
-                                    height: 21,
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        'جامعة الإمام النووي رضي الله عنه',
-                                        textDirection: TextDirection.rtl,
-                                        maxLines: 1,
-                                        softWrap: false,
-                                        style: TextStyle(
-                                          color: Color(0xFFFFF4DF),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 156,
-                                    height: 17,
-                                    child: FittedBox(
-                                      fit: BoxFit.scaleDown,
-                                      child: Text(
-                                        'JAMIA IMAM NAVAVI (RA)',
-                                        maxLines: 1,
-                                        softWrap: false,
-                                        style: TextStyle(
-                                          color: Color(0xFFFFF4DF),
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                      left: 765 * scale,
+                      top: mapY(16),
+                      width: 151 * scale,
+                      height: mapY(171) - mapY(16),
+                      child: IgnorePointer(
+                        child: Image.asset(
+                          'assets/images/jamia_symbol_only.png',
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
+                          gaplessPlayback: true,
                         ),
                       ),
                     ),
@@ -302,52 +250,117 @@ class ReferenceHome extends StatelessWidget {
                         label: 'Open ${entries[i].label}',
                         action: () => _open(entries[i].id),
                       ),
-                    // Place institutional credit and About link in the
-                    // existing decorative space below the last tile row.
+                    // Compact two-line university signature, matching the
+                    // exact requested POWERED BY / JAMIA model. An equally
+                    // sized About JAMIA button sits directly below it.
                     Positioned(
                       left: 28 * scale,
                       right: 28 * scale,
                       top: mapY(1339),
-                      bottom: 12 * scale,
-                      child: Center(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                'POWERED BY JAMIA IMAM NAVAVI (RA)',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: const Color(0xFFEBCB84),
-                                  fontSize: (width * 0.028).clamp(10.0, 15.0).toDouble(),
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.35,
+                      bottom: 9 * scale,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Flexible(
+                            child: Container(
+                              width: width * 0.84,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF082747),
+                                borderRadius: BorderRadius.circular(15 * scale),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12 * scale, vertical: 7 * scale,
+                              ),
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Text(
+                                      'P O W E R E D  B Y',
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                        color: Color(0xFFE2EAF0),
+                                        fontSize: 13,
+                                        letterSpacing: 1.4,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    SizedBox(height: 5),
+                                    Text(
+                                      'JAMIA IMAM NAVAVI (RA)',
+                                      maxLines: 1,
+                                      style: TextStyle(
+                                        fontFamily: 'Georgia',
+                                        fontSize: 21,
+                                        color: Color(0xFFE8C784),
+                                        fontWeight: FontWeight.w800,
+                                        shadows: [
+                                          Shadow(color: Color(0xFF19110B),
+                                            blurRadius: 1.5,
+                                            offset: Offset(0.5, 1)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 5),
-                              OutlinedButton(
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                    builder: (_) => const _AboutJamiaScreen(),
-                                  ),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: const Color(0xFFFFE4A2),
-                                  backgroundColor: const Color(0x24051D36),
-                                  side: const BorderSide(color: Color(0x66EBCB84)),
-                                  minimumSize: Size(width * 0.80, 36),
-                                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: const Text('About Jamia',
-                                  style: TextStyle(fontWeight: FontWeight.w600)),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
+                          SizedBox(height: 11 * scale),
+                          SizedBox(
+                            width: width * 0.92,
+                            height: (62 * scale).clamp(33.0, 49.0).toDouble(),
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => const _AboutJamiaScreen(),
+                                ),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFFF3F0E7),
+                                backgroundColor: const Color(0xAA061F3A),
+                                side: const BorderSide(
+                                  color: Color(0xFFAD8958), width: 0.8,
+                                ),
+                                padding: EdgeInsets.zero,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(13),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Text.rich(
+                                    TextSpan(children: [
+                                      TextSpan(text: 'About ',
+                                        style: TextStyle(
+                                          color: Color(0xFFE6E8EB),
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 17,
+                                        )),
+                                      TextSpan(text: 'JAMIA',
+                                        style: TextStyle(
+                                          color: Color(0xFFE5C17B),
+                                          fontFamily: 'Georgia',
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 17,
+                                        )),
+                                    ]),
+                                  ),
+                                  SizedBox(height: 6),
+                                  SizedBox(
+                                    width: 85, height: 1,
+                                    child: ColoredBox(
+                                      color: Color(0xFFD3B170),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -629,38 +642,19 @@ class _AboutJamiaScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Use the same official institution emblem as the home
-                    // header, at a larger size without a background box.
+                    // Exact user-provided Jamia institutional lockup.
+                    // Name lettering is preserved as source-image pixels,
+                    // recolored ivory solely for contrast on this dark card.
                     Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _TransparentJamiaMark(
-                            bytes: ReferenceHome._jamiaHeaderMark,
-                            width: 148,
-                            height: 115,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text(
-                            'جامعة الإمام النووي رضي الله عنه',
-                            textDirection: TextDirection.rtl,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: _ink, fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          const Text(
-                            'JAMIA IMAM NAVAVI (RA)',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: _ink, fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ],
+                      child: Image.asset(
+                        'assets/images/jamia_full_lockup_ivory.png',
+                        width: MediaQuery.sizeOf(context).width < 600
+                            ? 260 : 320,
+                        height: MediaQuery.sizeOf(context).width < 600
+                            ? 260 : 320,
+                        fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                        gaplessPlayback: true,
                       ),
                     ),
                     const SizedBox(height: 20),
