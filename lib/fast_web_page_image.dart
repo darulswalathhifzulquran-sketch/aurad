@@ -38,7 +38,8 @@ class _FastWebPageImageState extends State<FastWebPageImage> {
     // The original dark source has thin light page-edge lines. Hide only
     // those outermost pixels, not the printed page decorations or text.
     image.style.clipPath = (widget.asset.startsWith('assets/quran_pages/') ||
-            widget.asset.startsWith('assets/web_books/dua-4_nov22_page_'))
+            widget.asset.startsWith('assets/web_books/dua-4_nov22_page_') ||
+            widget.asset.startsWith('assets/web_books/baith-1_nov22_page_'))
         ? 'none'
         : (widget.dark ? 'inset(0 1.1% 0 1.1%)' : 'none');
   }
