@@ -75,7 +75,7 @@ class AuradSettingsScreen extends StatelessWidget {
                   child: ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: Icon(Icons.info_outline),
-                    title: Text('AL AURADU'),
+                    title: Text('RIYADUL ADKAR'),
                     subtitle: Text('Islamic reading and devotional library'),
                   ),
                 ),
