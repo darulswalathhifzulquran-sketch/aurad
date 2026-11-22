@@ -98,6 +98,41 @@ class ReferenceHome extends StatelessWidget {
     );
   }
 
+  // The reference home bitmap contains its original menu/share icons.
+  // Blend their covers into the navy header on all four sides.
+  Widget _headerIconCover(Color top, Color bottom) {
+    return IgnorePointer(
+      child: ShaderMask(
+        blendMode: BlendMode.dstIn,
+        shaderCallback: (rect) => const LinearGradient(
+          colors: [Colors.transparent, Colors.white, Colors.white,
+            Colors.transparent],
+          stops: [0, 0.065, 0.935, 1],
+        ).createShader(rect),
+        child: ShaderMask(
+          blendMode: BlendMode.dstIn,
+          shaderCallback: (rect) => const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.white, Colors.white,
+              Colors.transparent],
+            stops: [0, 0.055, 0.945, 1],
+          ).createShader(rect),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [top, bottom],
+              ),
+            ),
+            child: const SizedBox.expand(),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
@@ -193,51 +228,27 @@ class ReferenceHome extends StatelessWidget {
                             ),
                           ),
                         ),
-                    // Institution branding in the decorative arch, below
-                    // the title and above the first row of folder buttons.
-                    // Keep the supplied composition, including both names,
-                    // proportional and entirely visible on every screen.
+                    // The arch below the title is the original artwork.
+                    // Hide the two baked-in header icons using matching,
+                    // softly blended header colors instead of solid boxes.
                     Positioned(
-                      left: 0,
-                      right: 0,
-                      top: mapY(180),
-                      height: mapY(508) - mapY(180),
-                      child: IgnorePointer(
-                        child: Center(
-                          child: ShaderMask(
-                            shaderCallback: (rect) => const LinearGradient(
-                              colors: [
-                                Colors.transparent,
-                                Colors.white,
-                                Colors.white,
-                                Colors.transparent,
-                              ],
-                              stops: [0, 0.07, 0.93, 1],
-                            ).createShader(rect),
-                            blendMode: BlendMode.dstIn,
-                            child: Image.asset(
-                              'assets/images/jamia_home_arch.png',
-                              fit: BoxFit.contain,
-                              filterQuality: FilterQuality.high,
-                              gaplessPlayback: true,
-                              errorBuilder: (_, __, ___) =>
-                                  const SizedBox.shrink(),
-                            ),
-                          ),
-                        ),
+                      left: 32 * scale,
+                      top: mapY(10),
+                      width: 176 * scale,
+                      height: mapY(179) - mapY(10),
+                      child: _headerIconCover(
+                        const Color(0xFF002043),
+                        const Color(0xFF001F3E),
                       ),
                     ),
-                    // The home illustration already includes a bright
-                    // turquoise menu icon. Completely cover that old artwork
-                    // BEFORE drawing the replacement circular Jamia logo.
-                    // Otherwise a cyan/blue square remains behind the logo.
                     Positioned(
-                      left: 40 * scale,
-                      top: mapY(18),
-                      width: 160 * scale,
-                      height: mapY(173) - mapY(18),
-                      child: const ColoredBox(
-                        color: Color(0xFF041A36),
+                      left: 770 * scale,
+                      top: mapY(10),
+                      width: 149 * scale,
+                      height: mapY(179) - mapY(10),
+                      child: _headerIconCover(
+                        const Color(0xFF032447),
+                        const Color(0xFF002040),
                       ),
                     ),
                     Positioned(
@@ -247,17 +258,14 @@ class ReferenceHome extends StatelessWidget {
                       height: mapY(156) - mapY(30),
                       child: Semantics(
                         button: true,
-                        label: 'Jamia Imam Navavi — Open navigation',
+                        label: 'Riyadul Adkar — Open navigation',
                         child: Material(
-                          color: const Color(0xFF041A36),
+                          type: MaterialType.transparency,
                           shape: const CircleBorder(),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(
                             onTap: onMenu,
                             customBorder: const CircleBorder(),
-                            // Supplied logo file includes an empty lower band.
-                            // Top-aligned BoxFit.cover shows the full circular
-                            // emblem, not the empty band below it.
                             child: Image.asset(
                               'assets/images/jamia_navavi_logo.png',
                               fit: BoxFit.cover,
@@ -270,24 +278,18 @@ class ReferenceHome extends StatelessWidget {
                         ),
                       ),
                     ),
-                    // Cover the share glyph baked into the home artwork.
-                    // The institution mark is embedded, so no additional
-                    // asset download is needed for this header replacement.
                     Positioned(
                       left: 780 * scale,
                       top: mapY(18),
                       width: 132 * scale,
                       height: mapY(168) - mapY(18),
-                      child: ColoredBox(
-                        color: const Color(0xFF041A36),
-                        child: Center(
-                          child: Image.memory(
-                            _jamiaHeaderMark,
-                            width: 104 * scale,
-                            height: 104 * scale,
-                            fit: BoxFit.contain,
-                            semanticLabel: 'Jamia Imam Navavi (RA)',
-                          ),
+                      child: Center(
+                        child: Image.memory(
+                          _jamiaHeaderMark,
+                          width: 104 * scale,
+                          height: 104 * scale,
+                          fit: BoxFit.contain,
+                          semanticLabel: 'Jamia Imam Navavi (RA)',
                         ),
                       ),
                     ),
