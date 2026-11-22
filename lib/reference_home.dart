@@ -191,6 +191,40 @@ class ReferenceHome extends StatelessWidget {
                             ),
                           ),
                         ),
+                    // Institution branding in the decorative arch, below
+                    // the title and above the first row of folder buttons.
+                    // Keep the supplied composition, including both names,
+                    // proportional and entirely visible on every screen.
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      top: mapY(180),
+                      height: mapY(508) - mapY(180),
+                      child: IgnorePointer(
+                        child: Center(
+                          child: ShaderMask(
+                            shaderCallback: (rect) => const LinearGradient(
+                              colors: [
+                                Colors.transparent,
+                                Colors.white,
+                                Colors.white,
+                                Colors.transparent,
+                              ],
+                              stops: [0, 0.07, 0.93, 1],
+                            ).createShader(rect),
+                            blendMode: BlendMode.dstIn,
+                            child: Image.asset(
+                              'assets/images/jamia_home_arch.png',
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.high,
+                              gaplessPlayback: true,
+                              errorBuilder: (_, __, ___) =>
+                                  const SizedBox.shrink(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     // The home illustration already includes a bright
                     // turquoise menu icon. Completely cover that old artwork
                     // BEFORE drawing the replacement circular Jamia logo.
