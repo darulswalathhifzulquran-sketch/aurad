@@ -16,7 +16,7 @@ const Map<String, int> kWebBookPageCounts = {
   'swalath-saadha': 1,
   'swalath-3': 2,
   'swalath-4': 1,
-  'dua-4': 3,
+  'dua-4': 5,
   'majlisunnoor-1': 17,
 };
 
@@ -127,7 +127,12 @@ class _WebBookReaderState extends State<WebBookReader>
   }
 
   Widget _pageImage(int page, double width, double height, bool dark) {
-    final file = 'assets/web_books/${widget.item.id}_page_${page.toString().padLeft(4, '0')}.jpg';
+    final number = page.toString().padLeft(4, '0');
+    // Hizbun Nasr: use the five full, lossless page renders of the
+    // newly supplied original PDF, including its own border and numbering.
+    final file = widget.item.id == 'dua-4'
+        ? 'assets/web_books/dua-4_nov22_page_$number.png'
+        : 'assets/web_books/${widget.item.id}_page_$number.jpg';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Center(
