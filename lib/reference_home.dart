@@ -553,16 +553,59 @@ class _AboutJamiaScreen extends StatelessWidget {
     ],
   );
 
-  Widget _contact(IconData icon, String value) => Padding(
+  // Open native phone or email handlers. Calls are never initiated
+  // automatically; the user confirms in their dialer.
+  Future<void> _openContact(
+    BuildContext context,
+    Uri uri,
+    String fallback,
+  ) async {
+    try {
+      if (await launchUrl(uri, mode: LaunchMode.platformDefault)) return;
+    } catch (_) {
+      // Some desktop browsers have no handler for tel: or mailto:.
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cannot open $fallback on this device')),
+      );
+    }
+  }
+
+  Widget _linkedContact(
+    BuildContext context, {
+    required String label,
+    required Uri uri,
+    required String tooltip,
+  }) => Tooltip(
+    message: tooltip,
+    child: InkWell(
+      onTap: () => _openContact(context, uri, label),
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: _ink,
+            fontSize: 14,
+            height: 1.5,
+            decoration: TextDecoration.underline,
+            decorationColor: _gold,
+          ),
+        ),
+      ),
+    ),
+  );
+
+  Widget _contactRow(IconData icon, Widget content) => Padding(
     padding: const EdgeInsets.only(bottom: 14),
     child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, size: 19, color: _gold),
         const SizedBox(width: 10),
-        Expanded(child: SelectableText(value, style: const TextStyle(
-          color: _ink, fontSize: 14, height: 1.65,
-        ))),
+        Expanded(child: content),
       ],
     ),
   );
@@ -606,14 +649,55 @@ class _AboutJamiaScreen extends StatelessWidget {
     ],
   );
 
-  Widget _contacts() => Column(
+  Widget _contacts(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       _heading('Stay in Touch'),
-      _contact(Icons.phone_outlined, '+91 88918 38472\n+91 94943 13786\n+91 62351 39072'),
-      _contact(Icons.mail_outline, 'info@jamiaimamnavavi-ra.com'),
-      _contact(Icons.location_on_outlined,
-        'Venmenad, Pavaratty\nThrissur, Kerala – 680507\nIndia'),
+      _contactRow(
+        Icons.phone_outlined,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _linkedContact(
+              context,
+              label: '+91 88918 38472',
+              uri: Uri(scheme: 'tel', path: '+918891838472'),
+              tooltip: 'Call +91 88918 38472',
+            ),
+            _linkedContact(
+              context,
+              label: '+91 94943 13786',
+              uri: Uri(scheme: 'tel', path: '+919494313786'),
+              tooltip: 'Call +91 94943 13786',
+            ),
+            _linkedContact(
+              context,
+              label: '+91 62351 39072',
+              uri: Uri(scheme: 'tel', path: '+916235139072'),
+              tooltip: 'Call +91 62351 39072',
+            ),
+          ],
+        ),
+      ),
+      _contactRow(
+        Icons.mail_outline,
+        _linkedContact(
+          context,
+          label: 'info@jamiaimamnavavi-ra.com',
+          uri: Uri(
+            scheme: 'mailto',
+            path: 'info@jamiaimamnavavi-ra.com',
+          ),
+          tooltip: 'Compose email to Jamia Imam Navavi (RA)',
+        ),
+      ),
+      _contactRow(
+        Icons.location_on_outlined,
+        const SelectableText(
+          'Venmenad, Pavaratty\nThrissur, Kerala – 680507\nIndia',
+          style: TextStyle(color: _ink, fontSize: 14, height: 1.65),
+        ),
+      ),
     ],
   );
 
@@ -667,7 +751,7 @@ class _AboutJamiaScreen extends StatelessWidget {
                         children: [
                           Expanded(child: _about(context)),
                           const SizedBox(width: 32),
-                          Expanded(child: _contacts()),
+                          Expanded(child: _contacts(context)),
                         ],
                       )
                     : Column(
@@ -675,7 +759,7 @@ class _AboutJamiaScreen extends StatelessWidget {
                         children: [
                           _about(context),
                           const SizedBox(height: 26),
-                          _contacts(),
+                          _contacts(context),
                         ],
                       ),
                     ),
