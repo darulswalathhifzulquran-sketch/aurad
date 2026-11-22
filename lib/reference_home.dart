@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ReferenceHome extends StatelessWidget {
   final ValueChanged<String> onFolder;
@@ -301,6 +302,54 @@ class ReferenceHome extends StatelessWidget {
                         label: 'Open ${entries[i].label}',
                         action: () => _open(entries[i].id),
                       ),
+                    // Place institutional credit and About link in the
+                    // existing decorative space below the last tile row.
+                    Positioned(
+                      left: 28 * scale,
+                      right: 28 * scale,
+                      top: mapY(1339),
+                      bottom: 12 * scale,
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'POWERED BY JAMIA IMAM NAVAVI (RA)',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: const Color(0xFFEBCB84),
+                                  fontSize: (width * 0.028).clamp(10.0, 15.0).toDouble(),
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.35,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              OutlinedButton(
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => const _AboutJamiaScreen(),
+                                  ),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFFFE4A2),
+                                  backgroundColor: const Color(0x24051D36),
+                                  side: const BorderSide(color: Color(0x66EBCB84)),
+                                  minimumSize: Size(width * 0.80, 36),
+                                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text('About Jamia',
+                                  style: TextStyle(fontWeight: FontWeight.w600)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -445,6 +494,161 @@ class _TransparentJamiaMark extends StatelessWidget {
             ? Image.memory(bytes, fit: BoxFit.contain)
             : RawImage(image: snapshot.data, fit: BoxFit.contain,
                 filterQuality: FilterQuality.high),
+      ),
+    ),
+  );
+}
+
+
+/// Institution details, matching the supplied Jamia website footer.
+/// A separate scrollable screen preserves the existing home navigation.
+class _AboutJamiaScreen extends StatelessWidget {
+  const _AboutJamiaScreen();
+
+  static const _gold = Color(0xFFEBCB84);
+  static const _ink = Color(0xFFE5EDF2);
+
+  Future<void> _openWebsite(BuildContext context) async {
+    try {
+      final opened = await launchUrl(
+        Uri.parse('https://jamiaimamnavavi-ra.com/'),
+        mode: LaunchMode.externalApplication,
+        webOnlyWindowName: '_blank',
+      );
+      if (opened) return;
+    } catch (_) {
+      // Leave an accessible failure message rather than a silent tap.
+    }
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(
+          'Unable to open website. Visit jamiaimamnavavi-ra.com',
+        )),
+      );
+    }
+  }
+
+  Widget _heading(String label) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(label, style: const TextStyle(
+        color: _gold, fontSize: 19, fontWeight: FontWeight.w700,
+      )),
+      const SizedBox(height: 12),
+      const SizedBox(width: 42, height: 2, child: ColoredBox(color: _gold)),
+      const SizedBox(height: 14),
+    ],
+  );
+
+  Widget _contact(IconData icon, String value) => Padding(
+    padding: const EdgeInsets.only(bottom: 14),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 19, color: _gold),
+        const SizedBox(width: 10),
+        Expanded(child: SelectableText(value, style: const TextStyle(
+          color: _ink, fontSize: 14, height: 1.65,
+        ))),
+      ],
+    ),
+  );
+
+  Widget _about(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _heading('About Us'),
+      const Text('JAMIA IMAM NAVAVI (RA)', style: TextStyle(
+        color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700,
+      )),
+      const SizedBox(height: 12),
+      const Text(
+        'Advanced Study and Research Centre and Public Charitable Trust',
+        style: TextStyle(color: Color(0xFFBFCBD3), fontSize: 15, height: 1.5),
+      ),
+      const SizedBox(height: 12),
+      const Text(
+        'Bridging traditional Islamic knowledge and modern technology, with a commitment to faith, education and innovation.',
+        style: TextStyle(color: _ink, fontSize: 15, height: 1.5),
+      ),
+      const SizedBox(height: 8),
+      TextButton.icon(
+        onPressed: () => _openWebsite(context),
+        style: TextButton.styleFrom(
+          foregroundColor: _gold,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+        ),
+        icon: const Icon(Icons.language, size: 18),
+        label: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Official Website', style: TextStyle(
+              decoration: TextDecoration.underline,
+            )),
+            SizedBox(width: 6),
+            Icon(Icons.open_in_new, size: 15),
+          ],
+        ),
+      ),
+    ],
+  );
+
+  Widget _contacts() => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _heading('Stay in Touch'),
+      _contact(Icons.phone_outlined, '+91 88918 38472\n+91 94943 13786\n+91 62351 39072'),
+      _contact(Icons.mail_outline, 'info@jamiaimamnavavi-ra.com'),
+      _contact(Icons.location_on_outlined,
+        'Venmenad, Pavaratty\nThrissur, Kerala – 680507\nIndia'),
+    ],
+  );
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: const Color(0xFF071A2C),
+    appBar: AppBar(
+      backgroundColor: const Color(0xFF061C36),
+      foregroundColor: _gold,
+      title: const Text('About Jamia'),
+    ),
+    body: SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 850),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: const Color(0xFF0B1B25),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0x33EBCB84)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: LayoutBuilder(
+                  builder: (context, constraints) => constraints.maxWidth >= 640
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: _about(context)),
+                          const SizedBox(width: 32),
+                          Expanded(child: _contacts()),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _about(context),
+                          const SizedBox(height: 26),
+                          _contacts(),
+                        ],
+                      ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     ),
   );
