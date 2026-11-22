@@ -1,4 +1,8 @@
 import 'dart:convert';
+import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 
 class ReferenceHome extends StatelessWidget {
@@ -98,41 +102,6 @@ class ReferenceHome extends StatelessWidget {
     );
   }
 
-  // The reference home bitmap contains its original menu/share icons.
-  // Blend their covers into the navy header on all four sides.
-  Widget _headerIconCover(Color top, Color bottom) {
-    return IgnorePointer(
-      child: ShaderMask(
-        blendMode: BlendMode.dstIn,
-        shaderCallback: (rect) => const LinearGradient(
-          colors: [Colors.transparent, Colors.white, Colors.white,
-            Colors.transparent],
-          stops: [0, 0.065, 0.935, 1],
-        ).createShader(rect),
-        child: ShaderMask(
-          blendMode: BlendMode.dstIn,
-          shaderCallback: (rect) => const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.transparent, Colors.white, Colors.white,
-              Colors.transparent],
-            stops: [0, 0.055, 0.945, 1],
-          ).createShader(rect),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [top, bottom],
-              ),
-            ),
-            child: const SizedBox.expand(),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
@@ -188,12 +157,7 @@ class ReferenceHome extends StatelessWidget {
                   children: [
                     if (!segmented)
                       Positioned.fill(
-                        child: Image.asset(
-                          imagePath,
-                          fit: BoxFit.fill,
-                          gaplessPlayback: true,
-                          errorBuilder: (_, __, ___) => _missingArtwork(scale),
-                        ),
+                        child: _CleanHomeArtwork(fallback: _missingArtwork(scale)),
                       )
                     else
                       for (var k = 0; k < cuts.length - 1; k++)
@@ -215,42 +179,12 @@ class ReferenceHome extends StatelessWidget {
                                   height: originalHeight *
                                       (mapped[k + 1] - mapped[k]) /
                                       (cuts[k + 1] - cuts[k]),
-                                  child: Image.asset(
-                                    imagePath,
-                                    fit: BoxFit.fill,
-                                    filterQuality: FilterQuality.high,
-                                    gaplessPlayback: true,
-                                    errorBuilder: (_, __, ___) =>
-                                        _missingArtwork(scale),
-                                  ),
+                                  child: _CleanHomeArtwork(fallback: _missingArtwork(scale)),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                    // The arch below the title is the original artwork.
-                    // Hide the two baked-in header icons using matching,
-                    // softly blended header colors instead of solid boxes.
-                    Positioned(
-                      left: 32 * scale,
-                      top: mapY(10),
-                      width: 176 * scale,
-                      height: mapY(179) - mapY(10),
-                      child: _headerIconCover(
-                        const Color(0xFF002043),
-                        const Color(0xFF001F3E),
-                      ),
-                    ),
-                    Positioned(
-                      left: 770 * scale,
-                      top: mapY(10),
-                      width: 149 * scale,
-                      height: mapY(179) - mapY(10),
-                      child: _headerIconCover(
-                        const Color(0xFF032447),
-                        const Color(0xFF002040),
-                      ),
-                    ),
                     Positioned(
                       left: 56 * scale,
                       top: mapY(30),
@@ -284,12 +218,11 @@ class ReferenceHome extends StatelessWidget {
                       width: 132 * scale,
                       height: mapY(168) - mapY(18),
                       child: Center(
-                        child: Image.memory(
-                          _jamiaHeaderMark,
+                        child: _TransparentJamiaMark(
+                          bytes: _jamiaHeaderMark,
                           width: 104 * scale,
                           height: 104 * scale,
-                          fit: BoxFit.contain,
-                          semanticLabel: 'Jamia Imam Navavi (RA)',
+
                         ),
                       ),
                     ),
@@ -330,4 +263,135 @@ class _HomeEntry {
   final String label;
 
   const _HomeEntry(this.id, this.label);
+}
+
+// Clean the old, baked-in icons from the actual artwork, once per app
+// session. Reconstruct the navy pixels using the original image at each
+// edge of the erased region. No colored rectangular widgets are drawn.
+class _CleanHomeArtwork extends StatelessWidget {
+  final Widget fallback;
+  const _CleanHomeArtwork({required this.fallback});
+  static Future<ui.Image>? _cached;
+
+  static Future<ui.Image> _prepare() async {
+    final data = await rootBundle.load(ReferenceHome.imagePath);
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    );
+    final original = (await codec.getNextFrame()).image;
+    codec.dispose();
+    final pixels = await original.toByteData(
+      format: ui.ImageByteFormat.rawRgba,
+    );
+    if (pixels == null) return original;
+    final w = original.width;
+    final h = original.height;
+    final rgba = Uint8List.fromList(pixels.buffer.asUint8List(
+      pixels.offsetInBytes, pixels.lengthInBytes,
+    ));
+    // Only the menu and former share symbol are erased. The Arabic
+    // title, three-dot menu, arch, and twelve tiles remain untouched.
+    for (final range in const [[18.0, 218.0], [758.0, 920.0]]) {
+      final left = (range[0] * w / 1024).round().clamp(1, w - 2).toInt();
+      final right = (range[1] * w / 1024).round().clamp(left + 1, w - 1).toInt();
+      final yStart = (4 * h / 1536).round();
+      final yEnd = (178 * h / 1536).round().clamp(yStart + 1, h).toInt();
+      final fade = (8 * h / 1536).clamp(1.0, double.infinity).toDouble();
+      for (var y = yStart; y < yEnd; y++) {
+        final blend = ((y - yStart) / fade)
+            .clamp(0.0, 1.0).toDouble() *
+            ((yEnd - 1 - y) / fade).clamp(0.0, 1.0).toDouble();
+        final lo = (y * w + left - 1) * 4;
+        final hi = (y * w + right) * 4;
+        for (var x = left; x < right; x++) {
+          final t = (x - left + 1) / (right - left + 1);
+          final ix = (y * w + x) * 4;
+          for (var channel = 0; channel < 3; channel++) {
+            final color = rgba[lo + channel] * (1 - t) +
+                rgba[hi + channel] * t;
+            rgba[ix + channel] = (rgba[ix + channel] * (1 - blend) +
+                color * blend).round().clamp(0, 255).toInt();
+          }
+        }
+      }
+    }
+    final completer = Completer<ui.Image>();
+    ui.decodeImageFromPixels(
+      rgba, w, h, ui.PixelFormat.rgba8888, completer.complete,
+    );
+    final cleaned = await completer.future;
+    original.dispose();
+    return cleaned;
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<ui.Image>(
+    future: _cached ??= _prepare(),
+    builder: (context, snapshot) {
+      if (snapshot.hasError) return fallback;
+      final image = snapshot.data;
+      if (image == null) return const ColoredBox(color: Color(0xFF041A36));
+      return RawImage(image: image, fit: BoxFit.fill,
+        filterQuality: FilterQuality.high);
+    },
+  );
+}
+
+// Preserve the teal, gray and gold Jamia emblem, removing only the
+// dark blue pixels from the embedded mark itself, if any survived.
+class _TransparentJamiaMark extends StatelessWidget {
+  final Uint8List bytes;
+  final double width;
+  final double height;
+  const _TransparentJamiaMark({
+    required this.bytes, required this.width, required this.height,
+  });
+  static Future<ui.Image>? _cached;
+
+  Future<ui.Image> _prepare() async {
+    final codec = await ui.instantiateImageCodec(bytes);
+    final original = (await codec.getNextFrame()).image;
+    codec.dispose();
+    final data = await original.toByteData(format: ui.ImageByteFormat.rawStraightRgba);
+    if (data == null) return original;
+    final rgba = Uint8List.fromList(data.buffer.asUint8List(
+      data.offsetInBytes, data.lengthInBytes,
+    ));
+    for (var i = 0; i < rgba.length; i += 4) {
+      final r = rgba[i], g = rgba[i + 1], b = rgba[i + 2];
+      if (b > g + 4 && r < 35 && g < 80) {
+        rgba[i] = 0;
+        rgba[i + 1] = 0;
+        rgba[i + 2] = 0;
+        rgba[i + 3] = 0;
+      } else {
+        final alpha = rgba[i + 3] / 255;
+        rgba[i] = (r * alpha).round();
+        rgba[i + 1] = (g * alpha).round();
+        rgba[i + 2] = (b * alpha).round();
+      }
+    }
+    final completer = Completer<ui.Image>();
+    ui.decodeImageFromPixels(rgba, original.width, original.height,
+      ui.PixelFormat.rgba8888, completer.complete);
+    final clean = await completer.future;
+    original.dispose();
+    return clean;
+  }
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    image: true,
+    label: 'Jamia Imam Navavi (RA)',
+    child: SizedBox(
+      width: width, height: height,
+      child: FutureBuilder<ui.Image>(
+        future: _cached ??= _prepare(),
+        builder: (context, snapshot) => snapshot.data == null
+            ? Image.memory(bytes, fit: BoxFit.contain)
+            : RawImage(image: snapshot.data, fit: BoxFit.contain,
+                filterQuality: FilterQuality.high),
+      ),
+    ),
+  );
 }
