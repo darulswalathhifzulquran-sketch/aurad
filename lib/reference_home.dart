@@ -626,7 +626,47 @@ class _AboutJamiaScreen extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
-                child: LayoutBuilder(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Use the same official institution emblem as the home
+                    // header, at a larger size without a background box.
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _TransparentJamiaMark(
+                            bytes: ReferenceHome._jamiaHeaderMark,
+                            width: 148,
+                            height: 115,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'جامعة الإمام النووي رضي الله عنه',
+                            textDirection: TextDirection.rtl,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _ink, fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          const Text(
+                            'JAMIA IMAM NAVAVI (RA)',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _ink, fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(color: Color(0x33EBCB84)),
+                    const SizedBox(height: 16),
+                    LayoutBuilder(
                   builder: (context, constraints) => constraints.maxWidth >= 640
                     ? Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -644,6 +684,8 @@ class _AboutJamiaScreen extends StatelessWidget {
                           _contacts(),
                         ],
                       ),
+                    ),
+                  ],
                 ),
               ),
             ),
