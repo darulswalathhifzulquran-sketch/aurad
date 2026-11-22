@@ -77,7 +77,7 @@ class _AuradBootstrapState extends State<AuradBootstrap> {
                           ),
                           const SizedBox(height: 8),
                           const Text(
-                            'AL AURADU',
+                            'RIYADUL ADKAR',
                             style: TextStyle(
                               letterSpacing: 2,
                               fontWeight: FontWeight.w700,
