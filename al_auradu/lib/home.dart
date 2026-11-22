@@ -291,7 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             Text(
-                              'AL AURADU',
+                              'RIYADUL ADKAR',
                               style: TextStyle(
                                 color: AuradColors.secondaryText(context),
                                 fontSize: 12,
