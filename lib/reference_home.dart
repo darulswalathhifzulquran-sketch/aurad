@@ -212,17 +212,71 @@ class ReferenceHome extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // Keep the complete institutional lockup: original
+                    // emblem plus BOTH Arabic and English name lines.
+                    // No background rectangle, and no tap/share action.
                     Positioned(
-                      left: 780 * scale,
-                      top: mapY(18),
-                      width: 132 * scale,
-                      height: mapY(168) - mapY(18),
-                      child: Center(
-                        child: _TransparentJamiaMark(
-                          bytes: _jamiaHeaderMark,
-                          width: 104 * scale,
-                          height: 104 * scale,
-
+                      left: 760 * scale,
+                      top: mapY(12),
+                      width: 158 * scale,
+                      height: mapY(174) - mapY(12),
+                      child: Semantics(
+                        label: 'جامعة الإمام النووي رضي الله عنه — JAMIA IMAM NAVAVI (RA)',
+                        child: Tooltip(
+                          message: 'جامعة الإمام النووي رضي الله عنه\nJAMIA IMAM NAVAVI (RA)',
+                          child: FittedBox(
+                            fit: BoxFit.contain,
+                            child: SizedBox(
+                              width: 158,
+                              height: 162,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _TransparentJamiaMark(
+                                    bytes: _jamiaHeaderMark,
+                                    width: 127,
+                                    height: 105,
+                                  ),
+                                  const SizedBox(height: 3),
+                                  const SizedBox(
+                                    width: 156,
+                                    height: 21,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        'جامعة الإمام النووي رضي الله عنه',
+                                        textDirection: TextDirection.rtl,
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        style: TextStyle(
+                                          color: Color(0xFFFFF4DF),
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 156,
+                                    height: 17,
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      child: Text(
+                                        'JAMIA IMAM NAVAVI (RA)',
+                                        maxLines: 1,
+                                        softWrap: false,
+                                        style: TextStyle(
+                                          color: Color(0xFFFFF4DF),
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
