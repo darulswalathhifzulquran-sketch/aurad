@@ -70,8 +70,13 @@ Widget itemTile(BuildContext context, Item it) {
           }
         },
         child: Container(
-          constraints: const BoxConstraints(minHeight: 76),
-          padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+          width: double.infinity,
+          constraints: isJuz
+              ? const BoxConstraints.tightFor(height: 76)
+              : const BoxConstraints(minHeight: 76),
+          padding: EdgeInsets.symmetric(
+            horizontal: isJuz ? 9 : 13, vertical: 9,
+          ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(19),
             border: Border.all(color: const Color(0xFF0868AF), width: 1.15),
@@ -96,22 +101,41 @@ Widget itemTile(BuildContext context, Item it) {
                     ),
                   ),
                 ),
-                const SizedBox(width: 13),
+                SizedBox(width: isJuz ? 8 : 13),
               ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(english,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Color(0xFFFFF4DF),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                    if (isJuz)
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            english,
+                            maxLines: 1,
+                            softWrap: false,
+                            style: const TextStyle(
+                              color: Color(0xFFFFF4DF),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      Text(english,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFFFFF4DF),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
                     if (quranPage != null)
                       Text('Page ' + quranPage.toString(),
                         style: const TextStyle(
@@ -127,19 +151,37 @@ Widget itemTile(BuildContext context, Item it) {
                 Expanded(
                   child: Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      arabic,
-                      textDirection: TextDirection.rtl,
-                      textAlign: TextAlign.right,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontFamily: kArabicFont,
-                        fontFamilyFallback: kFontFallback,
-                        color: Color(0xFFFFF4DF),
-                        fontSize: 26,
-                      ),
-                    ),
+                    child: isJuz
+                        ? FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              arabic,
+                              textDirection: TextDirection.rtl,
+                              textAlign: TextAlign.right,
+                              maxLines: 1,
+                              softWrap: false,
+                              style: const TextStyle(
+                                fontFamily: kArabicFont,
+                                fontFamilyFallback: kFontFallback,
+                                color: Color(0xFFFFF4DF),
+                                fontSize: 26,
+                              ),
+                            ),
+                          )
+                        : Text(
+                            arabic,
+                            textDirection: TextDirection.rtl,
+                            textAlign: TextAlign.right,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: kArabicFont,
+                              fontFamilyFallback: kFontFallback,
+                              color: Color(0xFFFFF4DF),
+                              fontSize: 26,
+                            ),
+                          ),
                   ),
                 ),
               ],
